@@ -6,6 +6,7 @@
 ## Things to do next week: TODO
 - write a backward blast result processing script --> integrate available scripts
 - integrate BioPython or another software package to process the accession IDs in order to get taxon specifications --> integrate available scripts
+- the docker IMAGE is too big (2.38 GB), choose a diverent base image, delete not used packages
 - test available pipeline with less time
 
 ## snakemake, miniconda and BLAST in a docker container
