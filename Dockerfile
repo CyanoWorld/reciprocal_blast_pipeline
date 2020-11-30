@@ -4,8 +4,6 @@
 
 FROM ubuntu:focal
 
-MAINTAINER Lukas Becker
-
 # Download and install required software
 RUN apt-get update -y && apt-get upgrade -y && apt-get install curl -y && apt-get install wget bzip2 -y
 RUN mkdir /opt/blast
