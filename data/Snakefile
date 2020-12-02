@@ -1,6 +1,6 @@
 rule all:
 	input:
-		"backward_blastp_output.csv"
+		"backward_blast_output.csv"
 		
 rule make_forward_database:
 	input: "forward_genome/human_protein_db.faa"
@@ -10,12 +10,12 @@ rule make_forward_database:
 		
 rule forward_blast:
 	input: query="query_sequences/input_forward.faa", db="forward_genome/database/human_protein_db.faa"
-	output: "forward_blastp_output.csv"
+	output: "forward_blast_output.csv"
 	shell:
 		"blastp -db {input.db} -query {input.query} -word_size 3 -evalue 0.001 -num_alignments 10000 -outfmt 10 -out {output}"
 
 rule get_backward_sequences:
-	input: "forward_blastp_output.csv"
+	input: "forward_blast_output.csv"
 	output: "query_sequences/input_backward.faa"
 	script:
 		"process_fw_blast_results.py"
@@ -28,6 +28,6 @@ rule make_backward_database:
 		
 rule backward_blast:
 	input: query="query_sequences/input_backward.faa",db="backward_genome/database/mouse_protein_db.faa"
-	output: "backward_blastp_output.csv"
+	output: "backward_blast_output.csv"
 	shell:
 		"blastp -db {input.db} -query {input.query} -word_size 3 -evalue 0.001 -num_alignments 1 -outfmt 10 -out {output}"
