@@ -40,5 +40,8 @@ RUN conda install -c bioconda snakemake
 # Folder for volume binding
 RUN mkdir /data
 
+# Delete not required packages etc..
+RUN apt-get autoremove --purge --yes && apt-get clean && rm -rf /var/lib/apt/lists/*
+
 # Optional commands e.g. initiating scripts 
 CMD ["bash"]

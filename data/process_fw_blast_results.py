@@ -1,7 +1,7 @@
 import pandas as pd
 import itertools as it
 
-forward_df = pd.read_csv('forward_blastp_output.csv',delimiter=',',header=None)
+forward_df = pd.read_csv('forward_blast_output.csv',delimiter=',',header=None)
 
 def get_seq_match_dict_and_flat_list(df):
     #extract protein identifier for matches: key=protein identifier for forward_input_sequences
@@ -50,4 +50,4 @@ def write_file_for_backward_blast_based_on_matches_of_forward_blast(path_to_forw
     backward_input.close()
     
 seq_matches_forward_dict,forward_matches = get_seq_match_dict_and_flat_list(forward_df)
-write_file_for_backward_blast_based_on_matches_of_forward_blast('./forward_genome/database/human_protein_db.faa',forward_matches)
+write_file_for_backward_blast_based_on_matches_of_forward_blast('./forward_genome/database/fw_prot_db.faa',forward_matches)

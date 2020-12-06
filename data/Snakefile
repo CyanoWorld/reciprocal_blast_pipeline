@@ -1,15 +1,15 @@
 rule all:
 	input:
-		"backward_blast_output.csv"
+		"reciprocal_best_hits_protein_ids.txt"
 		
 rule make_forward_database:
-	input: "forward_genome/human_protein_db.faa"
-	output: "forward_genome/database/human_protein_db.faa"
+	input: "forward_genome/fw_prot_db.faa"
+	output: "forward_genome/database/fw_prot_db.faa"
 	shell:
-		"makeblastdb -in {input} -dbtype prot -out forward_genome/database/human_protein_db.faa && mv {input} forward_genome/database/"
+		"makeblastdb -in {input} -dbtype prot -out forward_genome/database/fw_prot_db.faa && mv {input} forward_genome/database/"
 		
 rule forward_blast:
-	input: query="query_sequences/input_forward.faa", db="forward_genome/database/human_protein_db.faa"
+	input: query="query_sequences/input_forward.faa", db="forward_genome/database/fw_prot_db.faa"
 	output: "forward_blast_output.csv"
 	shell:
 		"blastp -db {input.db} -query {input.query} -word_size 3 -evalue 0.001 -num_alignments 10000 -outfmt 10 -out {output}"
@@ -21,13 +21,19 @@ rule get_backward_sequences:
 		"process_fw_blast_results.py"
 		
 rule make_backward_database:
-	input: "backward_genome/mouse_protein_db.faa"
-	output: "backward_genome/database/mouse_protein_db.faa"
+	input: "backward_genome/bw_prot_db.faa"
+	output: "backward_genome/database/bw_prot_db.faa"
 	shell:
-		"makeblastdb -in {input} -dbtype prot -out backward_genome/database/mouse_protein_db.faa && mv {input} backward_genome/database/"
+		"makeblastdb -in {input} -dbtype prot -out backward_genome/database/bw_prot_db.faa && mv {input} backward_genome/database/"
 		
 rule backward_blast:
-	input: query="query_sequences/input_backward.faa",db="backward_genome/database/mouse_protein_db.faa"
+	input: query="query_sequences/input_backward.faa",db="backward_genome/database/bw_prot_db.faa"
 	output: "backward_blast_output.csv"
 	shell:
 		"blastp -db {input.db} -query {input.query} -word_size 3 -evalue 0.001 -num_alignments 1 -outfmt 10 -out {output}"
+
+rule get_reciprocal_best_hits_protein_ids:
+	input: 'backward_blast_output.csv','forward_blast_output.csv'
+	output: 'reciprocal_best_hits_protein_ids.txt'
+	script:
+		'extract_valid_accession_ids_from_blast_results.py'
