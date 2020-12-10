@@ -18,11 +18,10 @@ def extract_reciprocal_best_hits_and_return_protein_ids(seq_matches_backward_dic
         for forward_value in seq_matches_forward_dict[forward_key]:
             if forward_value in seq_matches_backward_dict.keys():
                 if forward_key in seq_matches_backward_dict[forward_value]:
+                    print("[+] human: ",forward_value,"[+] mouse: ", seq_matches_backward_dict[forward_value])
                     result_set.append([forward_value,seq_matches_backward_dict[forward_value]])
     return result_set
     
-
-
 forward_df = pd.read_csv('forward_blast_output.csv',delimiter=',',header=None)
 backward_df = pd.read_csv('backward_blast_output.csv',delimiter=',',header=None)
 
@@ -34,5 +33,5 @@ best_hits = extract_reciprocal_best_hits_and_return_protein_ids(seq_matches_back
 out = open('reciprocal_best_hits_protein_ids.txt','w')
 out.write('forward_genome_id\tbackward_genome_id\n')
 for prot_id_pair in best_hits:
-	out.write(str(prot_id_pair[0])+'\t'+str(prot_id_pair[1][0])+'\n')
+	out.write(str(prot_id_pair[0])+'\t'+str(prot_id_pair[1])+'\n')
 out.close()

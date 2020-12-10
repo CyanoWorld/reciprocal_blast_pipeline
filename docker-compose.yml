@@ -1,0 +1,20 @@
+version: "3.8"
+   
+services:
+  db:
+    image: postgres
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+  web:
+    build: .
+    command:  bash -c "python manage.py migrate && python manage.py makemigrations && python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
+    volumes:
+      - F:\programming\docker_projects\docker_django_snakemake_blast\data:/blast/media
+      - F:\programming\docker_projects\docker_django_snakemake_blast\tmp:/blast/tmp
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+

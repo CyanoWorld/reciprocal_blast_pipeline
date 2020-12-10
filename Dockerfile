@@ -37,8 +37,10 @@ RUN conda config --add channels conda-forge
 # Download and install snakemake via the bioconda channel
 RUN conda install -c bioconda snakemake
 
-# Folder for volume binding
-RUN mkdir /data
+# Set-up django and postgres packages
+COPY requirements.txt /blast/
+RUN pip install -r requirements.txt 
+COPY /reciprocal_blast /blast/
 
 # Delete not required packages etc..
 RUN apt-get autoremove --purge --yes && apt-get clean && rm -rf /var/lib/apt/lists/*
