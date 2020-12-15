@@ -1,39 +1,40 @@
 rule all:
 	input:
 		"reciprocal_best_hits_protein_ids.txt"
-		
+
 rule make_forward_database:
 	input: "forward_genome/fw_prot_db.faa"
-	output: "forward_genome/database/fw_prot_db.faa"
-	shell:
-		"makeblastdb -in {input} -dbtype prot -out forward_genome/database/fw_prot_db.faa && mv {input} forward_genome/database/"
-		
+	output: "forward_genome/fw_prot_db.pdb"
+	params: blast_out="forward_genome/fw_prot_db"
+	shell: "makeblastdb -in {input} -dbtype prot -out {params.blast_out}"
+
 rule forward_blast:
-	input: query="query_sequences/input_forward.faa", db="forward_genome/database/fw_prot_db.faa"
+	input: query="query_sequences/input_forward.faa", db="forward_genome/fw_prot_db.pdb"
 	output: "forward_blast_output.csv"
-	shell:
-		"blastp -db {input.db} -query {input.query} -word_size 3 -evalue 0.001 -num_alignments 10000 -outfmt 10 -out {output}"
+	params: blast_in="forward_genome/fw_prot_db.faa"
+	shell: "blastp -db {params.blast_in} -query {input.query}  -outfmt 10 -word_size 3 -evalue 0.001000000000000 -num_alignments 10000 -out {output} "
 
 rule get_backward_sequences:
-	input: "forward_blast_output.csv"
+	input: blast_results="forward_blast_output.csv", fw_genome="forward_genome/fw_prot_db.faa"
 	output: "query_sequences/input_backward.faa"
-	script:
+	script: 
 		"process_fw_blast_results.py"
-		
+
 rule make_backward_database:
 	input: "backward_genome/bw_prot_db.faa"
-	output: "backward_genome/database/bw_prot_db.faa"
-	shell:
-		"makeblastdb -in {input} -dbtype prot -out backward_genome/database/bw_prot_db.faa && mv {input} backward_genome/database/"
-		
-rule backward_blast:
-	input: query="query_sequences/input_backward.faa",db="backward_genome/database/bw_prot_db.faa"
-	output: "backward_blast_output.csv"
-	shell:
-		"blastp -db {input.db} -query {input.query} -word_size 3 -evalue 0.001 -num_alignments 1 -outfmt 10 -out {output}"
+	output: "backward_genome/bw_prot_db.pdb"
+	params: blast_out="backward_genome/bw_prot_db"
+	shell: "makeblastdb -in {input} -dbtype prot -out {params.blast_out}"
 
-rule get_reciprocal_best_hits_protein_ids:
-	input: 'backward_blast_output.csv','forward_blast_output.csv'
-	output: 'reciprocal_best_hits_protein_ids.txt'
-	script:
-		'extract_valid_accession_ids_from_blast_results.py'
+rule backward_blast:
+	input: query="query_sequences/input_backward.faa", db="backward_genome/bw_prot_db.pdb"
+	output: "backward_blast_output.csv"
+	params: blast_in="backward_genome/bw_prot_db.faa"
+	shell: "blastp -db {params.blast_in} -query {input.query}  -outfmt 10 -word_size 3 -evalue 0.001000000000000 -num_alignments 1 -out {output} "
+
+rule get_reciprocal_best_hits_proteins_ids:
+	input: bw_result="backward_blast_output.csv", fw_result="forward_blast_output.csv"
+	output: "reciprocal_best_hits_protein_ids.txt"
+	script: 
+		"extract_valid_accession_ids_from_blast_results.py"
+
