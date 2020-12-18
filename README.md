@@ -1,9 +1,14 @@
 # reciprocal_blast_pipeline
 
 ## Things to do next week: TODO
+- webinterface in relevant branch
+- integrate the whole nr database into the webinterface
+- refactoring of the webinterface
 - integrate BioPython or another software package to process the accession IDs in order to get taxon specifications --> integrate available scripts
-- the docker IMAGE is still too big even after deleting update lists etc.. (2.38 GB --> 2.37 GB) 
-- try to integrate webinterface
+
+## snakemake, miniconda, BLAST, django and postgres in a docker container
+Edit the docker-compose.yml file with right file paths to volumes. Start the network container with:
+`docker-compose up`. Keep in mind, if you delete the containers with `docker-compose down` all data in the volume folders will be lost.
 
 ## snakemake, miniconda and BLAST in a docker container
 Build the docker image with:
