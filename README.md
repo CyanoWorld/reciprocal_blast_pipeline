@@ -6,7 +6,7 @@
 - refactoring of the webinterface
 - integrate BioPython or another software package to process the accession IDs in order to get taxon specifications --> integrate available scripts
 - use snakemake configuration: https://snakemake.readthedocs.io/en/stable/snakefiles/configuration.html
-
+- configure working directory in snakefile, so that the file has not to be copied into every project
 ## snakemake, miniconda, BLAST, django and postgres in a docker container
 Edit the docker-compose.yml file with right file paths to volumes. Start the network container with:
 `docker-compose up`. Keep in mind, if you delete the containers with `docker-compose down` all data in the volume folders will be lost.

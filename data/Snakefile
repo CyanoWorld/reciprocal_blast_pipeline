@@ -11,9 +11,9 @@ rule make_forward_database:
 	shell: "makeblastdb -in {input} -dbtype prot -out {params.blast_out}"
 
 rule forward_blast:
-	input: query="query_sequences/input_forward.faa", db="forward_genome/fw_prot_db.faa.pdb"
+	input: query=config['query_seq'], db=config['fw_db']+".pdb"
 	output: "forward_blast_output.csv"
-	params: blast_in="forward_genome/fw_prot_db.faa"
+	params: blast_in=config['fw_db']
 	shell: "blastp -db {params.blast_in} -query {input.query}  -outfmt 10 -word_size 3 -evalue 0.001000000000000 -num_alignments 10000 -out {output} "
 
 rule get_backward_sequences:
@@ -23,9 +23,9 @@ rule get_backward_sequences:
 		"process_fw_blast_results.py"
 
 rule make_backward_database:
-	input: "backward_genome/bw_prot_db.faa"
-	output: "backward_genome/bw_prot_db.faa.pdb"
-	params: blast_out="backward_genome/bw_prot_db.faa"
+	input: config['bw_db']
+	output: config['bw_db']+'.pdb'
+	params: blast_out=config['bw_db']
 	shell: "makeblastdb -in {input} -dbtype prot -out {params.blast_out}"
 
 rule backward_blast:
