@@ -1,15 +1,17 @@
+configfile: "C:/Users/lujeb/Documents/github_projects/reciprocal_blast_pipeline/data/snakemake_config"
+
 rule all:
 	input:
 		"reciprocal_best_hits_protein_ids.txt"
 
 rule make_forward_database:
-	input: "forward_genome/fw_prot_db.faa"
-	output: "forward_genome/fw_prot_db.pdb"
-	params: blast_out="forward_genome/fw_prot_db"
+	input: config['fw_db']
+	output: config['fw_db']+'.pdb'
+	params: blast_out=config['fw_db']
 	shell: "makeblastdb -in {input} -dbtype prot -out {params.blast_out}"
 
 rule forward_blast:
-	input: query="query_sequences/input_forward.faa", db="forward_genome/fw_prot_db.pdb"
+	input: query="query_sequences/input_forward.faa", db="forward_genome/fw_prot_db.faa.pdb"
 	output: "forward_blast_output.csv"
 	params: blast_in="forward_genome/fw_prot_db.faa"
 	shell: "blastp -db {params.blast_in} -query {input.query}  -outfmt 10 -word_size 3 -evalue 0.001000000000000 -num_alignments 10000 -out {output} "
@@ -22,12 +24,12 @@ rule get_backward_sequences:
 
 rule make_backward_database:
 	input: "backward_genome/bw_prot_db.faa"
-	output: "backward_genome/bw_prot_db.pdb"
-	params: blast_out="backward_genome/bw_prot_db"
+	output: "backward_genome/bw_prot_db.faa.pdb"
+	params: blast_out="backward_genome/bw_prot_db.faa"
 	shell: "makeblastdb -in {input} -dbtype prot -out {params.blast_out}"
 
 rule backward_blast:
-	input: query="query_sequences/input_backward.faa", db="backward_genome/bw_prot_db.pdb"
+	input: query="query_sequences/input_backward.faa", db="backward_genome/bw_prot_db.faa.pdb"
 	output: "backward_blast_output.csv"
 	params: blast_in="backward_genome/bw_prot_db.faa"
 	shell: "blastp -db {params.blast_in} -query {input.query}  -outfmt 10 -word_size 3 -evalue 0.001000000000000 -num_alignments 1 -out {output} "

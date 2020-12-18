@@ -1,0 +1,2 @@
+fw_db: "forward_genome/fw_prot_db.faa"
+bw_db: "backward_genome/bw_prot_db.faa"

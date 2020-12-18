@@ -5,6 +5,7 @@
 - integrate the whole nr database into the webinterface
 - refactoring of the webinterface
 - integrate BioPython or another software package to process the accession IDs in order to get taxon specifications --> integrate available scripts
+- use snakemake configuration: https://snakemake.readthedocs.io/en/stable/snakefiles/configuration.html
 
 ## snakemake, miniconda, BLAST, django and postgres in a docker container
 Edit the docker-compose.yml file with right file paths to volumes. Start the network container with:
