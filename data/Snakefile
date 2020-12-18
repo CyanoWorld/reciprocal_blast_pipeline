@@ -1,4 +1,4 @@
-configfile: "C:/Users/lujeb/Documents/github_projects/reciprocal_blast_pipeline/data/snakemake_config"
+configfile: "./snakemake_config"
 
 rule all:
 	input:
