@@ -2,3 +2,11 @@ fw_db: "forward_genome/fw_prot_db.faa"
 bw_db: "backward_genome/bw_prot_db.faa"
 fw_query: "query_sequences/input_forward.faa"
 bw_query: "query_sequences/input_backward.faa"
+
+fw_word_size: 3
+fw_num_alignments: 10000
+fw_evalue: 0.0001
+
+bw_word_size: 3
+bw_num_alignments: 1
+bw_evalue: 0.0001
