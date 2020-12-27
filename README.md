@@ -2,11 +2,13 @@
 
 ## Things to do next week: TODO
 - webinterface in relevant branch
-- integrate the whole nr database into the webinterface
-- refactoring of the webinterface
+- integrate the whole nr database into the webinterface - tried to use the update_blastdb.pl perl script but unfortunatly this was no solution
+- download the nr database from: https://ftp.ncbi.nlm.nih.gov/blast/db/ (maybe write own script to do that automatically ...)
+- refactoring of the genomes model: uploaded genomes could be used multiple times! 
 - integrate BioPython or another software package to process the accession IDs in order to get taxon specifications --> integrate available scripts
-- use snakemake configuration: https://snakemake.readthedocs.io/en/stable/snakefiles/configuration.html
-- configure working directory in snakefile, so that the file has not to be copied into every project
+- add panoptes and pip to docker-container
+- start panoptes via 'panoptes' ensure that sqlite3 is installed
+- add refactored webinterface code to this git-repo currently all refactored files are on a local laptop machine 
 
 ## snakemake, miniconda, BLAST, django and postgres in a docker container
 Edit the docker-compose.yml file with right file paths to volumes. Start the network container with:
