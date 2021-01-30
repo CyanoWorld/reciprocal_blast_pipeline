@@ -17,7 +17,8 @@
                   <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
                       <div class="navbar-nav">
                         <a class="nav-link" href="{% url 'project_creation_based_on_nr_database' %}">Project Creation: Use Local NR Database<span class="sr-only">(current)</span></a>
-                        <a class="nav-link" href="{% url 'species_taxid' %}">Get Species Taxonomic Nodes For NR Database<span class="sr-only">(current)</span></a>
+                        <a class="nav-link" href="{% url 'project_creation_based_on_uploaded_files' %}">Project Creation: Use Previously Uploaded Databases<span class="sr-only">(current)</span></a>
+                          <a class="nav-link" href="{% url 'species_taxid' %}">Get Species Taxonomic Nodes For NR Database<span class="sr-only">(current)</span></a>
                         <a class="nav-link" href="{% url 'logout' %}">Logout</a>
                       </div>
                   </div>
@@ -55,6 +56,10 @@
                      <option value="blastp">blastp</option>
                  </select>
             </div>
+
+        <hr>
+        <p style="font-size: large; font-weight: bold">Upload new database files</p>
+        <hr>
             <div class="form-group">
                 <label for="forward_genome_file">Forward Genome File</label>
                 <input type="file" class="form-control-file" id="forward_genome_file" name="forward_genome_file">
@@ -73,6 +78,7 @@
                     </div>
                 {% endif %}
             </div>
+
             <div class="form-group">
                 <label for="query_sequence_file">Query Sequences</label>
                 <input type="file" class="form-control-file" id="query_sequence_file" name="query_sequence_file">
@@ -82,7 +88,7 @@
                     </div>
                 {% endif %}
             </div>
-
+            <hr>
             <div id="advanced_settings" class="form-group" style="display:none">
                 <p><strong>Settings for Forward Blast:</strong></p>
                 <div class="form-group">

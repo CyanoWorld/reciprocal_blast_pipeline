@@ -9,15 +9,14 @@
         <body>
 
         <!-- navbar-expand-lg -->
-        <nav class="navbar navbar-light" style="background-color: lightskyblue">
+        <nav class="navbar navbar-light bg-light">
             <a class="navbar-brand" href="{% url 'main'%}">Home</a>
                   <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                   </button>
                   <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
                       <div class="navbar-nav">
-                        <a class="nav-link" href="{% url 'project_creation' %}">Project Creation: Upload Specific Genomes<span class="sr-only">(current)</span></a>
-                        <a class="nav-link" href="{% url 'project_creation_based_on_uploaded_files' %}">Project Creation: Use Previously Uploaded Databases<span class="sr-only">(current)</span></a>
+                        <a class="nav-link" href="{% url 'project_creation_based_on_nr_database' %}">Project Creation: Use Local NR Database<span class="sr-only">(current)</span></a>
                         <a class="nav-link" href="{% url 'species_taxid' %}">Get Species Taxonomic Nodes For NR Database<span class="sr-only">(current)</span></a>
                         <a class="nav-link" href="{% url 'logout' %}">Logout</a>
                       </div>
@@ -27,14 +26,14 @@
 
         <div class="header" >
             <hr>
-            <h1 class="text-center">{% block title %} SynMibi Reciprocal BLAST project creation based on nr database {% endblock %}</h1>
+            <h1 class="text-center">{% block title %} SynMibi Reciprocal BLAST project creation based on uploaded databases {% endblock %}</h1>
             <hr>
         </div>
 
         {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
         {% if usage_info %}<p><strong>{{ usage_info }}</strong></p>{% endif %}
 
-     <div class="container-fluid ">
+        <div class="container-fluid ">
         <form method = "POST" enctype="multipart/form-data">
 
             {% csrf_token %}
@@ -42,43 +41,62 @@
             <div class="form-group mr-2">
                 <label for="project_title"> Project Title </label>
                 <input type="text" class="form-control" id="project_title" name="project_title">
-                {% if BlastProjectNrForm.project_title.errors %}
+                {% if BlastProjectUploadedForm.project_title.errors %}
                     <div class="alert alert-danger">
-                        <strong>{{BlastProjectNrForm.project_title.errors}}</strong>
+                        <strong>{{BlastProjectUploadedForm.project_title.errors}}</strong>
                     </div>
                 {% endif %}
             </div>
 
-            <div class="form-group mr-2">
-                <label for="taxid_bw"> Scientific Names (conversion to Taxonomic Nodes) for Backward BLAST (comma separated list)</label>
-                <input type="text" class="form-control" id="taxid_bw" name="taxid_bw">
-                {% if BlastProjectNrForm.taxid_bw.errors %}
-                    <div class="alert alert-danger">
-                        <strong>{{BlastProjectNrForm.taxid_bw.errors}}</strong>
-                    </div>
-                {% endif %}
+             <div class="form-group">
+                <label for="search_strategy">Search Strategy</label>
+                 <select class="form-control" id="search_strategy" name="search_strategy">
+                     <option value="blastn">blastn</option>
+                     <option value="blastp">blastp</option>
+                 </select>
             </div>
 
-            <div class="form-group mr-2">
-                <label for="taxid_fw"> Scientific Names (conversion to Taxonomic Nodes) Forward BLAST (comma separated list)</label>
-                <input type="text" class="form-control" id="taxid_fw" name="taxid_fw">
-                {% if BlastProjectNrForm.taxid_fw.errors %}
+          <hr>
+            <p style="font-size: large; font-weight: bold"><i>Choose from previously uploaded database files</i></p>
+            <hr>
+             <div class="form-group">
+              <label for="forward_genome_file">Select forward database:</label>
+              <select class="form-control" id="forward_genome_file" name="forward_genome_file">
+                  {% for fw_database, option in  BlastProjectUploadedForm.forward_genome_file.field.choices %}
+                        <option value="{{ fw_database }}">{{ fw_database }}</option>
+                  {% endfor %}
+              </select>
+                {% if BlastProjectUploadedForm.forward_genome_file.errors %}
                     <div class="alert alert-danger">
-                        <strong>{{BlastProjectNrForm.taxid_fw.errors}}</strong>
+                        <strong>{{BlastProjectUploadedForm.forward_genome_file.errors}}</strong>
                     </div>
                 {% endif %}
             </div>
+            <div class="form-group">
+              <label for="backward_genome_file">Select backward database:</label>
+              <select class="form-control" id="backward_genome_file" name="backward_genome_file">
+                  {% for bw_database,option in  BlastProjectUploadedForm.backward_genome_file.field.choices %}
+                      <option value="{{ bw_database }}">{{ bw_database }}</option>
+                  {% endfor %}
+              </select>
+                {% if BlastProjectUploadedForm.backward_genome_file.errors %}
+                    <div class="alert alert-danger">
+                        <strong>{{BlastProjectUploadedForm.backward_genome_file.errors}}</strong>
+                    </div>
+                {% endif %}
+            </div>
+            <hr>
 
             <div class="form-group">
                 <label for="query_sequence_file">Query Sequences</label>
                 <input type="file" class="form-control-file" id="query_sequence_file" name="query_sequence_file">
-                {% if BlastProjectNrForm.query_sequence_file.errors %}
+                {% if BlastProjectUploadedForm.query_sequence_file.errors %}
                     <div class="alert alert-danger">
-                        <strong>{{BlastProjectNrForm.query_sequence_file.errors}}</strong>
+                        <strong>{{BlastProjectUploadedForm.query_sequence_file.errors}}</strong>
                     </div>
                 {% endif %}
             </div>
-
+            <hr>
             <div id="advanced_settings" class="form-group" style="display:none">
                 <p><strong>Settings for Forward Blast:</strong></p>
                 <div class="form-group">
@@ -126,7 +144,6 @@
               }
             }
     </script>
-
 
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>

@@ -9,20 +9,22 @@ from shutil import rmtree
 
 #TODO add exceptions and error handling
 #TODO deprecated do deleting while deleting project
+#provides the possibility to delete files if a user has accidently moved files into that directory
 def delete_files_without_projects():
     try:
         all_project_ids = []
         for project in BlastProject.objects.all():
             all_project_ids.append(project.id)
+        #list all projects in media folder except the database folder
         projects_in_media = next(walk('media/'))[1]
-        #print(projects_in_media)
-        #print(all_project_ids)
+        projects_in_media.remove('databases')
+
         for folder in projects_in_media:
             if int(folder) not in all_project_ids:
                 print("[+] removing folder {} ...".format(folder))
                 rmtree('media/'+str(folder))
     except Exception as e:
-        raise ValueError('[-] unable to remove project directory: {} with exception: {}'.format(project_id, e))
+        raise ValueError('[-] unable to remove project directory with exception: {}'.format(e))
 
 #This won't work for some files on windows systems
 def delete_project_files_by_project_id(project_id):
@@ -49,13 +51,19 @@ def save_query_file_in_db(query_sequences, project):
                                          path_to_query_file=uploaded_file_url_queries)
     new_query_sequences.save()
 
+def save_new_genome_file_in_db(genome_file):
+    uploaded_file_url = 'media/databases/'+genome_file.name
+    new_genome_database = Genomes(genome_name=genome_file.name,path_to_file=uploaded_file_url)
+    new_genome_database.save()
+
+
 #function will be executed in the following order
 def create_project_dir(project):
     try:
         mkdir('static/result_images/'+str(project.id))
         mkdir('media/' + str(project.id))
-        mkdir('media/'+str(project.id)+'/forward_genome')
-        mkdir('media/'+str(project.id)+'/backward_genome')
+        #mkdir('media/'+str(project.id)+'/forward_genome')
+        #mkdir('media/'+str(project.id)+'/backward_genome')
         mkdir('media/' + str(project.id) + '/query_sequences')
     except Exception as e:
         raise IntegrityError('[-] A very specific bad thing happened during creation of your project folder: {}'.format(e))
@@ -68,22 +76,22 @@ def create_nr_project_dir(project):
     except Exception as e:
         raise IntegrityError('[-] A very specific bad thing happened during creation of your project folder: {}'.format(e))
 
-def upload_file(project_file,project,destination):
+def upload_file(project_file,destination):
     try:
-        with open('media/'+str(project.id)+'/'+destination+'/'+project_file.name,'wb+') as dest:
+        with open(destination,'wb+') as dest:
             for chunk in project_file.chunks():
                 dest.write(chunk)
     except Exception as e:
         raise IntegrityError('[-] A very specific bad thing happened during file upload of: {} Exception: {}'.format(project_file.name,e))
 
 #TODO url of genome files should be in database
-def save_genomes_and_query_in_db(query_sequences, forward_genome, backward_genome, project):
-    uploaded_file_url_forward = 'media/'+str(project.id)+'/'+forward_genome.name
-    uploaded_file_url_backward = 'media/'+str(project.id)+'/'+backward_genome.name
+def save_genomes_and_query_in_db(query_sequences, forward_genome_name, backward_genome_name, project):
+    uploaded_file_url_forward = 'media/databases/'+forward_genome_name
+    uploaded_file_url_backward = 'media/databases/'+backward_genome_name
     uploaded_file_url_queries = 'media/'+str(project.id)+'/'+query_sequences.name
-    new_forward_genome = Genomes(associated_project=project, genome_name=forward_genome.name,
+    new_forward_genome = Genomes(associated_project=project, genome_name=forward_genome_name,
                              reciprocal_type='forward', path_to_file=uploaded_file_url_forward)
-    new_backward_genome = Genomes(associated_project=project, genome_name=backward_genome.name,
+    new_backward_genome = Genomes(associated_project=project, genome_name=backward_genome_name,
                               reciprocal_type='backward', path_to_file=uploaded_file_url_backward)
     new_query_sequences = QuerySequences(associated_project=project,query_file_name=query_sequences.name,
                                          path_to_query_file=uploaded_file_url_queries)

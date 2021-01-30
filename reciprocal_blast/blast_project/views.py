@@ -13,14 +13,14 @@ from .services import delete_files_without_projects, \
     save_forward_settings_from_form_or_raise_exception, save_backward_settings_from_form_or_raise_exception, \
     set_executed_on_true_and_save_project, save_nr_project_from_form_or_raise_exception, save_query_file_in_db, \
     create_nr_project_dir, validate_fw_taxids_and_save_into_database, snakemake_project_finished,\
-    get_html_results, load_html_graph, validate_bw_taxids_and_save_into_database
+    get_html_results, load_html_graph, validate_bw_taxids_and_save_into_database, save_new_genome_file_in_db
 
 from .biopython_functions import get_species_taxid, get_scientific_name_by_taxid
 
 from .blast_execution import write_snakefile, view_builded_snakefile, snakefile_exists,\
     exec_snakemake, write_nr_snakefile, read_snakemake_logs
 
-from .forms import BlastProjectForm, BlastProjectNrForm, AdvancedSettingsForm_Forward, AdvancedSettingsForm_Backward, CreateUserForm, SpeciesNameForm
+from .forms import BlastProjectForm, BlastProjectNrForm, AdvancedSettingsForm_Forward, AdvancedSettingsForm_Backward, CreateUserForm, SpeciesNameForm, BlastProjectUploadedForm, UploadDatabaseForm
 
 from .decorators import unauthenticated_user, allowed_user
 # TODO refactoring and annotating
@@ -149,10 +149,17 @@ def pipeline_dashboard(request,project_id):
     context = {'project': project}
     if snakefile_exists(project_id):
         try:
-            content = view_builded_snakefile(project_id,'upload')
+            content = view_builded_snakefile(project_id, 'upload')
+            log_content = read_snakemake_logs(project_id)
+            if 'no_logs' not in log_content[0].keys():
+                context['log'] = log_content[0]
+                context['pipeline_percentage'] = log_content[1]
+            else:
+                context['no_logs'] = log_content[0]
             context['content'] = content
+
         except Exception as e:
-            return failure_view(request,e)
+            return failure_view(request, e)
     return render(request,'blast_project/pipeline_dashboard.html', context)
 
 @login_required(login_url='login')
@@ -268,11 +275,12 @@ def create_project(request):
                     backward_genome = request.FILES['backward_genome_file']
                     query_sequences = request.FILES['query_sequence_file']
 
+                    #check if genomes are already in the database if true return same page with information
                     create_project_dir(project)
-                    upload_file(forward_genome,project,"forward_genome")
-                    upload_file(backward_genome,project,"backward_genome")
-                    upload_file(query_sequences,project,"query_sequences")
-                    save_genomes_and_query_in_db(query_sequences, forward_genome, backward_genome, project)
+                    upload_file(forward_genome,'media/'+'databases/'+forward_genome.name)
+                    upload_file(backward_genome,'media/'+'databases/'+backward_genome.name)
+                    upload_file(query_sequences,'media/'+str(project.id)+'/'+'query_sequences'+'/'+query_sequences.name)
+                    save_genomes_and_query_in_db(query_sequences, forward_genome.name, backward_genome.name, project)
 
                     save_forward_settings_from_form_or_raise_exception(project,settings_form_forward.cleaned_data)
                     save_backward_settings_from_form_or_raise_exception(project,settings_form_backward.cleaned_data)
@@ -291,6 +299,52 @@ def create_project(request):
 
 
     return render(request, 'blast_project/project_creation.html', context)
+
+@login_required(login_url='login')
+def create_uploaded_based_project(request):
+    if request.method == 'POST':
+        project_creation_form = BlastProjectUploadedForm(request.POST,request.FILES)
+        settings_form_forward = AdvancedSettingsForm_Forward(request.POST)
+        settings_form_backward = AdvancedSettingsForm_Backward(request.POST)
+
+        print('\n[+] Its a post!\n')
+
+        if project_creation_form.is_valid() and settings_form_forward.is_valid() and settings_form_backward.is_valid():
+            try:
+                with transaction.atomic():
+                    new_title = project_creation_form.cleaned_data['project_title']
+                    new_strategy = project_creation_form.cleaned_data['search_strategy']
+                    project = save_project_from_form_or_raise_exception(new_title, new_strategy, request.user)
+
+                    forward_genome = project_creation_form.cleaned_data['forward_genome_file']
+                    backward_genome = project_creation_form.cleaned_data['backward_genome_file']
+                    forward_genome_data = Genomes.objects.filter(genome_name=forward_genome).order_by('id').first()
+                    backward_genome_data = Genomes.objects.filter(genome_name=backward_genome).order_by('id').first()
+
+                    query_sequences = request.FILES['query_sequence_file']
+
+                    #check if genomes are already in the database if true return same page with information
+                    create_project_dir(project)
+                    upload_file(query_sequences,'media/'+str(project.id)+'/'+'query_sequences'+'/'+query_sequences.name)
+                    save_genomes_and_query_in_db(query_sequences, forward_genome_data.genome_name, backward_genome_data.genome_name, project)
+
+                    save_forward_settings_from_form_or_raise_exception(project,settings_form_forward.cleaned_data)
+                    save_backward_settings_from_form_or_raise_exception(project,settings_form_backward.cleaned_data)
+                    write_snakefile(project.id)
+                    return success_view(request)
+            except IntegrityError as e:
+                return failure_view(request,e)
+
+    else:
+        project_creation_form = BlastProjectUploadedForm()
+        settings_form_forward = AdvancedSettingsForm_Forward()
+        settings_form_backward = AdvancedSettingsForm_Backward()
+    context = {'BlastProjectUploadedForm': project_creation_form,
+               'usage info': 'Forward Genome: Genome of query sequences\nBackward Genome: Genome of sequences for comparison to query sequences',
+               'AdvancedSettingsForm_Forward':settings_form_forward,'AdvancedSettingsForm_Backward':settings_form_backward}
+
+
+    return render(request, 'blast_project/project_creation_based_on_uploaded_files.html', context)
 
 @login_required(login_url='login')
 def create_nr_based_project(request):
@@ -320,7 +374,7 @@ def create_nr_based_project(request):
                                                                         settings_form_backward.cleaned_data)
 
                     create_nr_project_dir(project)
-                    upload_file(query_sequences, project, "query_sequences")
+                    upload_file(query_sequences,'media/'+str(project.id)+'/'+'query_sequences'+'/'+query_sequences.name)
 
                     write_nr_snakefile(project.id)
                     return success_view(request)
@@ -342,9 +396,9 @@ def create_nr_based_project(request):
 @login_required(login_url='login')
 def species_taxid(request):
     user_mail = request.user.email
-    taxid_form = SpeciesNameForm(request.POST)
-    context = {'SpeciesNameForm':SpeciesNameForm}
+    context={}
     if request.method == 'POST':
+        taxid_form = SpeciesNameForm(request.POST)
         if taxid_form.is_valid():
             organism_name = taxid_form.cleaned_data.get('organism_name')
             try:
@@ -353,5 +407,24 @@ def species_taxid(request):
                 context['translation']=taxid_and_record_info[1]
             except Exception as e:
                 return failure_view(request,e)
-
+    else:
+        taxid_form = SpeciesNameForm()
+    context['SpeciesNameForm'] = taxid_form
     return render(request,'blast_project/species_taxid.html',context)
+
+def upload_databases(request):
+    context={}
+    if request.method == 'POST':
+        upload_database_form = UploadDatabaseForm(request.POST, request.FILES)
+        if upload_database_form.is_valid():
+            try:
+                new_database_file = upload_database_form.cleaned_data['genome_file']
+                upload_file(new_database_file,'media/'+'databases/'+new_database_file.name)
+                save_new_genome_file_in_db(new_database_file)
+                return success_view(request)
+            except IntegrityError as e:
+                return failure_view(request,e)
+    else:
+        upload_database_form = UploadDatabaseForm()
+    context['UploadDatabaseForm'] = upload_database_form
+    return render(request,'blast_project/upload_databases.html',context)

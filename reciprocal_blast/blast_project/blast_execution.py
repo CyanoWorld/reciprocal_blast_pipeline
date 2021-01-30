@@ -4,7 +4,7 @@ from django.shortcuts import get_object_or_404
 from django.db import IntegrityError
 from shutil import copy
 from os.path import isfile, isdir
-from os import remove, chmod, listdir, getcwd
+from os import remove, chmod, listdir, getcwd, system
 from datetime import datetime
 from pathlib import Path
 import subprocess
@@ -96,9 +96,11 @@ def write_snakefile(project_id):
 def write_project_associated_snakefile_configuration_or_throw_valueerror(backward_genome, bw_settings, dbtype, forward_genome,
                                                                          fw_settings, project, project_id, query_sequences):
     try:
+        forward_genome_path = getcwd() + '\\media\\databases\\'+forward_genome.genome_name
+        backward_genome_path = getcwd() + '\\media\\databases\\' + backward_genome.genome_name
         snakemake_config = open("media/" + str(project_id) + '/snakemake_config','w')
-        snakemake_config.write("fw_db: \'forward_genome/"+forward_genome.genome_name+"\'\n")
-        snakemake_config.write("bw_db: \'backward_genome/"+backward_genome.genome_name+"\'\n")
+        snakemake_config.write("fw_db: \'"+forward_genome_path+"\'\n")
+        snakemake_config.write("bw_db: \'"+backward_genome_path+"\'\n")
         snakemake_config.write("fw_query: \'query_sequences/"+query_sequences.query_file_name+"\'\n")
         snakemake_config.write("bw_query: \'query_sequences/input_backward.faa\'\n")
 
@@ -122,8 +124,10 @@ def snakefile_exists(project_id):
     switch = True if isfile("media/" + str(project_id) + "/snakemake_config") else False
     return switch
 
-#render dictionary based ib snakefile for output in pipeline_dashboard
+#
+#TODO: render dictionary based on snakemake config file for output in pipeline_dashboard
 def view_builded_snakefile(project_id,nr_or_upload):
+    #snakemake_config_file = 'media/' + str(project_id) + '/snakemake_config'
     if nr_or_upload == 'nr':
         snakefile_path = 'static/snakefile_nr_database/Snakefile'
     else:
@@ -184,12 +188,13 @@ def exec_snakemake(project_id):
         subprocess.Popen(['snakemake','--snakefile','C:\\Users\\lujeb\\Documents\\github_projects\\django_blast_project\\reciprocal_blast\\static\\snakefile_nr_database\\Snakefile','--wms-monitor','http://127.0.0.1:5000','--cores','2','--configfile',snakemake_config_file,'--directory',snakemake_working_dir], shell=False, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 
     else:
-        snakemake_working_dir = 'media/' + str(project_id) + '/'
-        snakemake_config_file = 'media/' + str(project_id) + '/snakemake_config'
+        snakemake_working_dir = 'media/'+str(project_id)+'/'
+        snakemake_config_file = 'media/'+str(project_id)+'/' + 'snakemake_config'
         # print("[+] execute snakemake ...")
         # subprocess.Popen(['snakemake','--dry-run','--cores','2','--wms-monitor','http://127.0.0.1:5000'], shell=False, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, cwd=snakemake_working_dir)
-        subprocess.Popen(['snakemake', '--snakefile',
-                          'C:\\Users\\lujeb\\Documents\\github_projects\\django_blast_project\\reciprocal_blast\\static\\snakefile_genome_upload\\Snakefile',
-                          '--wms-monitor', 'http://127.0.0.1:5000', '--cores', '2', '--configfile',
-                          snakemake_config_file, '--directory', snakemake_working_dir], shell=False,
-                         stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        #print("[+] WORKING DIR: "+getcwd())
+        snakefile_dir = getcwd()+'\\static\\snakefile_genome_upload\\Snakefile'
+        #print('\n[+] SNAKEFILE DIR: '+snakefile_dir,'\n[+] SNAKEMAKE WORKING DIR: '+snakemake_working_dir,'\n[+] SNAKEMAKE CONFIG DIR: '+snakemake_config_file)
+        #snakemake --snakefile F:\programming\github_projects\bachelor_project_github\reciprocal_blast_pipeline\reciprocal_blast\static\snakefile_genome_upload\Snakefile --cores 2 --configfile media/1/snakemake_config --directory media/1/ --dry-run
+        print('\n[+] COMMAND: snakemake --snakefile {} --cores 2 --configfile {} --directory {}\n'.format(snakefile_dir,snakemake_config_file,snakemake_working_dir))
+        subprocess.Popen(['snakemake', '--snakefile', snakefile_dir, '--cores', '2', '--configfile',snakemake_config_file, '--directory', snakemake_working_dir], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)

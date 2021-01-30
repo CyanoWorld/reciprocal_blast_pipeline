@@ -13,6 +13,7 @@ services:
     volumes:
       - F:\programming\docker_projects\docker_django_snakemake_blast\data:/blast/media
       - F:\programming\docker_projects\docker_django_snakemake_blast\tmp:/blast/tmp
+      - F:\programming\github_projects\bachelor_project_github\reciprocal_blast_pipeline\data:/blast/databases
     ports:
       - "8000:8000"
     depends_on:

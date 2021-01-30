@@ -10,9 +10,53 @@ class BlastProjectForm(forms.Form):
                                     error_messages={'required':"A project title is required for saving project metadata into the database"})
     search_strategy = forms.ChoiceField(choices=(('blastp','blastp'),('blastn','blastn')),label="Search strategy",
                                         error_messages={'required':"Please specify a search strategy otherwise you won't be able to execute a BLAST run .."})
-    forward_genome_file = forms.FileField(error_messages={'required':"Upload a forward genome file fasta file, this is the genome for the first BLAST (not your query sequence genome)"})
-    backward_genome_file = forms.FileField(error_messages={'required':"Upload a backward genome file fasta file, this is the genome for the second BLAST (from your query sequences)"})
+    forward_genome_file = forms.FileField(error_messages={'required':"Upload a forward genome file fasta, this is the database for the first BLAST (not your query sequence genome)"})
+    backward_genome_file = forms.FileField(error_messages={'required':"Upload a backward genome file fasta, this is the database for the second BLAST (from your query sequences)"})
     query_sequence_file = forms.FileField(error_messages={'required':"Upload a query sequence file, this file will serve as the -query parameter for the forward BLAST analysis"})
+
+    def clean_forward_genome_file(self):
+        genome = self.cleaned_data['forward_genome_file']
+        for genome_name in Genomes.objects.all().values('genome_name'):
+            if genome_name['genome_name'] == genome.name:
+                raise ValidationError(
+                    '[-] A genome database with that name already exist, please specify another file! Or try to use previously uploaded databases!')
+        return genome
+
+    def clean_backward_genome_file(self):
+        genome = self.cleaned_data['backward_genome_file']
+        for genome_name in Genomes.objects.all().values('genome_name'):
+            if genome_name['genome_name'] == genome.name:
+                raise ValidationError(
+                    '[-] A genome database with that name already exist, please specify another file! Or try to use previously uploaded databases!')
+        return genome
+
+class BlastProjectUploadedForm(forms.Form):
+    project_title = forms.CharField(label="Project title",
+                                    error_messages={
+                                        'required': "A project title is required for saving project metadata into the database"})
+    search_strategy = forms.ChoiceField(choices=(('blastp', 'blastp'), ('blastn', 'blastn')), label="Search strategy",
+                                        error_messages={
+                                            'required': "Please specify a search strategy otherwise you won't be able to execute a BLAST run .."})
+
+    genomes = []
+    print("\n[+] ",Genomes.objects.all().values('genome_name'),"\n")
+    for genome_name in Genomes.objects.all().values('genome_name'):
+        if genome_name['genome_name'] not in genomes:
+            genomes.append(genome_name['genome_name'])
+    genomes = tuple(zip(genomes,genomes))
+
+    #error_messages={'required': "Use a database file, this is the database for the second BLAST (from your query sequences)"}
+    forward_genome_file = forms.ChoiceField(choices=genomes)
+    backward_genome_file = forms.ChoiceField(choices=genomes)
+    query_sequence_file = forms.FileField(error_messages={'required':"Upload a query sequence file, this file will serve as the -query parameter for the forward BLAST analysis"})
+
+    def clean_backward_genome_file(self):
+        bw_genome = self.cleaned_data['backward_genome_file']
+        fw_genome = self.cleaned_data['forward_genome_file']
+        if bw_genome == fw_genome:
+            raise ValidationError('[-] Do not use the same databases for the forward and backward blast.')
+        else:
+            return bw_genome
 
 class BlastProjectNrForm(forms.Form):
     project_title = forms.CharField(label="Project title",
@@ -62,3 +106,12 @@ class CreateUserForm(UserCreationForm):
 
 class SpeciesNameForm(forms.Form):
     organism_name = forms.CharField(label="Organism Name", initial='Cyanobacteria')
+
+class UploadDatabaseForm(forms.Form):
+    genome_file = forms.FileField(error_messages={'required':"Upload a genome fasta file for database preparement"})
+    def clean_genome_file(self):
+        genome = self.cleaned_data['genome_file']
+        for genome_name in Genomes.objects.all().values('genome_name'):
+            if genome_name['genome_name'] == genome.name:
+                raise ValidationError('[-] A genome database with that name already exist, please specify another file! Or try to use previously uploaded databases!')
+        return genome
