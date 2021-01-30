@@ -14,7 +14,9 @@
                   </button>
                   <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
                       <div class="navbar-nav">
-                        <a class="nav-link" href="{% url 'project_creation' %}">Project Creation<span class="sr-only">(current)</span></a>
+                        <a class="nav-link" href="{% url 'project_creation' %}">Project Creation: Upload Specific Genomes<span class="sr-only">(current)</span></a>
+                        <a class="nav-link" href="{% url 'project_creation_based_on_nr_database' %}">Project Creation: Use Local NR Database<span class="sr-only">(current)</span></a>
+                        <a class="nav-link" href="{% url 'species_taxid' %}">Get Species Taxonomic Nodes For NR Database<span class="sr-only">(current)</span></a>
                         <a class="nav-link" href="{% url 'logout' %}">Logout</a>
                       </div>
                   </div>
@@ -25,27 +27,48 @@
             <hr>
             <h1 class="text-center">{% block title %} SynMibi Reciprocal BLAST Projects Dashboard {% endblock %}</h1>
             <hr>
-            <h2 class="text-center"> Welcome to your projects dashboard, {{request.user}}!</p> </h2>
+            <h2 class="text-center"> Welcome to your projects dashboard, {{request.user}}! </h2>
         </div>
 
         <div class="container-fluid">
             <div id="lists" class="container-fluid">
             {% if projects %}
+            <hr>
+            <h3> Projects with uploaded genome files</h3>
             {% for project in projects %}
+                {% if project.using_nr_database == False %}
                 <hr>
                 <ul class="list-group list-group-horizontal" >
                     <li class="list-group-item"> Project-ID: {{project.id}} </li>
                     <li class="list-group-item"> Project title: {{project.project_title}} </li>
                     <li class="list-group-item"> <a href="{% url 'project_details' project_id=project.id %}"> Detail Page</a> </li>
                     <li class="list-group-item"> <a href="{% url 'delete_project' project_id=project.id %}"> Delete Project</a></li>
+                    <li class="list-group-item"> <a href="{% url 'pipeline_dashboard' project_id=project.id %}"> Pipeline Dashboard</a></li>
+
                         {% for genome in genomes %}
                         {% if genome.associated_project.id == project.id %}
                             <li class="list-group-item"> {{genome.reciprocal_type}} genome - {{genome.genome_name}}</li>
                         {% endif %}
                         {% endfor %}
                 </ul>
-                <hr>
+                {% endif %}
             {% endfor %}
+            <hr>
+            <h3> Projects with a preformatted local NR database </h3>
+            {% for project in projects %}
+                {% if project.using_nr_database == True %}
+                    <hr>
+                <ul class="list-group list-group-horizontal" >
+                    <li class="list-group-item"> Project-ID: {{project.id}} </li>
+                    <li class="list-group-item"> Project title: {{project.project_title}} </li>
+                    <li class="list-group-item"> <a href="{% url 'project_details' project_id=project.id %}"> Detail Page</a> </li>
+                    <li class="list-group-item"> <a href="{% url 'delete_project' project_id=project.id %}"> Delete Project</a></li>
+                    <li class="list-group-item"> <a href="{% url 'pipeline_nr_dashboard' project_id=project.id %}"> Pipeline Dashboard</a></li>
+                </ul>
+                {% endif %}
+
+            {% endfor %}
+            <hr>
             {% endif %}
          </div>
 

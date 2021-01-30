@@ -11,18 +11,21 @@
     </head>
     <body>
 
-         <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <nav class="navbar navbar-light" style="background-color: lightskyblue">
             <a class="navbar-brand" href="{% url 'main'%}">Home</a>
                   <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                   </button>
                   <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
                       <div class="navbar-nav">
+                        <a class="nav-link" href="{% url 'project_creation' %}">Project Creation: Upload Specific Genomes<span class="sr-only">(current)</span></a>
+                        <a class="nav-link" href="{% url 'project_creation_based_on_nr_database' %}">Project Creation: Use Local NR Database<span class="sr-only">(current)</span></a>
+                        <a class="nav-link" href="{% url 'species_taxid' %}">Get Species Taxonomic Nodes For NR Database<span class="sr-only">(current)</span></a>
                         <a class="nav-link" href="{% url 'logout' %}">Logout</a>
-                          <a class="nav-link" href="{% url 'pipeline_dashboard' project_id=project.id %}">Pipeline Dashboard</a>
                       </div>
                   </div>
-         </nav>
+
+        </nav>
 
          <div class="header">
              <hr>
@@ -32,8 +35,10 @@
              <hr>
          </div>
 
+
          <div class="container-fluid">
 
+            {% if project.using_nr_database == False %}
             <ul class="list-group list-group-horizontal">
                     {% for genome in genomes %}
                     <li class="list-group-item">{{genome.reciprocal_type}} with name: {{genome.genome_name}}</li>
@@ -41,6 +46,54 @@
                     <li class="list-group-item">Query Sequences: {{query_sequences.query_file_name}}</li>
                     <li class="list-group-item">Search Strategy: {{project.search_strategy}}</li>
             </ul>
+            {% endif %}
+
+            {% if project.using_nr_database == True %}
+            <ul class="list-group list-group-horizontal">
+                <li class="list-group-item">Query Sequences: {{query_sequences.query_file_name}}</li>
+                {% for organism in backward_db_organisms %}
+                    <li class="list-group-item">Taxonomic Node: {{organism.taxonomic_node}}</li>
+                    <li class="list-group-item">Scientific Name: {{organism.organism_name}}</li>
+                {% endfor %}
+                <hr>
+
+            </ul>
+            <ul class="list-group list-group-horizontal">
+             <li class="list-group-item" style="font-weight: bold"> Organisms of your forward BLAST: </li>
+                {% if forward_db_organisms|length == 0 %}
+                    <li class="list-group-item"> FW BLAST against whole NR database (no FW organisms specified)</li>
+                {% endif %}
+                {% for organism in forward_db_organisms %}
+                    <li class="list-group-item">Taxonomic Node: {{ organism.taxonomic_node }} with Scientific Name: {{ organism.organism_name }}</li>
+                {% endfor %}
+                <hr>
+             </ul>
+
+            {% if html_results == True %}
+            <hr>
+                {% if error_html_graph_reading == None %}
+
+                    {% autoescape off %}
+                        <h2> Amount of reciprocal best hits (RBH) with the input query sequences </h2>
+                        {{ amount_hits|safe }}
+                        <hr>
+                        <h2> Amount of organisms with putative orthologous sequences </h2>
+                        {{ organisms_orthologs_graph|safe}}
+
+                    {% endautoescape %}
+                {% endif %}
+
+                {% if error_html_graph_reading != None %}
+                    {{ error_html_graph_reading }}
+                {% endif %}
+            <hr>
+            {% endif %}
+            {% endif %}
+            {% if html_results == True %}
+                <hr>
+                <a class="btn btn-primary" href="{% url 'reciprocal_results' project_id=project.id %}"> Reciprocal Results Table </a>
+                <hr>
+            {% endif %}
             <hr>
             <button class="btn btn-info" onclick="displayAdvancedSettings()">Advanced BLAST Settings </button>
             <hr>
@@ -53,12 +106,13 @@
                         <li class="list-group-item">Number of alignments: {{forward_settings.num_alignments}}</li>
                     </ul>
                     <hr>
-                    <p><strong>Forward BLAST settings</strong></p>
+                    <p><strong>Backward BLAST settings</strong></p>
                     <ul class="list-group list-group-horizontal">
                             <li class="list-group-item">E-Value: {{backward_settings.e_value}}</li>
                             <li class="list-group-item">Word Size: {{backward_settings.word_size}}</li>
                             <li class="list-group-item">Number of alignments: {{backward_settings.num_alignments}}</li>
                     </ul>
+                 <hr>
             </div>
 
          </div>
@@ -73,6 +127,7 @@
                 settingsForm.style.display = "none";
               }
             }
+
         </script>
 
 

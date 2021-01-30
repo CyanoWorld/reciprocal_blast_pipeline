@@ -7,14 +7,16 @@
         <body>
 
 
-        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <nav class="navbar navbar-light" style="background-color: lightskyblue">
             <a class="navbar-brand" href="{% url 'main'%}">Home</a>
                   <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                   </button>
                   <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
                       <div class="navbar-nav">
-                        <a class="nav-link" href="{% url 'project_creation' %}">Project Creation<span class="sr-only">(current)</span></a>
+                        <a class="nav-link" href="{% url 'project_creation' %}">Project Creation: Upload Specific Genomes<span class="sr-only">(current)</span></a>
+                        <a class="nav-link" href="{% url 'project_creation_based_on_nr_database' %}">Project Creation: Use Local NR Database<span class="sr-only">(current)</span></a>
+                        <a class="nav-link" href="{% url 'species_taxid' %}">Get Species Taxonomic Nodes For NR Database<span class="sr-only">(current)</span></a>
                         <a class="nav-link" href="{% url 'logout' %}">Logout</a>
                       </div>
                   </div>
@@ -30,6 +32,25 @@
 
 
         <div class="container-fluid">
+            <hr>
+            {% if project.pipeline_executed is True %}
+                <a class="btn btn-primary" href="http://127.0.0.1:5000/workflows/"> PANOPTES MONITORING </a>
+                <hr>
+            {% endif %}
+
+            {% if not content %}
+                <p> Something went wrong ... there is no configuration file for snakemake in your project folder! </p>
+            {% endif %}
+
+            {% if content %}
+                {% if project.pipeline_executed is False %}
+                <form action="{% url 'execute_snakefile' %}" method="GET">
+                    {% csrf_token %}
+                    <input type="hidden" value="{{project.id}}" name="execute_snakefile" id="execute_snakefile">
+                    <input type="submit" value="execute SNAKEMAKE" class="btn btn-primary">
+                </form>
+                {% endif %}
+            {% endif %}
 
             {% if content %}
             {% for rule,lines in content.items %}
@@ -42,29 +63,7 @@
             {% endfor %}
             {% endif %}
 
-            {% if not content %}
-            <form action="{% url 'build_snakefile' %}" method="POST">
-            {% csrf_token %}
-                <input type="hidden" value="{{project.id}}" name="build_snakefile" id="build_snakefile">
-                <input type="submit" value="Build Project SNAKEFILE" class="btn btn-primary">
-            </form>
-            {% endif %}
 
-            {% if content %}
-            <form action="{% url 'remove_snakefile' %}" method="GET">
-                {% csrf_token %}
-                <input type="hidden" value="{{project.id}}" name="remove_snakefile" id="remove_snakefile">
-                <input type="submit" value="Delete Project SNAKEFILE" class="btn btn-danger">
-            </form>
-            {% endif %}
-
-            {% if content %}
-            <form action="{% url 'execute_snakefile' %}" method="GET">
-                {% csrf_token %}
-                <input type="hidden" value="{{project.id}}" name="execute_snakefile" id="execute_snakefile">
-                <input type="submit" value="execute SNAKEMAKE" class="btn btn-primary">
-            </form>
-            {% endif %}
 
         </div>
 

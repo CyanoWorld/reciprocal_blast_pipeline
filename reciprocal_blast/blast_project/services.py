@@ -1,7 +1,8 @@
 from django.core.files.storage import FileSystemStorage
 
+from django.db import IntegrityError
 
-from .models import BlastProject, Genomes, ForwardBlastSettings, BackwardBlastSettings, QuerySequences
+from .models import BlastProject, Genomes, ForwardBlastSettings, BackwardBlastSettings, QuerySequences, TaxNodesForForwardDatabase, TaxNodesForBackwardDatabase
 from os import listdir, walk, mkdir
 from os.path import isfile, join, isdir
 from shutil import rmtree
@@ -9,96 +10,143 @@ from shutil import rmtree
 #TODO add exceptions and error handling
 #TODO deprecated do deleting while deleting project
 def delete_files_without_projects():
-    all_project_ids = []
-    for project in BlastProject.objects.all():
-        all_project_ids.append(project.id)
-    projects_in_media = next(walk('media/'))[1]
-    print(projects_in_media)
-    print(all_project_ids)
-    for folder in projects_in_media:
-        if int(folder) not in all_project_ids:
-            print("[+] removing folder {} ...".format(folder))
-            rmtree('media/'+str(folder))
+    try:
+        all_project_ids = []
+        for project in BlastProject.objects.all():
+            all_project_ids.append(project.id)
+        projects_in_media = next(walk('media/'))[1]
+        #print(projects_in_media)
+        #print(all_project_ids)
+        for folder in projects_in_media:
+            if int(folder) not in all_project_ids:
+                print("[+] removing folder {} ...".format(folder))
+                rmtree('media/'+str(folder))
+    except Exception as e:
+        raise ValueError('[-] unable to remove project directory: {} with exception: {}'.format(project_id, e))
 
-#
-def delete_genomfiles_by_project_id(project_id):
-    if isdir('media/' + str(project_id) + '/'):
-        rmtree('media/'+str(project_id)+'/')
+#This won't work for some files on windows systems
+def delete_project_files_by_project_id(project_id):
+    try:
+        if isdir('media/' + str(project_id) + '/'):
+            rmtree('media/'+str(project_id)+'/')
+    except Exception as e:
+        raise ValueError('[-] unable to remove project directory: {} with exception: {}'.format(project_id,e))
 
 #TODO return error pages
 def save_project_from_form_or_raise_exception(new_title, new_strategy, user):
     project = BlastProject(project_title=new_title, search_strategy=new_strategy,project_username=user)
-    try:
-        project.save()
-        return project
-    except Exception as e:
-        raise ValueError('A very specific bad thing happened during project saving: {}'.format(e))
+    project.save()
+    return project
+
+def save_nr_project_from_form_or_raise_exception(new_title, user):
+    project = BlastProject(project_title=new_title, search_strategy='blastp', project_username=user, using_nr_database=True)
+    project.save()
+    return project
+
+def save_query_file_in_db(query_sequences, project):
+    uploaded_file_url_queries = 'media/'+str(project.id)+'/'+query_sequences.name
+    new_query_sequences = QuerySequences(associated_project=project, query_file_name=query_sequences.name,
+                                         path_to_query_file=uploaded_file_url_queries)
+    new_query_sequences.save()
 
 #function will be executed in the following order
 def create_project_dir(project):
     try:
+        mkdir('static/result_images/'+str(project.id))
         mkdir('media/' + str(project.id))
         mkdir('media/'+str(project.id)+'/forward_genome')
         mkdir('media/'+str(project.id)+'/backward_genome')
         mkdir('media/' + str(project.id) + '/query_sequences')
     except Exception as e:
-        raise ValueError('A very specific bad thing happened during file upload: {}'.format(e))
+        raise IntegrityError('[-] A very specific bad thing happened during creation of your project folder: {}'.format(e))
 
-def upload_forward_genome_file(sequence_file, project):
+def create_nr_project_dir(project):
     try:
-        with open('media/'+str(project.id)+"/forward_genome/"+sequence_file.name, 'wb+') as destination:
-            for chunk in sequence_file.chunks():
-                destination.write(chunk)
+        mkdir('static/result_images/' + str(project.id))
+        mkdir('media/' + str(project.id))
+        mkdir('media/' + str(project.id) + '/query_sequences')
     except Exception as e:
-        raise ValueError('A very specific bad thing happened during file upload: {}'.format(e))
+        raise IntegrityError('[-] A very specific bad thing happened during creation of your project folder: {}'.format(e))
 
-def upload_backward_genome_file(sequence_file, project):
+def upload_file(project_file,project,destination):
     try:
-        with open('media/'+str(project.id)+"/backward_genome/"+sequence_file.name, 'wb+') as destination:
-            for chunk in sequence_file.chunks():
-                destination.write(chunk)
+        with open('media/'+str(project.id)+'/'+destination+'/'+project_file.name,'wb+') as dest:
+            for chunk in project_file.chunks():
+                dest.write(chunk)
     except Exception as e:
-        raise ValueError('A very specific bad thing happened during file upload: {}'.format(e))
+        raise IntegrityError('[-] A very specific bad thing happened during file upload of: {} Exception: {}'.format(project_file.name,e))
 
-def upload_query_sequences_file(sequence_file, project):
-    try:
-        with open('media/'+str(project.id)+"/query_sequences/"+sequence_file.name, 'wb+') as destination:
-            for chunk in sequence_file.chunks():
-                destination.write(chunk)
-    except Exception as e:
-        raise ValueError('A very specific bad thing happened during file upload: {}'.format(e))
-
-
+#TODO url of genome files should be in database
 def save_genomes_and_query_in_db(query_sequences, forward_genome, backward_genome, project):
-    try:
-        uploaded_file_url_forward = 'media/'+str(project.id)+forward_genome.name
-        uploaded_file_url_backward = 'media/'+str(project.id)+backward_genome.name
-        uploaded_file_url_queries = 'media/'+str(project.id)+query_sequences.name
-        new_forward_genome = Genomes(associated_project=project, genome_name=forward_genome.name,
-                                 reciprocal_type='forward', path_to_file=uploaded_file_url_forward)
-        new_backward_genome = Genomes(associated_project=project, genome_name=backward_genome.name,
-                                  reciprocal_type='backward', path_to_file=uploaded_file_url_backward)
-        new_query_sequences = QuerySequences(associated_project=project,query_file_name=query_sequences.name,
-                                             path_to_query_file=uploaded_file_url_queries)
-        new_forward_genome.save()
-        new_backward_genome.save()
-        new_query_sequences.save()
-    except Exception as e:
-        raise ValueError('A very specific bad thing happened during file upload: {}'.format(e))
+    uploaded_file_url_forward = 'media/'+str(project.id)+'/'+forward_genome.name
+    uploaded_file_url_backward = 'media/'+str(project.id)+'/'+backward_genome.name
+    uploaded_file_url_queries = 'media/'+str(project.id)+'/'+query_sequences.name
+    new_forward_genome = Genomes(associated_project=project, genome_name=forward_genome.name,
+                             reciprocal_type='forward', path_to_file=uploaded_file_url_forward)
+    new_backward_genome = Genomes(associated_project=project, genome_name=backward_genome.name,
+                              reciprocal_type='backward', path_to_file=uploaded_file_url_backward)
+    new_query_sequences = QuerySequences(associated_project=project,query_file_name=query_sequences.name,
+                                         path_to_query_file=uploaded_file_url_queries)
+    new_forward_genome.save()
+    new_backward_genome.save()
+    new_query_sequences.save()
+
 
 
 def save_forward_settings_from_form_or_raise_exception(project,settings_form_forward):
-    try:
-        settings_fw = ForwardBlastSettings(associated_project=project, e_value=settings_form_forward['fw_e_value'],
-                                           word_size=settings_form_forward['fw_word_size'], num_alignments=settings_form_forward['fw_num_alignments'])
-        settings_fw.save()
-    except Exception as e:
-        raise ValueError('A very specific bad thing happened during settings saving: {}'.format(e))
+    settings_fw = ForwardBlastSettings(associated_project=project, e_value=settings_form_forward['fw_e_value'],
+                                       word_size=settings_form_forward['fw_word_size'], num_alignments=settings_form_forward['fw_num_alignments'])
+    settings_fw.save()
 
 def save_backward_settings_from_form_or_raise_exception(project,settings_form_backward):
+    settings_bw = BackwardBlastSettings(associated_project=project, e_value=settings_form_backward['bw_e_value'],
+                                        word_size=settings_form_backward['bw_word_size'], num_alignments=settings_form_backward['bw_num_alignments'])
+    settings_bw.save()
+
+def set_executed_on_true_and_save_project(current_project):
     try:
-        settings_bw = BackwardBlastSettings(associated_project=project, e_value=settings_form_backward['bw_e_value'],
-                                            word_size=settings_form_backward['bw_word_size'], num_alignments=settings_form_backward['bw_num_alignments'])
-        settings_bw.save()
+        current_project.pipeline_executed = True
+        current_project.save()
     except Exception as e:
-        raise ValueError('A very specific bad thing happened during settings saving: {}'.format(e))
+        raise IntegrityError('[-] Could not set pipeline_executed on true with Exception: {}'.format(e))
+
+def validate_fw_taxids_and_save_into_database(project, user_email, taxids):
+    for id in taxids:
+            tax_fw_node = TaxNodesForForwardDatabase(associated_project=project, taxonomic_node=id)
+            if tax_fw_node.if_valid_save_organism_name(user_email):
+                tax_fw_node.save()
+            else:
+                raise IntegrityError("[-] Couldn't save taxonomic node {} for FW database into project database! There is no organism with such a name!".format(id))
+
+def validate_bw_taxids_and_save_into_database(project, user_email, taxids):
+    for id in taxids:
+            tax_bw_node = TaxNodesForBackwardDatabase(associated_project=project, taxonomic_node=id)
+            if tax_bw_node.if_valid_save_organism_name(user_email):
+                tax_bw_node.save()
+            else:
+                raise IntegrityError("[-] Couldn't save taxonomic node {} for BW database into project database! There is no organism with such a name!".format(id))
+
+def snakemake_project_finished(project_id):
+    if isfile('media/'+str(project_id)+'/reciprocal_results.html'):
+        return True
+    else:
+        return False
+
+def get_html_results(project_id,filename):
+    try:
+        with open("media/"+str(project_id)+"/"+filename) as res:
+            data = res.readlines()
+        return data
+    except FileNotFoundError as e:
+        raise FileNotFoundError("[-] Couldn't read file {} with Exception: {}".format(e))
+
+def load_html_graph(project_id,filename):
+    try:
+        html_file = open('media/'+str(project_id)+'/'+filename)
+        html_lines = ''
+        for line in html_file.readlines():
+            html_lines += line
+        html_file.close()
+        return html_lines
+    except Exception as e:
+        raise FileNotFoundError("[-] Couldn't create result graph with Exception: {}".format(e))
