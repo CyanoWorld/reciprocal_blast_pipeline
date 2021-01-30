@@ -39,7 +39,6 @@ class BlastProjectUploadedForm(forms.Form):
                                             'required': "Please specify a search strategy otherwise you won't be able to execute a BLAST run .."})
 
     genomes = []
-    print("\n[+] ",Genomes.objects.all().values('genome_name'),"\n")
     for genome_name in Genomes.objects.all().values('genome_name'):
         if genome_name['genome_name'] not in genomes:
             genomes.append(genome_name['genome_name'])

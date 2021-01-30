@@ -306,9 +306,6 @@ def create_uploaded_based_project(request):
         project_creation_form = BlastProjectUploadedForm(request.POST,request.FILES)
         settings_form_forward = AdvancedSettingsForm_Forward(request.POST)
         settings_form_backward = AdvancedSettingsForm_Backward(request.POST)
-
-        print('\n[+] Its a post!\n')
-
         if project_creation_form.is_valid() and settings_form_forward.is_valid() and settings_form_backward.is_valid():
             try:
                 with transaction.atomic():
@@ -318,12 +315,13 @@ def create_uploaded_based_project(request):
 
                     forward_genome = project_creation_form.cleaned_data['forward_genome_file']
                     backward_genome = project_creation_form.cleaned_data['backward_genome_file']
+
+                    #just the genome/database name is required in order to reuse this object
                     forward_genome_data = Genomes.objects.filter(genome_name=forward_genome).order_by('id').first()
                     backward_genome_data = Genomes.objects.filter(genome_name=backward_genome).order_by('id').first()
 
                     query_sequences = request.FILES['query_sequence_file']
 
-                    #check if genomes are already in the database if true return same page with information
                     create_project_dir(project)
                     upload_file(query_sequences,'media/'+str(project.id)+'/'+'query_sequences'+'/'+query_sequences.name)
                     save_genomes_and_query_in_db(query_sequences, forward_genome_data.genome_name, backward_genome_data.genome_name, project)
