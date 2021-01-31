@@ -25,7 +25,7 @@ rule backward_blast:
 	input: bw_queries="bw_queries.faa", taxids="taxonomic_nodes_backward.txt"
 	output: "blastp_bw_out.table"
 	params: word_size=config['bw_word_size'], e_value=config['bw_evalue'], num_alignments=config['bw_num_alignments']
-	shell: "blastp -db nr -outfmt \"6 qseqid sseqid evalue bitscore qgi sgi sacc staxids sscinames scomnames stitle\" -out {output} -taxidlist {input.taxids} -word_size {params.word_size} -evalue {params.e_value} -num_alignments {params.num_alignments} -query {input.bw_queries}"
+	shell: "blastp -db nr -outfmt \"6 qseqid sseqid evalue bitscore qgi sgi sacc staxids sscinames scomnames stitle\" -out {output} -taxidlist {input.taxids} -word_size {params.word_size} -evalue {params.e_value} -num_alignments {params.num_alignments} -max_hsps 1 -query {input.bw_queries}"
 
 rule reciprocal_best_hits:
 	input: bw_res="blastp_bw_out.table", fw_res="blastp_fw_out.table"

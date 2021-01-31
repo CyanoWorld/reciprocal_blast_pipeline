@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt, mpld3
 import pandas as pd
+import numpy as np
 
 fw_res = pd.read_table(snakemake.input['fw_res'], header=None)
 

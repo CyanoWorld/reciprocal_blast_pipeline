@@ -5,8 +5,9 @@ fw_res.columns = ["qseqid","sseqid","pident","length", "mismatch", "gapopen", "q
 #bw_res.columns = ["qseqid","sseqid","pident","length", "mismatch", "gapopen", "qstart", "qend", "sstart", "send", "evalue", "bitscore"]
 
 rec_prot = pd.read_table(snakemake.input['rec_res'])
+rec_prot['qseqid'] = rec_prot['backward_genome_id']
 rec_prot['sseqid'] = rec_prot['forward_genome_id']
-result_data = rec_prot.merge(fw_res, on='sseqid')
+result_data = rec_prot.merge(fw_res, on=['sseqid','qseqid'])
 
 pd.set_option('colheader_justify', 'left')
 html_string = '''

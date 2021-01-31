@@ -21,8 +21,13 @@ for i in range(0, len(fw_res), 1):
         fw_res.iloc[i, 9] = common_names_string
 
 rec_prot = pd.read_table(snakemake.input['rec_res'])
+spl = lambda line: line.split('.')[0]
+qseqs=[]
+for line in fw_res['qseqid']: qseqs.append(spl(line))
+fw_res['query_seqs'] = qseqs
 rec_prot['sacc'] = rec_prot['forward_genome_id']
-result_data = rec_prot.merge(fw_res, on='sacc')
+rec_prot['query_seqs'] = rec_prot['backward_genome_id']
+result_data = rec_prot.merge(fw_res, on=['sacc','query_seqs'])
 
 pd.set_option('colheader_justify', 'left')
 html_string = '''
