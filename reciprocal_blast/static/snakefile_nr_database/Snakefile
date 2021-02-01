@@ -7,8 +7,8 @@ rule all:
 rule forward_blast:
 	input: taxids="taxonomic_nodes_forward.txt", fw_queries=config['fw_query']
 	output: "blastp_fw_out.table"
-	params: word_size=config['fw_word_size'], e_value=config['fw_evalue'], num_alignments=config['fw_num_alignments']
-	shell: "blastp -db nr -outfmt \"6 qseqid sseqid evalue bitscore qgi sgi sacc staxids sscinames scomnames stitle\" -out {output} -word_size {params.word_size} -evalue {params.e_value} -num_alignments {params.num_alignments} -taxidlist {input.taxids} -query {input.fw_queries}"
+	params: word_size=config['fw_word_size'], e_value=config['fw_evalue'], num_alignments=config['fw_num_alignments'], num_descriptions=config['fw_num_descriptions'], max_target_seqs=config['fw_max_target_seqs'], max_hsps=config['fw_max_hsps'], num_threads=config['fw_num_threads']
+	shell: "blastp -db nr -outfmt \"6 qseqid sseqid evalue bitscore qgi sgi sacc staxids sscinames scomnames stitle\" -out {output} -word_size {params.word_size} -evalue {params.e_value} -num_alignments {params.num_alignments} -num_descriptions {params.num_descriptions} -max_target_seqs {params.max_target_seqs} -max_hsps {params.max_hsps} -num_threads {params.num_threads} -taxidlist {input.taxids} -query {input.fw_queries}"
 
 rule fw_result_processing:
 	input: fw_res="blastp_fw_out.table"
@@ -24,8 +24,8 @@ rule bw_query_preparation:
 rule backward_blast:
 	input: bw_queries="bw_queries.faa", taxids="taxonomic_nodes_backward.txt"
 	output: "blastp_bw_out.table"
-	params: word_size=config['bw_word_size'], e_value=config['bw_evalue'], num_alignments=config['bw_num_alignments']
-	shell: "blastp -db nr -outfmt \"6 qseqid sseqid evalue bitscore qgi sgi sacc staxids sscinames scomnames stitle\" -out {output} -taxidlist {input.taxids} -word_size {params.word_size} -evalue {params.e_value} -num_alignments {params.num_alignments} -max_hsps 1 -query {input.bw_queries}"
+	params: word_size=config['bw_word_size'], e_value=config['bw_evalue'], num_alignments=config['bw_num_alignments'], num_descriptions=config['bw_num_descriptions'], max_target_seqs=config['bw_max_target_seqs'], max_hsps=config['bw_max_hsps'], num_threads=config['bw_num_threads']
+	shell: "blastp -db nr -outfmt \"6 qseqid sseqid evalue bitscore qgi sgi sacc staxids sscinames scomnames stitle\" -out {output} -taxidlist {input.taxids} -word_size {params.word_size} -evalue {params.e_value} -num_alignments {params.num_alignments} -num_descriptions {params.num_descriptions} -max_target_seqs {params.max_target_seqs} -max_hsps {params.max_hsps} -num_threads {params.num_threads} -query {input.bw_queries}"
 
 rule reciprocal_best_hits:
 	input: bw_res="blastp_bw_out.table", fw_res="blastp_fw_out.table"

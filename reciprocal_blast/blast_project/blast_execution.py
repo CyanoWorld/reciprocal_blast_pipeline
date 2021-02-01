@@ -35,10 +35,19 @@ def write_nr_snakemake_configuration_and_taxid_file(project_id, query_sequences,
         snakemake_config.write("fw_word_size: " + str(fw_settings.word_size) + "\n")
         snakemake_config.write("fw_num_alignments: " + str(fw_settings.num_alignments) + "\n")
         snakemake_config.write("fw_evalue: " + str(fw_settings.e_value) + "\n")
+        snakemake_config.write("fw_num_descriptions: " + str(fw_settings.num_descriptions) + '\n')
+        snakemake_config.write("fw_max_target_seqs: " + str(fw_settings.max_target_seqs) + '\n')
+        snakemake_config.write("fw_max_hsps: " + str(fw_settings.max_hsps) + '\n')
+        snakemake_config.write("fw_num_threads: " + str(fw_settings.num_threads) + '\n')
 
         snakemake_config.write("bw_word_size: " + str(bw_settings.word_size) + "\n")
         snakemake_config.write("bw_num_alignments: " + str(bw_settings.num_alignments) + "\n")
         snakemake_config.write("bw_evalue: " + str(bw_settings.e_value) + "\n")
+        snakemake_config.write("bw_num_descriptions: " + str(bw_settings.num_descriptions) + '\n')
+        snakemake_config.write("bw_max_target_seqs: " + str(bw_settings.max_target_seqs) + '\n')
+        snakemake_config.write("bw_max_hsps: " + str(bw_settings.max_hsps) + '\n')
+        snakemake_config.write("bw_num_threads: " + str(bw_settings.num_threads) + '\n')
+
         snakemake_config.write("project_id: "+str(project_id)+"\n")
 
         snakemake_config.close()
@@ -107,10 +116,20 @@ def write_project_associated_snakefile_configuration_or_throw_valueerror(backwar
         snakemake_config.write("fw_word_size: "+str(fw_settings.word_size)+"\n")
         snakemake_config.write("fw_num_alignments: "+str(fw_settings.num_alignments)+"\n")
         snakemake_config.write("fw_evalue: "+str(fw_settings.e_value)+"\n")
+        snakemake_config.write("fw_num_descriptions: "+str(fw_settings.num_descriptions)+'\n')
+        snakemake_config.write("fw_max_target_seqs: "+str(fw_settings.max_target_seqs)+'\n')
+        snakemake_config.write("fw_max_hsps: "+str(fw_settings.max_hsps)+'\n')
+        snakemake_config.write("fw_num_threads: "+str(fw_settings.num_threads)+'\n')
+
 
         snakemake_config.write("bw_word_size: "+str(bw_settings.word_size)+"\n")
         snakemake_config.write("bw_num_alignments: "+str(bw_settings.num_alignments)+"\n")
         snakemake_config.write("bw_evalue: "+str(bw_settings.e_value)+"\n")
+        snakemake_config.write("bw_num_descriptions: " + str(bw_settings.num_descriptions) + '\n')
+        snakemake_config.write("bw_max_target_seqs: " + str(bw_settings.max_target_seqs) + '\n')
+        snakemake_config.write("bw_max_hsps: " + str(bw_settings.max_hsps) + '\n')
+        snakemake_config.write("bw_num_threads: " + str(bw_settings.num_threads) + '\n')
+
         snakemake_config.write("dbtype: "+dbtype+"\n")
         snakemake_config.write("search_type: "+str(project.search_strategy)+"\n")
         snakemake_config.write("project_id: "+str(project_id)+"\n")

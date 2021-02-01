@@ -36,25 +36,37 @@ def delete_project_files_by_project_id(project_id):
 
 #TODO return error pages
 def save_project_from_form_or_raise_exception(new_title, new_strategy, user):
-    project = BlastProject(project_title=new_title, search_strategy=new_strategy,project_username=user)
-    project.save()
+    try:
+        project = BlastProject(project_title=new_title, search_strategy=new_strategy,project_username=user)
+        project.save()
+    except Exception as e:
+        raise IntegrityError("[-] Couldn't save project in database with exception: {}".format(e))
     return project
 
 def save_nr_project_from_form_or_raise_exception(new_title, user):
-    project = BlastProject(project_title=new_title, search_strategy='blastp', project_username=user, using_nr_database=True)
-    project.save()
+    try:
+        project = BlastProject(project_title=new_title, search_strategy='blastp', project_username=user, using_nr_database=True)
+        project.save()
+    except Exception as e:
+        raise IntegrityError("[-] Couldn't save project in database with exception: {}".format(e))
     return project
 
 def save_query_file_in_db(query_sequences, project):
-    uploaded_file_url_queries = 'media/'+str(project.id)+'/'+query_sequences.name
-    new_query_sequences = QuerySequences(associated_project=project, query_file_name=query_sequences.name,
-                                         path_to_query_file=uploaded_file_url_queries)
-    new_query_sequences.save()
+    try:
+        uploaded_file_url_queries = 'media/'+str(project.id)+'/'+query_sequences.name
+        new_query_sequences = QuerySequences(associated_project=project, query_file_name=query_sequences.name,
+                                             path_to_query_file=uploaded_file_url_queries)
+        new_query_sequences.save()
+    except Exception as e:
+        raise IntegrityError("[-] Couldn't save query file in database with exception: {}".format(e))
 
 def save_new_genome_file_in_db(genome_file):
-    uploaded_file_url = 'media/databases/'+genome_file.name
-    new_genome_database = Genomes(genome_name=genome_file.name,path_to_file=uploaded_file_url)
-    new_genome_database.save()
+    try:
+        uploaded_file_url = 'media/databases/'+genome_file.name
+        new_genome_database = Genomes(genome_name=genome_file.name,path_to_file=uploaded_file_url)
+        new_genome_database.save()
+    except Exception as e:
+        raise IntegrityError("[-] Couldn't save database files with exception: {}".format(e))
 
 
 #function will be executed in the following order
@@ -86,30 +98,43 @@ def upload_file(project_file,destination):
 
 #TODO url of genome files should be in database
 def save_genomes_and_query_in_db(query_sequences, forward_genome_name, backward_genome_name, project):
-    uploaded_file_url_forward = 'media/databases/'+forward_genome_name
-    uploaded_file_url_backward = 'media/databases/'+backward_genome_name
-    uploaded_file_url_queries = 'media/'+str(project.id)+'/'+query_sequences.name
-    new_forward_genome = Genomes(associated_project=project, genome_name=forward_genome_name,
-                             reciprocal_type='forward', path_to_file=uploaded_file_url_forward)
-    new_backward_genome = Genomes(associated_project=project, genome_name=backward_genome_name,
-                              reciprocal_type='backward', path_to_file=uploaded_file_url_backward)
-    new_query_sequences = QuerySequences(associated_project=project,query_file_name=query_sequences.name,
-                                         path_to_query_file=uploaded_file_url_queries)
-    new_forward_genome.save()
-    new_backward_genome.save()
-    new_query_sequences.save()
+    try:
+        uploaded_file_url_forward = 'media/databases/'+forward_genome_name
+        uploaded_file_url_backward = 'media/databases/'+backward_genome_name
+        uploaded_file_url_queries = 'media/'+str(project.id)+'/'+query_sequences.name
+        new_forward_genome = Genomes(associated_project=project, genome_name=forward_genome_name,
+                                 reciprocal_type='forward', path_to_file=uploaded_file_url_forward)
+        new_backward_genome = Genomes(associated_project=project, genome_name=backward_genome_name,
+                                  reciprocal_type='backward', path_to_file=uploaded_file_url_backward)
+        new_query_sequences = QuerySequences(associated_project=project,query_file_name=query_sequences.name,
+                                             path_to_query_file=uploaded_file_url_queries)
+        new_forward_genome.save()
+        new_backward_genome.save()
+        new_query_sequences.save()
+    except Exception as e:
+        raise IntegrityError("[-] Couldn't save database and query files with exception: {}".format(e))
 
 
 
 def save_forward_settings_from_form_or_raise_exception(project,settings_form_forward):
-    settings_fw = ForwardBlastSettings(associated_project=project, e_value=settings_form_forward['fw_e_value'],
-                                       word_size=settings_form_forward['fw_word_size'], num_alignments=settings_form_forward['fw_num_alignments'])
-    settings_fw.save()
+    try:
+        settings_fw = ForwardBlastSettings(associated_project=project, e_value=settings_form_forward['fw_e_value'],
+                                           word_size=settings_form_forward['fw_word_size'], num_alignments=settings_form_forward['fw_num_alignments'],
+                                            num_descriptions=settings_form_forward['fw_num_descriptions'],num_threads=settings_form_forward['fw_num_threads'],
+                                           max_hsps=settings_form_forward['fw_max_hsps'], max_target_seqs=settings_form_forward['fw_max_target_seqs'])
+        settings_fw.save()
+    except Exception as e:
+        raise IntegrityError("[-] Couldn't save forward BLAST settings with exception: {}".format(e))
 
 def save_backward_settings_from_form_or_raise_exception(project,settings_form_backward):
-    settings_bw = BackwardBlastSettings(associated_project=project, e_value=settings_form_backward['bw_e_value'],
-                                        word_size=settings_form_backward['bw_word_size'], num_alignments=settings_form_backward['bw_num_alignments'])
-    settings_bw.save()
+    try:
+        settings_bw = BackwardBlastSettings(associated_project=project, e_value=settings_form_backward['bw_e_value'],
+                                            word_size=settings_form_backward['bw_word_size'], num_alignments=settings_form_backward['bw_num_alignments'],
+                                            num_descriptions=settings_form_backward['bw_num_descriptions'],num_threads=settings_form_backward['bw_num_threads'],
+                                           max_hsps=settings_form_backward['bw_max_hsps'], max_target_seqs=settings_form_backward['bw_max_target_seqs'])
+        settings_bw.save()
+    except Exception as e:
+        raise IntegrityError("[-] Couldn't save backward BLAST settings with exception: {}".format(e))
 
 def set_executed_on_true_and_save_project(current_project):
     try:
