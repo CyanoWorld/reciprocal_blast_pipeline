@@ -36,15 +36,15 @@ def write_nr_snakemake_configuration_and_taxid_file(project_id, query_sequences,
         snakemake_config.write("fw_num_alignments: " + str(fw_settings.num_alignments) + "\n")
         snakemake_config.write("fw_evalue: " + str(fw_settings.e_value) + "\n")
         snakemake_config.write("fw_num_descriptions: " + str(fw_settings.num_descriptions) + '\n')
-        snakemake_config.write("fw_max_target_seqs: " + str(fw_settings.max_target_seqs) + '\n')
-        snakemake_config.write("fw_max_hsps: " + str(fw_settings.max_hsps) + '\n')
+        #snakemake_config.write("fw_max_target_seqs: " + str(fw_settings.max_target_seqs) + '\n')
+        #snakemake_config.write("fw_max_hsps: " + str(fw_settings.max_hsps) + '\n')
         snakemake_config.write("fw_num_threads: " + str(fw_settings.num_threads) + '\n')
 
         snakemake_config.write("bw_word_size: " + str(bw_settings.word_size) + "\n")
         snakemake_config.write("bw_num_alignments: " + str(bw_settings.num_alignments) + "\n")
         snakemake_config.write("bw_evalue: " + str(bw_settings.e_value) + "\n")
         snakemake_config.write("bw_num_descriptions: " + str(bw_settings.num_descriptions) + '\n')
-        snakemake_config.write("bw_max_target_seqs: " + str(bw_settings.max_target_seqs) + '\n')
+        #snakemake_config.write("bw_max_target_seqs: " + str(bw_settings.max_target_seqs) + '\n')
         snakemake_config.write("bw_max_hsps: " + str(bw_settings.max_hsps) + '\n')
         snakemake_config.write("bw_num_threads: " + str(bw_settings.num_threads) + '\n')
 
@@ -117,8 +117,8 @@ def write_project_associated_snakefile_configuration_or_throw_valueerror(backwar
         snakemake_config.write("fw_num_alignments: "+str(fw_settings.num_alignments)+"\n")
         snakemake_config.write("fw_evalue: "+str(fw_settings.e_value)+"\n")
         snakemake_config.write("fw_num_descriptions: "+str(fw_settings.num_descriptions)+'\n')
-        snakemake_config.write("fw_max_target_seqs: "+str(fw_settings.max_target_seqs)+'\n')
-        snakemake_config.write("fw_max_hsps: "+str(fw_settings.max_hsps)+'\n')
+        #snakemake_config.write("fw_max_target_seqs: "+str(fw_settings.max_target_seqs)+'\n')
+        #snakemake_config.write("fw_max_hsps: "+str(fw_settings.max_hsps)+'\n')
         snakemake_config.write("fw_num_threads: "+str(fw_settings.num_threads)+'\n')
 
 
@@ -126,7 +126,7 @@ def write_project_associated_snakefile_configuration_or_throw_valueerror(backwar
         snakemake_config.write("bw_num_alignments: "+str(bw_settings.num_alignments)+"\n")
         snakemake_config.write("bw_evalue: "+str(bw_settings.e_value)+"\n")
         snakemake_config.write("bw_num_descriptions: " + str(bw_settings.num_descriptions) + '\n')
-        snakemake_config.write("bw_max_target_seqs: " + str(bw_settings.max_target_seqs) + '\n')
+        #snakemake_config.write("bw_max_target_seqs: " + str(bw_settings.max_target_seqs) + '\n')
         snakemake_config.write("bw_max_hsps: " + str(bw_settings.max_hsps) + '\n')
         snakemake_config.write("bw_num_threads: " + str(bw_settings.num_threads) + '\n')
 
@@ -201,10 +201,11 @@ def exec_snakemake(project_id):
     if project.using_nr_database == True:
         snakemake_working_dir = 'media/'+str(project_id)+'/'
         snakemake_config_file = 'media/'+str(project_id)+'/snakemake_config'
+        snakefile_dir = getcwd()+'\\static\\snakefile_nr_database\\Snakefile'
         #print("[+] execute snakemake ...")
         #snakemake --snakefile 'C:\\Users\\lujeb\\Documents\\github_projects\\django_blast_project\\reciprocal_blast\\static\\snakefile_nr_database\\Snakefile' --configfile 'snakemake_config' --cores 2
         #subprocess.Popen(['snakemake','--dry-run','--cores','2','--wms-monitor','http://127.0.0.1:5000'], shell=False, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, cwd=snakemake_working_dir)
-        subprocess.Popen(['snakemake','--snakefile','C:\\Users\\lujeb\\Documents\\github_projects\\django_blast_project\\reciprocal_blast\\static\\snakefile_nr_database\\Snakefile','--wms-monitor','http://127.0.0.1:5000','--cores','2','--configfile',snakemake_config_file,'--directory',snakemake_working_dir], shell=False, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        subprocess.Popen(['snakemake','--snakefile',snakefile_dir,'--wms-monitor','http://127.0.0.1:5000','--cores','2','--configfile',snakemake_config_file,'--directory',snakemake_working_dir], shell=False, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 
     else:
         snakemake_working_dir = 'media/'+str(project_id)+'/'
@@ -215,5 +216,5 @@ def exec_snakemake(project_id):
         snakefile_dir = getcwd()+'\\static\\snakefile_genome_upload\\Snakefile'
         #print('\n[+] SNAKEFILE DIR: '+snakefile_dir,'\n[+] SNAKEMAKE WORKING DIR: '+snakemake_working_dir,'\n[+] SNAKEMAKE CONFIG DIR: '+snakemake_config_file)
         #snakemake --snakefile F:\programming\github_projects\bachelor_project_github\reciprocal_blast_pipeline\reciprocal_blast\static\snakefile_genome_upload\Snakefile --cores 2 --configfile media/1/snakemake_config --directory media/1/ --dry-run
-        print('\n[+] COMMAND: snakemake --snakefile {} --cores 2 --configfile {} --directory {}\n'.format(snakefile_dir,snakemake_config_file,snakemake_working_dir))
-        subprocess.Popen(['snakemake', '--snakefile', snakefile_dir, '--cores', '2', '--configfile',snakemake_config_file, '--directory', snakemake_working_dir], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        #print('\n[+] COMMAND: snakemake --snakefile {} --cores 2 --configfile {} --directory {}\n'.format(snakefile_dir,snakemake_config_file,snakemake_working_dir))
+        subprocess.Popen(['snakemake', '--snakefile', snakefile_dir,'--wms-monitor','http://127.0.0.1:5000', '--cores', '2', '--configfile',snakemake_config_file, '--directory', snakemake_working_dir], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
