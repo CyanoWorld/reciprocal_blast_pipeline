@@ -120,8 +120,7 @@ def save_forward_settings_from_form_or_raise_exception(project,settings_form_for
     try:
         settings_fw = ForwardBlastSettings(associated_project=project, e_value=settings_form_forward['fw_e_value'],
                                            word_size=settings_form_forward['fw_word_size'], num_alignments=settings_form_forward['fw_num_alignments'],
-                                            num_descriptions=settings_form_forward['fw_num_descriptions'],num_threads=settings_form_forward['fw_num_threads'],
-                                           max_hsps=settings_form_forward['fw_max_hsps'], max_target_seqs=settings_form_forward['fw_max_target_seqs'])
+                                            num_descriptions=settings_form_forward['fw_num_descriptions'],num_threads=settings_form_forward['fw_num_threads'])
         settings_fw.save()
     except Exception as e:
         raise IntegrityError("[-] Couldn't save forward BLAST settings with exception: {}".format(e))
@@ -131,7 +130,7 @@ def save_backward_settings_from_form_or_raise_exception(project,settings_form_ba
         settings_bw = BackwardBlastSettings(associated_project=project, e_value=settings_form_backward['bw_e_value'],
                                             word_size=settings_form_backward['bw_word_size'], num_alignments=settings_form_backward['bw_num_alignments'],
                                             num_descriptions=settings_form_backward['bw_num_descriptions'],num_threads=settings_form_backward['bw_num_threads'],
-                                           max_hsps=settings_form_backward['bw_max_hsps'], max_target_seqs=settings_form_backward['bw_max_target_seqs'])
+                                           max_hsps=settings_form_backward['bw_max_hsps'])
         settings_bw.save()
     except Exception as e:
         raise IntegrityError("[-] Couldn't save backward BLAST settings with exception: {}".format(e))

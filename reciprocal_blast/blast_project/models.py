@@ -70,8 +70,8 @@ class ForwardBlastSettings(models.Model):
     num_alignments = models.IntegerField(default=10000)
     num_descriptions = models.IntegerField(default=500)
     num_threads = models.IntegerField(default=1)
-    max_hsps = models.IntegerField(default=0)
-    max_target_seqs = models.IntegerField(default=500)
+    #max_hsps = models.IntegerField(default=0)
+    #max_target_seqs = models.IntegerField(default=500)
 
     def __str__(self):
         return "fw settings of {}".format(self.associated_project.__str__())
@@ -85,7 +85,7 @@ class BackwardBlastSettings(models.Model):
     num_descriptions = models.IntegerField(default=1)
     num_threads = models.IntegerField(default=1)
     max_hsps = models.IntegerField(default=1)
-    max_target_seqs = models.IntegerField(default=1)
+    #max_target_seqs = models.IntegerField(default=1)
 
     def __str__(self):
         return "bw settings of {}".format(self.associated_project.__str__())
