@@ -129,7 +129,11 @@ def project_details(request, project_id):
         context = {'project': project, 'genomes': target_genomes, 'forward_settings': forward_settings,
                    'backward_settings': backward_settings, 'query_sequences': query_sequences}
         if snakemake_project_finished(project.id):
-            context['html_results'] = True
+            context['html_results_upload'] = True
+            try:
+                context['statistics_graph'] = load_html_graph(project_id, 'statistics.html')
+            except Exception as e:
+                context['error_html_graph_reading'] = "Couldn't create result plots with exception: " + e
 
     #project details for projects that use the nr database as database
     else:

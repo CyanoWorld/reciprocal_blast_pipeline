@@ -2,21 +2,23 @@ import matplotlib.pyplot as plt, mpld3
 import pandas as pd
 import numpy as np
 
-fw_res = pd.read_table(snakemake.input['fw_res'], header=None)
-
-fw_res.columns = ["qseqid", "sseqid", "evalue", "bitscore", "qgi", "sgi", "sacc", "staxids", "sscinames", "scomnames",
+rec_prot=pd.read_table(snakemake.input['rec_res'])
+fw_res=pd.read_table(snakemake.input['fw_res'],header=None)
+fw_res.columns=["qseqid", "sseqid", "evalue", "bitscore", "qgi", "sgi", "sacc", "staxids", "sscinames", "scomnames",
                   "stitle"]
 
-rec_prot = pd.read_table(snakemake.input['rec_res'])
-rec_prot['sacc'] = rec_prot['forward_genome_id']
-result_data = rec_prot.merge(fw_res, on='sacc')
+fw_res['qseqid'] = fw_res['qseqid'].map(lambda line: line.split('.')[0])
+rec_prot = rec_prot.rename(columns={"forward_genome_id": "sacc"})
+rec_prot = rec_prot.rename(columns={"backward_genome_id": "qseqid"})
+result_data = rec_prot.merge(fw_res,how='inner', on=['sacc','qseqid'])
+result_data = result_data.drop_duplicates('sacc', keep='first')
 
-if len(result_data['backward_genome_id'].unique()) <= 200:
+if len(result_data['qseqid'].unique()) <= 200:
 
     tax_ids = {}
-    for query_id in result_data['backward_genome_id'].unique():
+    for query_id in result_data['qseqid'].unique():
         tax_ids[query_id] = []
-        for taxonomic_nodes in result_data[result_data['backward_genome_id'] == query_id]['staxids']:
+        for taxonomic_nodes in result_data[result_data['qseqid'] == query_id]['staxids']:
             for taxid in taxonomic_nodes.split(';'):
                 if taxid not in tax_ids[query_id]: tax_ids[query_id].append(taxid)
 
@@ -38,7 +40,7 @@ if len(result_data['backward_genome_id'].unique()) <= 200:
         # print(height)
         plt.text(rect.get_x() + rect.get_width() / 2.0, height, '%d' % int(height), ha='center', va='bottom', fontsize=12)
 
-    input_query_ids = result_data['backward_genome_id'].unique()
+    input_query_ids = result_data['qseqid'].unique()
 
     try:
         query_seqs = open(snakemake.params['input_queries'])
@@ -71,7 +73,7 @@ if len(result_data['backward_genome_id'].unique()) <= 200:
     query_hits_dict = {}
     for prot_id in input_query_ids:
         query_hits_dict[prot_id] = []
-        for bw_prot_id in result_data[result_data['backward_genome_id'] == prot_id]['forward_genome_id']:
+        for bw_prot_id in result_data[result_data['qseqid'] == prot_id]['sacc']:
             query_hits_dict[prot_id].append(bw_prot_id)
 
     query_amount = list(range(1,len(input_query_ids)+1))
@@ -107,13 +109,13 @@ if len(result_data['backward_genome_id'].unique()) <= 200:
     plt.savefig(snakemake.output[2])
     mpld3.save_html(figure,snakemake.output[3])
 
-elif len(result_data['backward_genome_id'].unique()) > 200:
-    input_query_ids = result_data['backward_genome_id'].unique()
+elif len(result_data['qseqid'].unique()) > 200:
+    input_query_ids = result_data['qseqid'].unique()
 
     tax_ids = {}
-    for query_id in result_data['backward_genome_id'].unique():
+    for query_id in result_data['qseqid'].unique():
         tax_ids[query_id] = []
-        for taxonomic_nodes in result_data[result_data['backward_genome_id'] == query_id]['staxids']:
+        for taxonomic_nodes in result_data[result_data['qseqid'] == query_id]['staxids']:
             for taxid in taxonomic_nodes.split(';'):
                 if taxid not in tax_ids[query_id]: tax_ids[query_id].append(taxid)
 
@@ -124,7 +126,7 @@ elif len(result_data['backward_genome_id'].unique()) > 200:
     query_hits_dict = {}
     for prot_id in input_query_ids:
         query_hits_dict[prot_id] = []
-        for bw_prot_id in result_data[result_data['backward_genome_id'] == prot_id]['forward_genome_id']:
+        for bw_prot_id in result_data[result_data['qseqid'] == prot_id]['sacc']:
             if bw_prot_id not in query_hits_dict[prot_id]:
                 query_hits_dict[prot_id].append(bw_prot_id)
 

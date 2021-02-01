@@ -203,7 +203,7 @@ def exec_snakemake(project_id):
         snakemake_config_file = 'media/'+str(project_id)+'/snakemake_config'
         snakefile_dir = getcwd()+'\\static\\snakefile_nr_database\\Snakefile'
         #print("[+] execute snakemake ...")
-        #snakemake --snakefile 'C:\\Users\\lujeb\\Documents\\github_projects\\django_blast_project\\reciprocal_blast\\static\\snakefile_nr_database\\Snakefile' --configfile 'snakemake_config' --cores 2
+        #snakemake --snakefile 'C:\Users\lujeb\Documents\github_projects\reciprocal_blast_pipeline\reciprocal_blast\static\snakefile_nr_database\Snakefile' --configfile 'snakemake_config' --cores 2
         #subprocess.Popen(['snakemake','--dry-run','--cores','2','--wms-monitor','http://127.0.0.1:5000'], shell=False, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, cwd=snakemake_working_dir)
         subprocess.Popen(['snakemake','--snakefile',snakefile_dir,'--wms-monitor','http://127.0.0.1:5000','--cores','2','--configfile',snakemake_config_file,'--directory',snakemake_working_dir], shell=False, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 

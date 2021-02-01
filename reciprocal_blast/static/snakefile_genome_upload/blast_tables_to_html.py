@@ -1,13 +1,11 @@
 import pandas as pd
-fw_res = pd.read_table(snakemake.input['fw_res'],header=None)
-#bw_res = pd.read_table("backward_blast_output.csv",header=None)
+rec_prot=pd.read_table(snakemake.input['rec_res'])
+fw_res=pd.read_table(snakemake.input['fw_res'],header=None)
 fw_res.columns = ["qseqid","sseqid","pident","length", "mismatch", "gapopen", "qstart", "qend", "sstart", "send", "evalue", "bitscore"]
-#bw_res.columns = ["qseqid","sseqid","pident","length", "mismatch", "gapopen", "qstart", "qend", "sstart", "send", "evalue", "bitscore"]
-
-rec_prot = pd.read_table(snakemake.input['rec_res'])
-rec_prot['qseqid'] = rec_prot['backward_genome_id']
-rec_prot['sseqid'] = rec_prot['forward_genome_id']
-result_data = rec_prot.merge(fw_res, on=['sseqid','qseqid'])
+rec_prot = rec_prot.rename(columns={"forward_genome_id": "sseqid"})
+rec_prot = rec_prot.rename(columns={"backward_genome_id": "qseqid"})
+result_data = rec_prot.merge(fw_res,how='inner', on=['sseqid','qseqid'])
+result_data = result_data.drop_duplicates('sseqid', keep='first')
 
 pd.set_option('colheader_justify', 'left')
 html_string = '''
