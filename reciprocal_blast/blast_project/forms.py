@@ -92,11 +92,22 @@ class AdvancedSettingsForm_Forward(forms.Form):
     fw_e_value = forms.DecimalField(label="FW E-Value", required=False, initial=0.001)
     fw_word_size = forms.IntegerField(label="FW Word Size", required=False, initial=3)
     fw_num_alignments = forms.IntegerField(label="FW Number of possible alignment outputs", required=False, initial=10000)
+    fw_num_descriptions = forms.IntegerField(label="FW Number of possible alignment description outputs", required=False, initial=500)
+    fw_num_threads = forms.IntegerField(label="Number of threads used for executing this BLAST search", required=False, initial=1)
+    fw_max_hsps = forms.IntegerField(label="FW Number of high scoring pairs to output", required=False, initial=0)
+    fw_max_target_seqs = forms.IntegerField(label="FW Number of maximal alignment outputs", required=False, initial=500)
 
 class AdvancedSettingsForm_Backward(forms.Form):
     bw_e_value = forms.DecimalField(label="BW E-Value", required=False, initial=0.001)
     bw_word_size = forms.IntegerField(label="BW Word Size", required=False,initial=3)
     bw_num_alignments = forms.IntegerField(label="BW Number of possible alignment outputs",required=False, initial=1)
+    bw_num_descriptions = forms.IntegerField(label="FW Number of possible alignment description outputs",
+                                              required=False, initial=1)
+    bw_num_threads = forms.IntegerField(label="Number of threads used for executing this BLAST search", required=False,
+                                         initial=1)
+    bw_max_hsps = forms.IntegerField(label="FW Number of high scoring pairs to output", required=False, initial=1)
+    bw_max_target_seqs = forms.IntegerField(label="FW Number of maximal alignment outputs", required=False,
+                                             initial=1)
 
 class CreateUserForm(UserCreationForm):
     class Meta:

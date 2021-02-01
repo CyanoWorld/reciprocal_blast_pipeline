@@ -62,13 +62,17 @@ def registrationPage(request):
     context = {'form': userForm, }
     return render(request,'blast_project/register.html',context)
 
+#homepage: lists all projects associated to the user
+#main.html : lists projects and links to their detail and pipeline dashboard pages
+#in the navigation bar are all other necessary links to project creation and supplementary pages
 #@allowed_user(['admin','customer'])
 @login_required(login_url='login')
 def main(request):
     try:
         projects = BlastProject.objects.filter(project_username=request.user)
+        #query set of project specific databases
         target_genomes = Genomes.objects.filter(associated_project__in=projects)
-        #TODO Refactoring
+        #deletes folders that are not included as projects ids in the database
         delete_files_without_projects()
     except Exception as e:
         return failure_view(request,e)
@@ -78,13 +82,16 @@ def main(request):
         }
     return render(request,'blast_project/main.html',context)
 
+#this page is rendered when post forms are valid
 def success_view(request):
     return render(request,'blast_project/success.html')
 
+#if an exception occurres this page is rendered in order to evaluate the exceptions context
 def failure_view(request,exception):
     context={'exception':exception}
     return render(request,'blast_project/failure.html', context)
 
+#view for deleting specific projects and all associated data
 #@allowed_user(['admin','customer'])
 @login_required(login_url='login')
 def delete_project(request,project_id):
@@ -106,13 +113,16 @@ def delete_project(request,project_id):
                    'backward_settings': backward_settings,'query_sequences':query_sequences }
         return render(request, 'blast_project/delete_project.html', context)
 
+#project detail view; if snakemake finished this view also displays result graphs
 @login_required(login_url='login')
 def project_details(request, project_id):
+    #associated data for both project types
     project = get_object_or_404(BlastProject,pk=project_id)
     forward_settings = ForwardBlastSettings.objects.get(associated_project=project_id)
     backward_settings = BackwardBlastSettings.objects.get(associated_project=project_id)
     query_sequences = QuerySequences.objects.get(associated_project=project_id)
 
+    #project details for projects that use uploaded files as databases
     if project.using_nr_database == False:
         target_genomes = Genomes.objects.filter(associated_project=project_id)
 
@@ -120,11 +130,16 @@ def project_details(request, project_id):
                    'backward_settings': backward_settings, 'query_sequences': query_sequences}
         if snakemake_project_finished(project.id):
             context['html_results'] = True
+
+    #project details for projects that use the nr database as database
     else:
         forward_db_organisms = TaxNodesForForwardDatabase.objects.filter(associated_project=project_id)
         backward_db_organisms = TaxNodesForBackwardDatabase.objects.filter(associated_project=project_id)
+
         context = {'project': project, 'forward_settings': forward_settings,'backward_db_organisms':backward_db_organisms,
                    'backward_settings': backward_settings, 'query_sequences': query_sequences, 'forward_db_organisms':forward_db_organisms}
+
+        #view results if the snakemake execution has finished; if the last output file was created
         if snakemake_project_finished(project.id):
             context['html_results'] = True
             try:
@@ -135,6 +150,7 @@ def project_details(request, project_id):
 
     return render(request, 'blast_project/project_details.html', context)
 
+#this view is used when a button is triggered in project_details it displays the reciprocal results
 def display_reciprocal_result_table(request,project_id):
     try:
         html_data = get_html_results(project_id,"reciprocal_results.html")
@@ -142,11 +158,14 @@ def display_reciprocal_result_table(request,project_id):
     except Exception as e:
         return failure_view(request,e)
 
+#view for executing and displaying the status of the genome upload blast project pipeline
 #@allowed_user(['admin','customer'])
 @login_required(login_url='login')
 def pipeline_dashboard(request,project_id):
     project = get_object_or_404(BlastProject,pk=project_id)
     context = {'project': project}
+
+    #code for displaying the actual status of the snakemake execution
     if snakefile_exists(project_id):
         try:
             content = view_builded_snakefile(project_id, 'upload')
@@ -162,10 +181,13 @@ def pipeline_dashboard(request,project_id):
             return failure_view(request, e)
     return render(request,'blast_project/pipeline_dashboard.html', context)
 
+#view for executing and displaying the status of the nr blast project pipeline
 @login_required(login_url='login')
 def pipeline_nr_dashboard(request,project_id):
     project = get_object_or_404(BlastProject, pk=project_id)
     context = {'project': project}
+
+    #code for displaying the actual status of the snakemake execution
     if snakefile_exists(project_id):
         try:
             content = view_builded_snakefile(project_id,'nr')
@@ -182,56 +204,7 @@ def pipeline_nr_dashboard(request,project_id):
 
     return render(request,'blast_project/pipeline_nr_dashboard.html', context)
 
-'''
-#TODO GET request for deleting, this breaks the REST Framework definition...
-#@allowed_user(['admin','customer'])
-@login_required(login_url='login')
-def remove_snakefile(request):
-    if request.method == 'GET':
-        project_id = request.GET['remove_snakefile']
-        try:
-            delete_snakefile(project_id)
-        except Exception as e:
-            return failure_view(request,e)
-
-        return redirect('pipeline_dashboard',project_id)
-    else:
-        return Http404()
-'''
-
-
-#@allowed_user(['admin','customer'])
-#placeholder for a realy exiting function
-'''
-@login_required(login_url='login')
-def build_snakefile(request):
-    if request.method == 'POST':
-        project_id = request.POST['build_snakefile']
-        #write project associated snakefile --> load project and all associated objects and get access to projects media folder
-        try:
-            write_snakefile(project_id)
-        except Exception as e:
-            return failure_view(request,e)
-        return redirect('pipeline_dashboard',project_id)
-    else:
-        return Http404()
-
-@login_required(login_url='login')
-def build_nr_snakefile(request):
-    if request.method == 'POST':
-        project_id = request.POST['build_nr_snakefile']
-        #write project associated snakefile --> load project and all associated objects and get access to projects media folder
-        try:
-            write_nr_snakefile(project_id)
-        except Exception as e:
-            return failure_view(request,e)
-        return redirect('pipeline_nr_dashboard',project_id)
-    else:
-        return Http404()
-
-'''
 def execute_nr_snakefile(request):
-    print("[+] lets go")
     project_id = request.GET['execute_nr_snakefile']
 
     current_project=get_object_or_404(BlastProject,pk=project_id)
@@ -240,7 +213,6 @@ def execute_nr_snakefile(request):
     except IntegrityError as e:
         return failure_view(request,e)
 
-    print("[+] lets go")
     exec_snakemake(project_id)
     return redirect('pipeline_nr_dashboard', project_id)
 
@@ -256,8 +228,8 @@ def execute_snakefile(request):
     exec_snakemake(project_id)
     return redirect('pipeline_dashboard', project_id)
 
+#view for project creation based on uploaded genome files
 #@allowed_user(['admin','customer'])
-#TODO add not valid features ...
 @login_required(login_url='login')
 def create_project(request):
     if request.method == 'POST':
@@ -266,6 +238,7 @@ def create_project(request):
         settings_form_backward = AdvancedSettingsForm_Backward(request.POST)
         if project_creation_form.is_valid() and settings_form_forward.is_valid() and settings_form_backward.is_valid():
             try:
+                # ensures that everything is correctly saved into the database, if an error occurres saving would not be transmitted
                 with transaction.atomic():
                     new_title = project_creation_form.cleaned_data['project_title']
                     new_strategy = project_creation_form.cleaned_data['search_strategy']
@@ -308,6 +281,7 @@ def create_uploaded_based_project(request):
         settings_form_backward = AdvancedSettingsForm_Backward(request.POST)
         if project_creation_form.is_valid() and settings_form_forward.is_valid() and settings_form_backward.is_valid():
             try:
+                # ensures that everything is correctly saved into the database, if an error occurres saving would not be transmitted
                 with transaction.atomic():
                     new_title = project_creation_form.cleaned_data['project_title']
                     new_strategy = project_creation_form.cleaned_data['search_strategy']
@@ -353,6 +327,7 @@ def create_nr_based_project(request):
         settings_form_backward = AdvancedSettingsForm_Backward(request.POST)
         if project_creation_form.is_valid() and settings_form_forward.is_valid() and settings_form_backward.is_valid():
             try:
+                #ensures that everything is correctly saved into the database, if an error occurres saving would not be transmitted
                 with transaction.atomic():
                     new_title = project_creation_form.cleaned_data['project_title']
                     taxonomic_nodes_bw = project_creation_form.cleaned_data['taxid_bw']

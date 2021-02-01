@@ -68,6 +68,10 @@ class ForwardBlastSettings(models.Model):
     e_value = models.DecimalField(max_digits=30, decimal_places=15, default=0.0001)
     word_size = models.IntegerField(default=3)
     num_alignments = models.IntegerField(default=10000)
+    num_descriptions = models.IntegerField(default=500)
+    num_threads = models.IntegerField(default=1)
+    max_hsps = models.IntegerField(default=0)
+    max_target_seqs = models.IntegerField(default=500)
 
     def __str__(self):
         return "fw settings of {}".format(self.associated_project.__str__())
@@ -78,6 +82,10 @@ class BackwardBlastSettings(models.Model):
     e_value = models.DecimalField(max_digits=30, decimal_places=15, default=0.0001)
     word_size = models.IntegerField(default=3)
     num_alignments = models.IntegerField(default=1)
+    num_descriptions = models.IntegerField(default=1)
+    num_threads = models.IntegerField(default=1)
+    max_hsps = models.IntegerField(default=1)
+    max_target_seqs = models.IntegerField(default=1)
 
     def __str__(self):
         return "bw settings of {}".format(self.associated_project.__str__())
