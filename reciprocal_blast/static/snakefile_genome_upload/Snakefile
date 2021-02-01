@@ -14,7 +14,7 @@ rule forward_blast:
 	input: query=config['fw_query'], db=config['fw_db']+".pdb"
 	output: "blastp_fw_out.table"
 	params: blast_in=config['fw_db'], word_size=config['fw_word_size'], e_value=config['fw_evalue'], num_alignments=config['fw_num_alignments'], search_type=config['search_type'], num_descriptions=config['fw_num_descriptions'], max_target_seqs=config['fw_max_target_seqs'], max_hsps=config['fw_max_hsps'], num_threads=config['fw_num_threads']
-	shell: "{params.search_type} -db {params.blast_in} -query {input.query} -outfmt \"6 qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore\" -word_size {params.word_size} -evalue {params.e_value} -num_alignments {params.num_alignments} -num_descriptions {params.num_descriptions} -max_target_seqs {params.max_target_seqs} -max_hsps {params.max_hsps} -num_threads {params.num_threads} -out {output} "
+	shell: "{params.search_type} -db {params.blast_in} -query {input.query} -outfmt \"6 qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore\" -word_size {params.word_size} -evalue {params.e_value} -num_alignments {params.num_alignments} -num_descriptions {params.num_descriptions} -num_threads {params.num_threads} -out {output} "
 
 rule get_backward_sequences:
 	input: blast_results="blastp_fw_out.table", fw_genome=config['fw_db']
@@ -32,7 +32,7 @@ rule backward_blast:
 	input: query=config['bw_query'], db=config['bw_db']+".pdb"
 	output: "blastp_bw_out.table"
 	params: blast_in=config['bw_db'], word_size=config['bw_word_size'], e_value=config['bw_evalue'], num_alignments=config['bw_num_alignments'], search_type=config['search_type'], num_descriptions=config['bw_num_descriptions'], max_target_seqs=config['bw_max_target_seqs'], max_hsps=config['bw_max_hsps'], num_threads=config['bw_num_threads']
-	shell: "{params.search_type} -db {params.blast_in} -query {input.query} -outfmt \"6 qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore\" -word_size {params.word_size} -evalue {params.e_value} -num_alignments {params.num_alignments} -num_descriptions {params.num_descriptions} -max_target_seqs {params.max_target_seqs} -max_hsps {params.max_hsps} -num_threads {params.num_threads} -out {output} "
+	shell: "{params.search_type} -db {params.blast_in} -query {input.query} -outfmt \"6 qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore\" -word_size {params.word_size} -evalue {params.e_value} -num_alignments {params.num_alignments} -num_descriptions {params.num_descriptions} -max_hsps {params.max_hsps} -num_threads {params.num_threads} -out {output} "
 
 rule get_reciprocal_best_hits_proteins_ids:
 	input: bw_result="blastp_bw_out.table", fw_result="blastp_fw_out.table"
