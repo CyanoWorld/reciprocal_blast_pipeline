@@ -248,15 +248,15 @@ def create_project(request):
                     backward_genome = request.FILES['backward_genome_file']
                     query_sequences = request.FILES['query_sequence_file']
 
-                    #check if genomes are already in the database if true return same page with information
+                    save_genomes_and_query_in_db(query_sequences, forward_genome.name, backward_genome.name, project)
+                    save_forward_settings_from_form_or_raise_exception(project, settings_form_forward.cleaned_data)
+                    save_backward_settings_from_form_or_raise_exception(project, settings_form_backward.cleaned_data)
+
                     create_project_dir(project)
                     upload_file(forward_genome,'media/'+'databases/'+forward_genome.name)
                     upload_file(backward_genome,'media/'+'databases/'+backward_genome.name)
                     upload_file(query_sequences,'media/'+str(project.id)+'/'+'query_sequences'+'/'+query_sequences.name)
-                    save_genomes_and_query_in_db(query_sequences, forward_genome.name, backward_genome.name, project)
 
-                    save_forward_settings_from_form_or_raise_exception(project,settings_form_forward.cleaned_data)
-                    save_backward_settings_from_form_or_raise_exception(project,settings_form_backward.cleaned_data)
                     write_snakefile(project.id)
                     return success_view(request)
             except IntegrityError as e:
