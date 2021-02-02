@@ -1,0 +1,5 @@
+reciprocal_blast/media/*
+reciprocal_blast/static/result_images/*
+.idea/*
+reciprocal_blast/.panoptes.db
+reciprocal_blast/db.sqlite3
