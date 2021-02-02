@@ -1,30 +1,30 @@
 import pandas as pd
 
-frec_prot=pd.read_table(snakemake.input['rec_res'])
+rec_prot=pd.read_table(snakemake.input['rec_res'])
 fw_res=pd.read_table(snakemake.input['fw_res'],header=None)
 fw_res.columns=["qseqid", "sseqid", "evalue", "bitscore", "qgi", "sgi", "sacc", "staxids", "sscinames", "scomnames",
                   "stitle"]
 
 fw_res['qseqid'] = fw_res['qseqid'].map(lambda line: line.split('.')[0])
+rec_prot = rec_prot.rename(columns={"forward_genome_id": "sacc"})
+rec_prot = rec_prot.rename(columns={"backward_genome_id": "qseqid"})
+result_data = rec_prot.merge(fw_res,how='inner', on=['sacc','qseqid'])
+result_data = result_data.drop_duplicates('sacc', keep='first')
+result_data = result_data.reset_index(drop=True)
 
-
-for i in range(0, len(fw_res), 1):
-    taxids = fw_res.iat[i, 7]
-    scientific_names = fw_res.iat[i, 8]
-    common_names = fw_res.iat[i, 9]
+for i in range(0, len(result_data), 1):
+    taxids = result_data.iat[i, 7]
+    scientific_names = result_data.iat[i, 8]
+    common_names = result_data.iat[i, 9]
 
     if (len(taxids.split(";")) > 3):
         taxid_string = ';'.join(taxids.split(";")[0:3]) + "..."
         scientific_names_string = ';'.join(scientific_names.split(";")[0:3]) + "..."
         common_names_string = ';'.join(common_names.split(";")[0:3]) + "..."
-        fw_res.iloc[i, 7] = taxid_string
-        fw_res.iloc[i, 8] = scientific_names_string
-        fw_res.iloc[i, 9] = common_names_string
+        result_data.iloc[i, 7] = taxid_string
+        result_data.iloc[i, 8] = scientific_names_string
+        result_data.iloc[i, 9] = common_names_string
 
-rec_prot = rec_prot.rename(columns={"forward_genome_id": "sacc"})
-rec_prot = rec_prot.rename(columns={"backward_genome_id": "qseqid"})
-result_data = rec_prot.merge(fw_res,how='inner', on=['sacc','qseqid'])
-result_data = result_data.drop_duplicates('sacc', keep='first')
 
 pd.set_option('colheader_justify', 'left')
 html_string = '''

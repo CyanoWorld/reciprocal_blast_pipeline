@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt, mpld3
 import pandas as pd
-import numpy as np
+#import numpy as np
 
 rec_prot=pd.read_table(snakemake.input['rec_res'])
 fw_res=pd.read_table(snakemake.input['fw_res'],header=None)
@@ -145,21 +145,23 @@ elif len(result_data['qseqid'].unique()) > 200:
                               label='minimum ' + str(min(reciprocal_hits)))
     hist_to_png = plt.axvline(max(reciprocal_hits), color='green', linestyle='dashed', linewidth=2,
                               label='maximum ' + str(max(reciprocal_hits)))
-    hist_to_png = plt.xticks(np.arange(0, max(reciprocal_hits), step=50))
+    #hist_to_png = plt.xticks(np.arange(0, max(reciprocal_hits)))
     hist_to_png = plt.xlabel("amount of organisms that have orthologous sequences")
     hist_to_png = plt.ylabel("amount of query sequences")
-
-    figure_to_html = plt.figure(figsize=[10, 6])
-    hist_to_html = plt.hist(reciprocal_hits, bins=hbins, label='average ' + str(
-        round(sum(reciprocal_hits) / len(reciprocal_hits))) + '\nminimum ' + str(
-        min(reciprocal_hits)) + '\nmaximum ' + str(max(reciprocal_hits)))
-    hist_to_html = plt.xlabel("amount of organisms that have orthologous sequences")
-    hist_to_html = plt.ylabel("amount of query sequences")
-    hist_to_html = plt.legend()
-    hist_to_html = plt.grid()
-
     plt.savefig(snakemake.params['org_orth_png'])
     plt.savefig(snakemake.output[0])
+
+
+
+    figure_to_html = plt.figure(figsize=[10, 6])
+    label = ['average ' + str(
+    round(sum(reciprocal_hits) / len(reciprocal_hits))),'minimum ' + str(
+    min(reciprocal_hits)), 'maximum ' + str(max(reciprocal_hits))]
+    hist_to_html = plt.hist(reciprocal_hits, bins=hbins,label=label)
+    hist_to_html = plt.xlabel("amount of organisms that have orthologous sequences")
+    hist_to_html = plt.ylabel("amount of query sequences")
+    hist_to_html = plt.grid(color='grey', linestyle='dashed')
+    hist_to_html = plt.legend()
     mpld3.save_html(figure_to_html, snakemake.output[1])
 
 
@@ -169,17 +171,19 @@ elif len(result_data['qseqid'].unique()) > 200:
     hist_to_png = plt.axvline(sum(query_hits)/len(query_hits),color='k',linestyle='dashed',linewidth=2, label='average '+str(round(sum(query_hits)/len(query_hits))))
     hist_to_png = plt.axvline(min(query_hits),color='r',linestyle='dashed',linewidth=2, label='minimum '+str(min(query_hits)))
     hist_to_png = plt.axvline(max(query_hits),color='green',linestyle='dashed',linewidth=2, label='maximum '+str(max(query_hits)))
-    hist_to_png = plt.xticks(np.arange(0, max(query_hits), step=50))
+    #hist_to_png = plt.xticks(np.arange(0, max(query_hits), step=50))
     hist_to_png = plt.xlabel("amount of hits")
     hist_to_png = plt.ylabel("amount of query sequences")
-
-    figure_to_html = plt.figure(figsize=[10,6])
-    hist_to_html = plt.hist(query_hits,bins=hbins,label='average '+str(round(sum(query_hits)/len(query_hits)))+'\nminimum '+str(min(query_hits))+'\nmaximum '+str(max(query_hits)))
-    hist_to_html = plt.xlabel("amount of hits")
-    hist_to_html = plt.ylabel("amount of query sequences")
-    hist_to_html = plt.legend()
-    hist_to_html = plt.grid()
-
     plt.savefig(snakemake.params['amount_hits_png'])
     plt.savefig(snakemake.output[2])
+
+    figure_to_html = plt.figure(figsize=[10, 6])
+    label = ['average ' + str(
+        round(sum(query_hits) / len(query_hits))), 'minimum ' + str(
+        min(query_hits)), 'maximum ' + str(max(query_hits))]
+    hist_to_html = plt.hist(query_hits, bins=hbins, fc='green', label=label)
+    hist_to_html = plt.grid(color='grey', linestyle='dashed')
+    hist_to_html = plt.legend()
+    hist_to_html = plt.xlabel("amount of hits")
+    hist_to_html = plt.ylabel("amount of query sequences")
     mpld3.save_html(figure_to_html, snakemake.output[3])
