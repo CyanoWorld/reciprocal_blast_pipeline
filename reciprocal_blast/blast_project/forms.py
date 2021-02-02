@@ -30,6 +30,17 @@ class BlastProjectForm(forms.Form):
                     '[-] A genome database with that name already exist, please specify another file! Or try to use previously uploaded databases!')
         return genome
 
+def get_genomes_tuple():
+    try:
+        genomes = []
+        for genome_name in Genomes.objects.all().values('genome_name'):
+            if genome_name['genome_name'] not in genomes:
+                genomes.append(genome_name['genome_name'])
+        genomes = tuple(zip(genomes,genomes))
+        return genomes
+    except:
+        return (('no genomes available','no genomes available'))
+
 class BlastProjectUploadedForm(forms.Form):
     project_title = forms.CharField(label="Project title",
                                     error_messages={
@@ -38,15 +49,9 @@ class BlastProjectUploadedForm(forms.Form):
                                         error_messages={
                                             'required': "Please specify a search strategy otherwise you won't be able to execute a BLAST run .."})
 
-    genomes = []
-    for genome_name in Genomes.objects.all().values('genome_name'):
-        if genome_name['genome_name'] not in genomes:
-            genomes.append(genome_name['genome_name'])
-    genomes = tuple(zip(genomes,genomes))
-
     #error_messages={'required': "Use a database file, this is the database for the second BLAST (from your query sequences)"}
-    forward_genome_file = forms.ChoiceField(choices=genomes)
-    backward_genome_file = forms.ChoiceField(choices=genomes)
+    forward_genome_file = forms.ChoiceField(choices=get_genomes_tuple())
+    backward_genome_file = forms.ChoiceField(choices=get_genomes_tuple())
     query_sequence_file = forms.FileField(error_messages={'required':"Upload a query sequence file, this file will serve as the -query parameter for the forward BLAST analysis"})
 
     def clean_backward_genome_file(self):

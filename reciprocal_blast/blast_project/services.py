@@ -34,6 +34,22 @@ def delete_project_files_by_project_id(project_id):
     except Exception as e:
         raise ValueError('[-] unable to remove project directory: {} with exception: {}'.format(project_id,e))
 
+def check_if_genomes_should_be_resaved(project_id):
+    try:
+        # if the associated genome database just has this project as its use, the genome database won't appear in the database anymore
+        # so save the genome into the database without a project association
+        genomes = Genomes.objects.filter(associated_project=project_id)
+        # len(genomes) == 2 because there are always two genomes associated to genome upload projects
+        if len(genomes) == 2:
+            genome_first = Genomes(genome_name=genomes[0].genome_name, path_to_file=genomes[0].path_to_file)
+            genome_second = Genomes(genome_name=genomes[1].genome_name, path_to_file=genomes[1].path_to_file)
+            genome_first.save()
+            genome_second.save()
+    except Exception as e:
+        raise IntegrityError("[-] Couldn't resave genome databases during deletion of the project...")
+
+
+
 #TODO return error pages
 def save_project_from_form_or_raise_exception(new_title, new_strategy, user):
     try:

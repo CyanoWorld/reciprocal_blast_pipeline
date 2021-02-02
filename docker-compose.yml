@@ -9,13 +9,13 @@ services:
       - POSTGRES_PASSWORD=postgres
   web:
     build: .
-    command:  bash -c "python manage.py migrate && python manage.py makemigrations && python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
+    command:  bash -c "python manage.py makemigrations && python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
     volumes:
-      - F:\programming\docker_projects\docker_django_snakemake_blast\data:/blast/media
-      - F:\programming\docker_projects\docker_django_snakemake_blast\tmp:/blast/tmp
-      - F:\programming\github_projects\bachelor_project_github\reciprocal_blast_pipeline\data:/blast/databases
+      - C:\Users\lujeb\Documents\github_projects\fresh_folder_django_project\data:/blast/media
+      - C:\Users\lujeb\Documents\github_projects\fresh_folder_django_project\tmp:/blast/tmp
     ports:
       - "8000:8000"
+      - "5000:5000"
     depends_on:
       - db
 

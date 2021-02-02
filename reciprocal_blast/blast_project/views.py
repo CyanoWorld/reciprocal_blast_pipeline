@@ -13,7 +13,8 @@ from .services import delete_files_without_projects, \
     save_forward_settings_from_form_or_raise_exception, save_backward_settings_from_form_or_raise_exception, \
     set_executed_on_true_and_save_project, save_nr_project_from_form_or_raise_exception, save_query_file_in_db, \
     create_nr_project_dir, validate_fw_taxids_and_save_into_database, snakemake_project_finished,\
-    get_html_results, load_html_graph, validate_bw_taxids_and_save_into_database, save_new_genome_file_in_db
+    get_html_results, load_html_graph, validate_bw_taxids_and_save_into_database, save_new_genome_file_in_db, \
+    check_if_genomes_should_be_resaved
 
 from .biopython_functions import get_species_taxid, get_scientific_name_by_taxid
 
@@ -99,7 +100,10 @@ def delete_project(request,project_id):
     if request.method == 'POST':
         #deleting associated files
         try:
+            #execute this function before deletion of project
+            check_if_genomes_should_be_resaved(project_id)
             delete_project_files_by_project_id(project_id)
+            
             project.delete()
         except Exception as e:
             return failure_view(request,e)
