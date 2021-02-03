@@ -1,5 +1,5 @@
 from django.db import IntegrityError, transaction
-
+from .models import Genomes
 from .blast_execution import write_snakefile, write_nr_snakefile
 from .services import save_genomes_and_query_in_db, save_project_from_form_or_raise_exception, \
     upload_file, create_project_dir, \
@@ -16,6 +16,7 @@ def create_project_with_previously_uploaded_genomes(request, project_creation_fo
             new_title = project_creation_form.cleaned_data['project_title']
             new_strategy = project_creation_form.cleaned_data['search_strategy']
             project = save_project_from_form_or_raise_exception(new_title, new_strategy, request.user)
+
 
             forward_genome = project_creation_form.cleaned_data['forward_genome_file']
             backward_genome = project_creation_form.cleaned_data['backward_genome_file']
@@ -75,17 +76,51 @@ def create_project_with_uploaded_files(request, project_creation_form,settings_f
             new_strategy = project_creation_form.cleaned_data['search_strategy']
             project = save_project_from_form_or_raise_exception(new_title, new_strategy, request.user)
 
-            forward_genome = request.FILES['forward_genome_file']
-            backward_genome = request.FILES['backward_genome_file']
             query_sequences = request.FILES['query_sequence_file']
 
-            save_genomes_and_query_in_db(query_sequences, forward_genome.name, backward_genome.name, project)
             save_forward_settings_from_form_or_raise_exception(project, settings_form_forward.cleaned_data)
             save_backward_settings_from_form_or_raise_exception(project, settings_form_backward.cleaned_data)
 
+            #these conditions check wether a previously genome database should be used or if a file gets uploaded
+            if  project_creation_form.cleaned_data['forward_genome_file'] == None and project_creation_form.cleaned_data['backward_genome_file'] == None:
+                forward_genome = project_creation_form.cleaned_data['forward_genome_uploaded_file']
+                forward_genome_data = Genomes.objects.filter(genome_name=forward_genome).order_by('id').first()
+                backward_genome = project_creation_form.cleaned_data['backward_genome_uploaded_file']
+                backward_genome_data = Genomes.objects.filter(genome_name=backward_genome).order_by('id').first()
+                save_genomes_and_query_in_db(query_sequences, forward_genome_data.genome_name, backward_genome_data.genome_name,
+                                             project)
+
+            elif project_creation_form.cleaned_data['forward_genome_file'] == None and project_creation_form.cleaned_data['backward_genome_file'] != None:
+                forward_genome = project_creation_form.cleaned_data['forward_genome_uploaded_file']
+                forward_genome_data = Genomes.objects.filter(genome_name=forward_genome).order_by('id').first()
+                backward_genome_data = request.FILES['backward_genome_file']
+                save_genomes_and_query_in_db(query_sequences, forward_genome_data.genome_name, backward_genome_data.name,
+                                             project)
+                upload_file(backward_genome_data, 'media/' + 'databases/' + backward_genome_data.name)
+
+
+            elif project_creation_form.cleaned_data['forward_genome_file'] != None and project_creation_form.cleaned_data['backward_genome_file'] == None:
+                backward_genome = project_creation_form.cleaned_data['backward_genome_uploaded_file']
+                backward_genome_data = Genomes.objects.filter(genome_name=backward_genome).order_by('id').first()
+                forward_genome_data = request.FILES['forward_genome_file']
+                save_genomes_and_query_in_db(query_sequences, forward_genome_data.name, backward_genome_data.genome_name,
+                                             project)
+                upload_file(forward_genome_data, 'media/' + 'databases/' + forward_genome_data.name)
+
+
+            elif project_creation_form.cleaned_data['forward_genome_file'] != None and project_creation_form.cleaned_data['backward_genome_file'] != None:
+                forward_genome_data = request.FILES['forward_genome_file']
+                backward_genome_data = request.FILES['backward_genome_file']
+                save_genomes_and_query_in_db(query_sequences, forward_genome_data.name, backward_genome_data.name,
+                                             project)
+                upload_file(forward_genome_data, 'media/' + 'databases/' + forward_genome_data.name)
+                upload_file(backward_genome_data, 'media/' + 'databases/' + backward_genome_data.name)
+            else:
+                raise IntegrityError("[-] Something with the databas specifications is not correct")
+
+
+
             create_project_dir(project)
-            upload_file(forward_genome, 'media/' + 'databases/' + forward_genome.name)
-            upload_file(backward_genome, 'media/' + 'databases/' + backward_genome.name)
             upload_file(query_sequences,
                         'media/' + str(project.id) + '/' + 'query_sequences' + '/' + query_sequences.name)
 

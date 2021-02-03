@@ -25,8 +25,10 @@
             </div>
 
         <hr>
-        <p style="font-size: large; font-weight: bold">Upload new database files</p>
+        <p style="font-size: large; font-weight: bold">Upload new database files or use previously uploaded databases</p>
         <hr>
+
+            <div class="form-row">
             <div class="form-group">
                 <label for="forward_genome_file">Forward Genome File</label>
                 <input type="file" class="form-control-file" id="forward_genome_file" name="forward_genome_file">
@@ -37,6 +39,27 @@
                 {% endif %}
             </div>
             <div class="form-group">
+                  <label for="forward_genome_uploaded_file">Select forward database:</label>
+                  <select class="form-control" id="forward_genome_uploaded_file" name="forward_genome_uploaded_file">
+                            <option value=""> </option>
+                      {% for fw_database, option in  BlastProjectForm.forward_genome_uploaded_file.field.choices %}
+                            <option value="{{ fw_database }}">{{ fw_database }}</option>
+                      {% endfor %}
+                  </select>
+                    {% if BlastProjectForm.forward_genome_uploaded_file.errors %}
+                        <div class="alert alert-danger">
+                            <strong>{{BlastProjectForm.forward_genome_uploaded_file.errors}}</strong>
+                        </div>
+                    {% endif %}
+            </div>
+
+            </div>
+
+            <hr>
+
+            <div class="form-row">
+
+                <div class="form-group">
                 <label for="backward_genome_file">Backward Genome File</label>
                 <input type="file" class="form-control-file" id="backward_genome_file" name="backward_genome_file">
                 {% if BlastProjectForm.backward_genome_file.errors %}
@@ -44,6 +67,21 @@
                         <strong>{{BlastProjectForm.backward_genome_file.errors}}</strong>
                     </div>
                 {% endif %}
+                </div>
+                <div class="form-group">
+                  <label for="backward_genome_uploaded_file">Select backward database:</label>
+                  <select class="form-control" id="backward_genome_uploaded_file" name="backward_genome_uploaded_file">
+                          <option value=""> </option>
+                      {% for bw_database,option in  BlastProjectForm.backward_genome_uploaded_file.field.choices %}
+                          <option value="{{ bw_database }}">{{ bw_database }}</option>
+                      {% endfor %}
+                  </select>
+                    {% if BlastProjectForm.backward_genome_uploaded_file.errors %}
+                        <div class="alert alert-danger">
+                            <strong>{{BlastProjectForm.backward_genome_uploaded_file.errors}}</strong>
+                        </div>
+                    {% endif %}
+                </div>
             </div>
 
             <div class="form-group">
