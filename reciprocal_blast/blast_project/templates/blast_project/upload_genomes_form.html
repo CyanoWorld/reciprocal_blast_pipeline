@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<body>
+    <div class="container-fluid ">
+        <form method = "POST" enctype="multipart/form-data" onsubmit="displayErrorFormBlockAfterSubmit('upload')">
+
+            {% csrf_token %}
+
+            <div class="form-group mr-2">
+                <label for="project_title"> Project Title </label>
+                <input type="text" class="form-control" id="project_title" name="project_title">
+                {% if BlastProjectForm.project_title.errors %}
+                    <div class="alert alert-danger">
+                        <strong>{{BlastProjectForm.project_title.errors}}</strong>
+                    </div>
+                {% endif %}
+            </div>
+
+             <div class="form-group">
+                <label for="search_strategy">Search Strategy</label>
+                 <select class="form-control" id="search_strategy" name="search_strategy">
+                     <option value="blastn">blastn</option>
+                     <option value="blastp">blastp</option>
+                 </select>
+            </div>
+
+        <hr>
+        <p style="font-size: large; font-weight: bold">Upload new database files</p>
+        <hr>
+            <div class="form-group">
+                <label for="forward_genome_file">Forward Genome File</label>
+                <input type="file" class="form-control-file" id="forward_genome_file" name="forward_genome_file">
+                {% if BlastProjectForm.forward_genome_file.errors %}
+                    <div class="alert alert-danger">
+                        <strong>{{BlastProjectForm.forward_genome_file.errors}}</strong>
+                    </div>
+                {% endif %}
+            </div>
+            <div class="form-group">
+                <label for="backward_genome_file">Backward Genome File</label>
+                <input type="file" class="form-control-file" id="backward_genome_file" name="backward_genome_file">
+                {% if BlastProjectForm.backward_genome_file.errors %}
+                    <div class="alert alert-danger">
+                        <strong>{{BlastProjectForm.backward_genome_file.errors}}</strong>
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="query_sequence_file">Query Sequences</label>
+                <input type="file" class="form-control-file" id="query_sequence_file" name="query_sequence_file">
+                {% if BlastProjectForm.query_sequence_file.errors %}
+                    <div class="alert alert-danger">
+                        <strong>{{BlastProjectForm.query_sequence_file.errors}}</strong>
+                    </div>
+                {% endif %}
+            </div>
+            <hr>
+            <div id="advanced_settings" class="form-group" style="display:none">
+                <p><strong>Settings for Forward Blast:</strong></p>
+                <div class="form-group">
+                    <label for="fw_e_value">E-Value</label>
+                    <input type="number" class="form-control-file" id="fw_e_value" name="fw_e_value" value="0.001">
+                </div>
+                <div class="form-group">
+                    <label for="fw_word_size">Word-Size</label>
+                    <input type="number" class="form-control-file" id="fw_word_size" name="fw_word_size" value="3">
+                </div>
+                <div class="form-group">
+                    <label for="fw_num_alignments">Alignment Number</label>
+                    <input type="number" class="form-control-file" id="fw_num_alignments" name="fw_num_alignments" value="10000">
+                </div>
+                 <div class="form-group">
+                    <label for="fw_num_descriptions">Description Number</label>
+                    <input type="number" class="form-control-file" id="fw_num_descriptions" name="fw_num_descriptions" value="500">
+                </div>
+                 <div class="form-group">
+                    <label for="fw_num_threads">Number of Threads</label>
+                    <input type="number" class="form-control-file" id="fw_num_threads" name="fw_num_threads" value="1">
+                </div>
+
+                <p><strong>Settings for Backward Blast:</strong></p>
+                <div class="form-group">
+                    <label for="bw_e_value">E-Value</label>
+                    <input type="number" class="form-control-file" id="bw_e_value" name="bw_e_value" value="0.001">
+                </div>
+                <div class="form-group">
+                    <label for="bw_word_size">Word-Size</label>
+                    <input type="number" class="form-control-file" id="bw_word_size" name="bw_word_size" value="3">
+                </div>
+                <div class="form-group">
+                    <label for="bw_num_alignments">Alignment Number</label>
+                    <input type="number" class="form-control-file" id="bw_num_alignments" name="bw_num_alignments" value="1">
+                </div>
+
+                 <div class="form-group">
+                    <label for="bw_num_descriptions">Description Number</label>
+                    <input type="number" class="form-control-file" id="bw_num_descriptions" name="bw_num_descriptions" value="1">
+                </div>
+                 <div class="form-group">
+                    <label for="bw_max_hsps">Maximum Number of High Scoring Pairs</label>
+                    <input type="number" class="form-control-file" id="bw_max_hsps" name="bw_max_hsps" value="1">
+                </div>
+                 <div class="form-group">
+                    <label for="bw_num_threads">Number of Threads</label>
+                    <input type="number" class="form-control-file" id="bw_num_threads" name="bw_num_threads" value="1">
+                </div>
+            </div>
+            <input type = "submit" value = "Submit" class="btn btn-primary mb-2">
+            <input type="hidden" value="upload" id="project_type" name="project_type">
+        </form>
+
+            <button class="btn btn-info" onclick="displayBlastSettings()">Advanced BLAST Settings </button>
+        </div>
+
+    <script>
+        function displayBlastSettings() {
+              var settingsForm = document.getElementById("advanced_settings");
+              if (settingsForm.style.display == "none") {
+                settingsForm.style.display = "block";
+              } else {
+                settingsForm.style.display = "none";
+              }
+            }
+    </script>
+</body>
+</html>

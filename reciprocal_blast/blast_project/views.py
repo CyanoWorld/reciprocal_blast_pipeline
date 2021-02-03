@@ -1,30 +1,83 @@
-from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.models import Group
-from django.db import transaction, IntegrityError
-
+from django.db import IntegrityError
 from django.http import HttpResponse
-from .models import BlastProject, Genomes, ForwardBlastSettings, BackwardBlastSettings, QuerySequences, TaxNodesForForwardDatabase, TaxNodesForBackwardDatabase
+from django.shortcuts import render, get_object_or_404, redirect
+
+from .biopython_functions import get_species_taxid
+from .blast_execution import view_builded_snakefile, snakefile_exists, \
+    exec_snakemake, read_snakemake_logs
+from .decorators import unauthenticated_user
+from .forms import BlastProjectForm, BlastProjectNrForm, AdvancedSettingsForm_Forward, AdvancedSettingsForm_Backward, \
+    CreateUserForm, SpeciesNameForm, BlastProjectUploadedForm, UploadDatabaseForm
+from .models import BlastProject, Genomes, ForwardBlastSettings, BackwardBlastSettings, QuerySequences, \
+    TaxNodesForForwardDatabase, TaxNodesForBackwardDatabase
+from .project_creation import create_project_with_uploaded_files, create_project_with_nr_database, \
+    create_project_with_previously_uploaded_genomes
 from .services import delete_files_without_projects, \
-    save_genomes_and_query_in_db, save_project_from_form_or_raise_exception, \
-    delete_project_files_by_project_id, upload_file, create_project_dir, \
-    save_forward_settings_from_form_or_raise_exception, save_backward_settings_from_form_or_raise_exception, \
-    set_executed_on_true_and_save_project, save_nr_project_from_form_or_raise_exception, save_query_file_in_db, \
-    create_nr_project_dir, validate_fw_taxids_and_save_into_database, snakemake_project_finished,\
-    get_html_results, load_html_graph, validate_bw_taxids_and_save_into_database, save_new_genome_file_in_db, \
+    delete_project_files_by_project_id, upload_file, set_executed_on_true_and_save_project, snakemake_project_finished, \
+    get_html_results, load_html_graph, save_new_genome_file_in_db, \
     check_if_genomes_should_be_resaved
 
-from .biopython_functions import get_species_taxid, get_scientific_name_by_taxid
 
-from .blast_execution import write_snakefile, view_builded_snakefile, snakefile_exists,\
-    exec_snakemake, write_nr_snakefile, read_snakemake_logs
-
-from .forms import BlastProjectForm, BlastProjectNrForm, AdvancedSettingsForm_Forward, AdvancedSettingsForm_Backward, CreateUserForm, SpeciesNameForm, BlastProjectUploadedForm, UploadDatabaseForm
-
-from .decorators import unauthenticated_user, allowed_user
 # TODO refactoring and annotating
+
+def project_creation(request):
+    if request.method == 'POST':
+
+        settings_form_forward = AdvancedSettingsForm_Forward(request.POST)
+        settings_form_backward = AdvancedSettingsForm_Backward(request.POST)
+
+        try:
+            if request.POST['project_type'] == 'upload':
+                project_creation_nr_from = BlastProjectNrForm()
+                project_creation_uploaded_form = BlastProjectUploadedForm()
+
+                project_creation_form = BlastProjectForm(request.POST, request.FILES)
+
+                if project_creation_form.is_valid() and settings_form_forward.is_valid() and settings_form_backward.is_valid():
+                    create_project_with_uploaded_files(request, project_creation_form,settings_form_forward,settings_form_backward)
+                    return success_view(request)
+
+            if request.POST['project_type'] == 'nr':
+                project_creation_uploaded_form = BlastProjectUploadedForm()
+                project_creation_form = BlastProjectForm()
+
+                project_creation_nr_from = BlastProjectNrForm(request.POST, request.FILES)
+                if project_creation_nr_from.is_valid() and settings_form_forward.is_valid() and settings_form_backward.is_valid():
+                    create_project_with_nr_database(request, project_creation_nr_from,settings_form_forward,settings_form_backward)
+                    return success_view(request)
+
+            if request.POST['project_type'] == 'previously_uploaded':
+                project_creation_nr_from = BlastProjectNrForm()
+                project_creation_form = BlastProjectForm()
+
+                project_creation_uploaded_form = BlastProjectUploadedForm(request.POST, request.FILES)
+
+                if project_creation_uploaded_form.is_valid() and settings_form_forward.is_valid() and settings_form_backward.is_valid():
+                    create_project_with_previously_uploaded_genomes(request, project_creation_form,settings_form_forward, settings_form_backward)
+                    return success_view(request)
+
+        except Exception as e:
+            return failure_view(request,e)
+
+
+    else:
+        project_creation_form = BlastProjectForm()
+        project_creation_nr_from = BlastProjectNrForm()
+        project_creation_uploaded_form = BlastProjectUploadedForm()
+        settings_form_forward = AdvancedSettingsForm_Forward()
+        settings_form_backward = AdvancedSettingsForm_Backward()
+
+
+    context = {'BlastProjectForm': project_creation_form,
+               'BlastProjectNrForm': project_creation_nr_from,
+               'BlastProjectUploadedForm': project_creation_uploaded_form,
+           'AdvancedSettingsForm_Forward': settings_form_forward,
+           'AdvancedSettingsForm_Backward': settings_form_backward}
+
+    return render(request,'blast_project/project_creation.html',context)
 
 @unauthenticated_user
 def loginPage(request):
@@ -132,6 +185,8 @@ def project_details(request, project_id):
 
         context = {'project': project, 'genomes': target_genomes, 'forward_settings': forward_settings,
                    'backward_settings': backward_settings, 'query_sequences': query_sequences}
+
+        #view results if the snakemake execution has finished; if the last output file was created
         if snakemake_project_finished(project.id):
             context['html_results_upload'] = True
             try:
@@ -238,6 +293,7 @@ def execute_snakefile(request):
 
 #view for project creation based on uploaded genome files
 #@allowed_user(['admin','customer'])
+'''
 @login_required(login_url='login')
 def create_project(request):
     if request.method == 'POST':
@@ -279,7 +335,7 @@ def create_project(request):
                'AdvancedSettingsForm_Forward':settings_form_forward,'AdvancedSettingsForm_Backward':settings_form_backward}
 
 
-    return render(request, 'blast_project/project_creation.html', context)
+    return render(request, 'blast_project/project_creation_3.html', context)
 
 @login_required(login_url='login')
 def create_uploaded_based_project(request):
@@ -373,6 +429,7 @@ def create_nr_based_project(request):
                'AdvancedSettingsForm_Backward': settings_form_backward}
 
     return render(request, 'blast_project/project_creation_based_on_nr_database.html', context)
+'''
 
 @login_required(login_url='login')
 def species_taxid(request):

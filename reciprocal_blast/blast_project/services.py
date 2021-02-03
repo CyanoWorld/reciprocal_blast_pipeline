@@ -1,8 +1,9 @@
 from django.core.files.storage import FileSystemStorage
 
-from django.db import IntegrityError
+from django.db import IntegrityError, transaction
 
 from .models import BlastProject, Genomes, ForwardBlastSettings, BackwardBlastSettings, QuerySequences, TaxNodesForForwardDatabase, TaxNodesForBackwardDatabase
+
 from os import listdir, walk, mkdir
 from os.path import isfile, join, isdir
 from shutil import rmtree
