@@ -95,6 +95,7 @@ class BlastProjectNrForm(forms.Form):
     query_sequence_file = forms.FileField(error_messages={'required':"Upload a query sequence file, this file will serve as the -query parameter for the forward BLAST analysis"})
     taxid_fw = forms.CharField(required=False, label = 'Scientific Names (conversion to Taxonomic Nodes) for Forward BLAST',
                                error_messages={'required':"Specify a Scientific Name for your forward BLAST - use a comma seperated list"})
+
     def clean_taxid_fw(self):
         taxids_fw = self.cleaned_data['taxid_fw']
         taxids = []

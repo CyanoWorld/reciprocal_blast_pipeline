@@ -1,3 +1,5 @@
+#note this script can be replaced with the blastdbcmd program
+
 import pandas as pd
 import itertools as it
 

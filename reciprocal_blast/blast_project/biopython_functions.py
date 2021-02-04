@@ -15,7 +15,6 @@ def get_species_taxid(user_email,scientific_name):
 
 def get_species_taxid_without_email(scientific_name):
     try:
-        Entrez.email = 'lukas.becker@hhu.de'
         search = Entrez.esearch(term=scientific_name, db="taxonomy", retmode="xml")
         record = Entrez.read(search)
         taxid = record['IdList'][0]
