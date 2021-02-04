@@ -6,7 +6,7 @@ from django.http import HttpResponse
 from django.shortcuts import render, get_object_or_404, redirect
 
 from .biopython_functions import get_species_taxid
-from .blast_execution import view_builded_snakefile, snakefile_exists, \
+from .blast_execution import view_builded_snakefile, snakemake_config_exists, \
     exec_snakemake, read_snakemake_logs
 from .decorators import unauthenticated_user
 from .forms import BlastProjectForm, BlastProjectNrForm, AdvancedSettingsForm_Forward, AdvancedSettingsForm_Backward, \
@@ -22,7 +22,13 @@ from .services import delete_files_without_projects, \
 
 
 # TODO refactoring and annotating
+#General informations concerning views:
+#request.method == 'GET' view
 
+
+
+#This view loads the project_creation.html template which in turn includes the upload_genomes_form.html as well as
+#the nr_database_form.html. It then
 def project_creation(request):
     if request.method == 'POST':
 
@@ -171,6 +177,7 @@ def delete_project(request,project_id):
         return render(request, 'blast_project/delete_project.html', context)
 
 #project detail view; if snakemake finished this view also displays result graphs
+#the view is divided into a view for the nr associated projects and the uploaded genome database projects
 @login_required(login_url='login')
 def project_details(request, project_id):
     #associated data for both project types
@@ -186,7 +193,7 @@ def project_details(request, project_id):
         context = {'project': project, 'genomes': target_genomes, 'forward_settings': forward_settings,
                    'backward_settings': backward_settings, 'query_sequences': query_sequences}
 
-        #view results if the snakemake execution has finished; if the last output file was created
+        #view results if the snakemake execution has finished; if the last output file was created; currently 'reciprocal_results.html'
         if snakemake_project_finished(project.id):
             context['html_results_upload'] = True
             try:
@@ -202,7 +209,7 @@ def project_details(request, project_id):
         context = {'project': project, 'forward_settings': forward_settings,'backward_db_organisms':backward_db_organisms,
                    'backward_settings': backward_settings, 'query_sequences': query_sequences, 'forward_db_organisms':forward_db_organisms}
 
-        #view results if the snakemake execution has finished; if the last output file was created
+        #view results if the snakemake execution has finished; if the last output file was created; currently 'reciprocal_results.html'
         if snakemake_project_finished(project.id):
             context['html_results'] = True
             try:
@@ -221,7 +228,9 @@ def display_reciprocal_result_table(request,project_id):
     except Exception as e:
         return failure_view(request,e)
 
-#view for executing and displaying the status of the genome upload blast project pipeline
+#view for executing and displaying the status of the genome upload project pipeline
+#the view reads the snakefile and the last snakemake log file
+#the view loads the pipeline_dashboard.html template in which buttons for executing and monitoring are included
 #@allowed_user(['admin','customer'])
 @login_required(login_url='login')
 def pipeline_dashboard(request,project_id):
@@ -229,13 +238,15 @@ def pipeline_dashboard(request,project_id):
     context = {'project': project}
 
     #code for displaying the actual status of the snakemake execution
-    if snakefile_exists(project_id):
+    if snakemake_config_exists(project_id):
         try:
             content = view_builded_snakefile(project_id, 'upload')
             log_content = read_snakemake_logs(project_id)
+            #logs are available
             if 'no_logs' not in log_content[0].keys():
                 context['log'] = log_content[0]
                 context['pipeline_percentage'] = log_content[1]
+            #there are no logs available, yet
             else:
                 context['no_logs'] = log_content[0]
             context['content'] = content
@@ -244,20 +255,25 @@ def pipeline_dashboard(request,project_id):
             return failure_view(request, e)
     return render(request,'blast_project/pipeline_dashboard.html', context)
 
+#this view is similar but slightly different to the pipeline_dashboard view, maybe a combination would be appropriate
 #view for executing and displaying the status of the nr blast project pipeline
+#the view reads the snakefile and the last snakemake log file
+#the view loads the pipeline_nr_dashboard.html template in which buttons for executing and monitoring are included
 @login_required(login_url='login')
 def pipeline_nr_dashboard(request,project_id):
     project = get_object_or_404(BlastProject, pk=project_id)
     context = {'project': project}
 
     #code for displaying the actual status of the snakemake execution
-    if snakefile_exists(project_id):
+    if snakemake_config_exists(project_id):
         try:
             content = view_builded_snakefile(project_id,'nr')
             log_content = read_snakemake_logs(project_id)
+            #logs are available
             if 'no_logs' not in log_content[0].keys():
                 context['log'] = log_content[0]
                 context['pipeline_percentage'] = log_content[1]
+            #there are no logs available, yet
             else:
                 context['no_logs'] = log_content[0]
             context['content'] = content
@@ -267,6 +283,8 @@ def pipeline_nr_dashboard(request,project_id):
 
     return render(request,'blast_project/pipeline_nr_dashboard.html', context)
 
+#this view is triggered if the user pressed the EXECUTE NR SNAKEMAKE button in the pipeline_nr_dashboard.html template
+#it
 def execute_nr_snakefile(request):
     project_id = request.GET['execute_nr_snakefile']
 

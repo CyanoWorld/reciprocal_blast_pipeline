@@ -1,6 +1,6 @@
 from django.db import IntegrityError, transaction
 from .models import Genomes
-from .blast_execution import write_snakefile, write_nr_snakefile
+from .blast_execution import prepare_data_and_write_genome_upload_snakemake_configurations, prepare_data_and_write_nr_snakemake_configurations_and_taxid_files
 from .services import save_genomes_and_query_in_db, save_project_from_form_or_raise_exception, \
     upload_file, create_project_dir, \
     save_forward_settings_from_form_or_raise_exception, save_backward_settings_from_form_or_raise_exception, \
@@ -35,7 +35,7 @@ def create_project_with_previously_uploaded_genomes(request, project_creation_fo
 
             save_forward_settings_from_form_or_raise_exception(project, settings_form_forward.cleaned_data)
             save_backward_settings_from_form_or_raise_exception(project, settings_form_backward.cleaned_data)
-            write_snakefile(project.id)
+            prepare_data_and_write_genome_upload_snakemake_configurations(project.id)
 
     except Exception as e:
         raise IntegrityError("[-] Couldn't perform project creation due to exception: {}".format(e))
@@ -64,7 +64,7 @@ def create_project_with_nr_database(request, project_creation_form,settings_form
             upload_file(query_sequences,
                         'media/' + str(project.id) + '/' + 'query_sequences' + '/' + query_sequences.name)
 
-            write_nr_snakefile(project.id)
+            prepare_data_and_write_nr_snakemake_configurations_and_taxid_files(project.id)
     except Exception as e:
         raise IntegrityError("[-] Couldn't perform project creation due to exception: {}".format(e))
 
@@ -124,6 +124,6 @@ def create_project_with_uploaded_files(request, project_creation_form,settings_f
             upload_file(query_sequences,
                         'media/' + str(project.id) + '/' + 'query_sequences' + '/' + query_sequences.name)
 
-            write_snakefile(project.id)
+            prepare_data_and_write_genome_upload_snakemake_configurations(project.id)
     except Exception as e:
         raise IntegrityError("[-] Couldn't perform project creation due to exception: {}".format(e))

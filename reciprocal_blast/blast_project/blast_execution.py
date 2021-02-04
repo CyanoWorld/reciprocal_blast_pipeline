@@ -7,9 +7,13 @@ from os.path import isfile, isdir
 from os import remove, chmod, listdir, getcwd, system
 from datetime import datetime
 from pathlib import Path
-import subprocess
+from subprocess import Popen
+from subprocess import PIPE as subPIPE
+from subprocess import STDOUT as subSTDOUT
 
-def write_nr_snakefile(project_id):
+#is executed at the end of project creation
+#collects all necessary data based on a project instance by loading relevant database entries
+def prepare_data_and_write_nr_snakemake_configurations_and_taxid_files(project_id):
     try:
         project = get_object_or_404(BlastProject, pk=project_id)
         query_sequences = get_object_or_404(QuerySequences, associated_project=project)
@@ -21,13 +25,13 @@ def write_nr_snakefile(project_id):
         raise IntegrityError("[-] Couldn't get NR project specific data out of the database with exception: {}".format(e))
     try:
         if isdir('media/'+str(project_id)+'/'):
-            #copy_nr_snakefile(project_id)
             write_nr_snakemake_configuration_and_taxid_file(project_id,query_sequences, forward_db_organisms, backward_db_organisms, fw_settings, bw_settings)
         else:
-            raise ValueError("[-] Couldn't write snakemake config for NR project, there is no project folder.")
+            raise NotADirectoryError("[-] Couldn't write snakemake config for NR project, there is no project folder.")
     except Exception as e:
         raise ValueError("[-] Couldn't write snakemake config for NR project with exception: {}".format(e))
 
+#writes the snakemake_config for nr projects
 def write_nr_snakemake_configuration_and_taxid_file(project_id, query_sequences, fw_taxids, bw_taxids, fw_settings, bw_settings):
     try:
         snakemake_config = open("media/" + str(project_id) + '/snakemake_config', 'w')
@@ -57,6 +61,7 @@ def write_nr_snakemake_configuration_and_taxid_file(project_id, query_sequences,
     except Exception as e:
         raise ValueError("[-] Error creating project associated configuration files with Exception: {}".format(e))
 
+#writes the taxid files that are used by the nr snakefile
 def write_taxid_file(project_id,filename,taxonomic_nodes):
     try:
         taxid_file = open("media/" + str(project_id) + "/"+filename, "w")
@@ -64,20 +69,11 @@ def write_taxid_file(project_id,filename,taxonomic_nodes):
             taxid_file.write(str(organism.taxonomic_node) + "\n")
         taxid_file.close()
     except Exception as e:
-        raise Exception("[-] Coudn't write taxonomic node file with exception: {}".format(e))
+        raise IOError("[-] Coudn't write taxonomic node file with exception: {}".format(e))
 
-
-
-def copy_nr_snakefile(project_id):
-    try:
-        copy('static/snakefile_nr_database/Snakefile', 'media/' + str(project_id))
-        chmod("./media/" + str(project_id) + "/Snakefile", 777)
-
-    except Exception as e:
-        raise ValueError("[-] Failed copying snakefile to project dir with exception: {}".format(e))
-
-#TODO one function for copying
-def write_snakefile(project_id):
+#is executed at the end of project creation
+#collects all necessary data based on a project instance by loading relevant database entries
+def prepare_data_and_write_genome_upload_snakemake_configurations(project_id):
     #prepare project relevant data
     try:
         project = get_object_or_404(BlastProject, pk=project_id)
@@ -90,20 +86,21 @@ def write_snakefile(project_id):
     except Exception as e:
         raise IntegrityError("[-] Couldn't get project specific data out of the database with exception: {}".format(e))
 
-    #check if media dir of project exists if not return Http404
+    #check if media dir of project exists if not raise NotADirectoryError
     try:
         if isdir('media/' + str(project_id) + '/'):
-            #write project specific snakemake configuration and grant permissions
-            write_project_associated_snakefile_configuration_or_throw_valueerror(backward_genome, bw_settings, dbtype, forward_genome,
-                                                                                 fw_settings, project, project_id, query_sequences)
+            #write project specific snakemake configuration and grant permissions (unix - level)
+            write_genome_upload_snakemake_configuration(backward_genome, bw_settings, dbtype, forward_genome,
+                                                        fw_settings, project, project_id, query_sequences)
             chmod("./media/" + str(project_id) + "/snakemake_config", 777)
         else:
-            raise ValueError("[-] Couldn't write snakemake configuration, there is no project folder.")
+            raise NotADirectoryError("[-] Couldn't write snakemake configuration, there is no project folder.")
     except Exception as e:
         raise ValueError("[-] Couldn't write snakemake configuration with exception: {}".format(e))
 
-def write_project_associated_snakefile_configuration_or_throw_valueerror(backward_genome, bw_settings, dbtype, forward_genome,
-                                                                         fw_settings, project, project_id, query_sequences):
+#writes the snakemake_config for upload genome projects
+def write_genome_upload_snakemake_configuration(backward_genome, bw_settings, dbtype, forward_genome,
+                                                fw_settings, project, project_id, query_sequences):
     try:
         forward_genome_path = getcwd() + '\\media\\databases\\'+forward_genome.genome_name
         backward_genome_path = getcwd() + '\\media\\databases\\' + backward_genome.genome_name
@@ -136,17 +133,18 @@ def write_project_associated_snakefile_configuration_or_throw_valueerror(backwar
 
         snakemake_config.close()
     except Exception as e:
-        raise ValueError("[-] Failed writing snakemake_config to project dir with exception: {}".format(e))
+        raise IOError("[-] Failed writing snakemake_config to project dir with exception: {}".format(e))
 
-
-def snakefile_exists(project_id):
+#checks if snakemake_config exists
+def snakemake_config_exists(project_id):
     switch = True if isfile("media/" + str(project_id) + "/snakemake_config") else False
     return switch
 
-#
-#TODO: render dictionary based on snakemake config file for output in pipeline_dashboard
+#just for the development process (the user must not know the content of the Snakefile)
+#TODO: render dictionary based on snakemake config file for output in the pipeline dashboard templates
 def view_builded_snakefile(project_id,nr_or_upload):
     #snakemake_config_file = 'media/' + str(project_id) + '/snakemake_config'
+    #check the project type and set the correct path variable
     if nr_or_upload == 'nr':
         snakefile_path = 'static/snakefile_nr_database/Snakefile'
     else:
@@ -166,18 +164,24 @@ def view_builded_snakefile(project_id,nr_or_upload):
 
         return content
     except Exception as e:
-        raise ValueError('[-] Error during reading Snakefile at: {} with Exception: {}'.format("media/" + str(project_id) + "/Snakefile", e))
+        raise FileNotFoundError('[-] Error during reading Snakefile at: {} with Exception: {}'.format("media/" + str(project_id) + "/Snakefile", e))
 
+#executed during view execution: pipeline_nr_dashboard, pipeline_dashboard
+#function for reading and processing the LAST snakemake log file
+#it provides the percentage number of the current pipeline status (similar to PANOPTES)
 def read_snakemake_logs(project_id):
     try:
         files = []
         time_modified = []
         logfile_path = 'media/'+str(project_id)+'/.snakemake/log'
+        #looping over all log files and checking the timestamp
         for file in listdir(logfile_path):
             files.append(file)
             current_file = Path('media/'+str(project_id)+'/.snakemake/log/' + file)
             timestamp = datetime.fromtimestamp(current_file.stat().st_mtime)
             time_modified.append(timestamp)
+
+        #use the last modified log file for processing
         latest_file_name = files[time_modified.index(max(time_modified))]
 
         content={}
@@ -186,16 +190,21 @@ def read_snakemake_logs(project_id):
         latest_percentage = 0
         for line in latest_file.readlines():
             content['logfile'].append(line)
+            #splits the current line of the log file in order to get the current percentage as an integer value
+            #this integer value is then passed to the context of the view
             if 'steps' and '%' in line:
                 latest_percentage =  line.split(' ')[4].split('(')[1].split(')')[0]
         latest_file.close()
         return content, latest_percentage
+    #this exception is not being used in the template
     except Exception as e:
         return [{'no_logs':"no logs are available, exception: ".format(e)}]
 
 
-#don't output something in snakemake's invoked scripts
-#TODO add error handling
+#TODO add error handling, receive PID of the by Popen opened process, save the PID as number into the project model
+#TODO add function for handling this PID, add options created by the user that can additionally be passed to snakemake (number of cores)
+#TODO refactor Popen call subSTDOUT and subPIPE ...
+#don't output something to the subprocess.PIPE in snakemake's invoked scripts e.g. a print statement
 def exec_snakemake(project_id):
     project = get_object_or_404(BlastProject, pk=project_id)
     if project.using_nr_database == True:
@@ -205,7 +214,7 @@ def exec_snakemake(project_id):
         #print("[+] execute snakemake ...")
         #snakemake --snakefile 'C:\Users\lujeb\Documents\github_projects\reciprocal_blast_pipeline\reciprocal_blast\static\snakefile_nr_database\Snakefile' --configfile 'snakemake_config' --cores 2
         #subprocess.Popen(['snakemake','--dry-run','--cores','2','--wms-monitor','http://127.0.0.1:5000'], shell=False, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, cwd=snakemake_working_dir)
-        subprocess.Popen(['snakemake','--snakefile',snakefile_dir,'--wms-monitor','http://127.0.0.1:5000','--cores','2','--configfile',snakemake_config_file,'--directory',snakemake_working_dir], shell=False, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        Popen(['snakemake','--snakefile',snakefile_dir,'--wms-monitor','http://127.0.0.1:5000','--cores','2','--configfile',snakemake_config_file,'--directory',snakemake_working_dir], shell=False, stdout=subPIPE, stderr=subSTDOUT)
 
     else:
         snakemake_working_dir = 'media/'+str(project_id)+'/'
@@ -217,4 +226,4 @@ def exec_snakemake(project_id):
         #print('\n[+] SNAKEFILE DIR: '+snakefile_dir,'\n[+] SNAKEMAKE WORKING DIR: '+snakemake_working_dir,'\n[+] SNAKEMAKE CONFIG DIR: '+snakemake_config_file)
         #snakemake --snakefile F:\programming\github_projects\bachelor_project_github\reciprocal_blast_pipeline\reciprocal_blast\static\snakefile_genome_upload\Snakefile --cores 2 --configfile media/1/snakemake_config --directory media/1/ --dry-run
         #print('\n[+] COMMAND: snakemake --snakefile {} --cores 2 --configfile {} --directory {}\n'.format(snakefile_dir,snakemake_config_file,snakemake_working_dir))
-        subprocess.Popen(['snakemake', '--snakefile', snakefile_dir,'--wms-monitor','http://127.0.0.1:5000', '--cores', '2', '--configfile',snakemake_config_file, '--directory', snakemake_working_dir], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        Popen(['snakemake', '--snakefile', snakefile_dir,'--wms-monitor','http://127.0.0.1:5000', '--cores', '2', '--configfile',snakemake_config_file, '--directory', snakemake_working_dir], stdout=subPIPE, stderr=subSTDOUT)
