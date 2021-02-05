@@ -22,16 +22,21 @@
                   </div>
         </nav>
 
-        <div id="titles" class="header" >
+        <div id="titles" class="header p-3" >
             <hr>
             <h1 class="text-center"> SynMibi Reciprocal BLAST Project Creation </h1>
             <hr>
             <h2 class="text-center"> Welcome to your project creation page, {{request.user}}! </h2>
+            <p> Choose which sort of project you want to create. In general there are two possibilities, either you create
+            a project based on the non-reduandant protein database from <a href="https://www.ncbi.nlm.nih.gov/">NCBI</a> or you can upload
+                your own genome files. If you upload your own genome files, keep in mind that the program currently just supports fasta files.
+            </p>
+            <hr>
             <br>
         </div>
 
 
-        <div class="container-fluid">
+        <div class="container-fluid text-center">
             <form name="project_creation_menu" action="javascript:void(0)">
 
                 <div class="custom-control custom-radio custom-control-inline">
@@ -54,24 +59,25 @@
 
             </form>
         </div>
+        <br>
 
         <div class="container-fluid" id="project_creation_upload" style="display: none">
             <hr>
-            <h class="h1"> Project creation based on uploading database files </h>
+            <p style="font-size: large; font-weight: bold; text-align: center" class="h1"> Project creation based on uploading database files </p>
             <hr>
             {% include 'blast_project/upload_genomes_form.html' %}
         </div>
 
         <div class="container-fluid" id="project_creation_nr" style="display: none">
             <hr>
-            <h> Project creation based on a preformatted local NR database (downloaded previously from NCBI) </h>
+            <p style="font-size: large; font-weight: bold; text-align: center"> Project creation based on a preformatted local NR database (downloaded previously from NCBI) </p>
             <hr>
             {% include 'blast_project/nr_database_form.html' %}
         </div>
 
         <div class="container-fluid" id="project_creation_previous_databases" style="display: none">
             <hr>
-            <h> Project creation based on previously uploaded database files </h>
+            <p style="font-size: large; font-weight: bold; text-align: center"> Project creation based on previously uploaded database files </p>
             <hr>
             {% include 'blast_project/previously_uploaded_genomes_form.html' %}
         </div>

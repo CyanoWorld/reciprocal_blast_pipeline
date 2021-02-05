@@ -32,25 +32,28 @@ class BlastProjectForm(forms.Form):
 
     def __init__(self,data=None,*args,**kwargs):
         super(BlastProjectForm,self).__init__(data,*args,**kwargs)
-        #print(data['forward_genome_file'] == None)
         if data:
-            print("nothing ....", data.get('backward_genome_file', None) == '')
             if data.get('backward_genome_file', None) == '':
-                print("is empty")
-                print(data['forward_genome_uploaded_file'])
                 self.fields['backward_genome_uploaded_file'].required = True
                 self.fields['backward_genome_file'].required = False
 
             if data.get('forward_genome_file', None) == '':
-                print(data['backward_genome_uploaded_file'])
-                print("is empty")
                 self.fields['forward_genome_uploaded_file'].required = True
                 self.fields['forward_genome_file'].required = False
 
+    def clean_query_sequence_file(self):
+        query_file = self.cleaned_data['query_sequence_file']
+        if query_file.name.endswith('.faa') != True or query_file.name.endswith('.fasta') != True:
+            raise ValidationError("[-] Please upload only fasta files!")
+        else:
+            return query_file
 
     def clean_forward_genome_file(self):
         genome = self.cleaned_data['forward_genome_file']
         if genome != None:
+            if genome.name.endswith('.faa') != True or genome.name.endswith('.fasta') != True:
+                raise ValidationError("[-] Please upload only fasta files!")
+
             for genome_name in Genomes.objects.all().values('genome_name'):
                 if genome_name['genome_name'] == genome.name:
                     raise ValidationError(
@@ -60,6 +63,9 @@ class BlastProjectForm(forms.Form):
     def clean_backward_genome_file(self):
         genome = self.cleaned_data['backward_genome_file']
         if genome != None:
+            if genome.name.endswith('.faa') != True or genome.name.endswith('.fasta') != True:
+                raise ValidationError("[-] Please upload only fasta files!")
+
             for genome_name in Genomes.objects.all().values('genome_name'):
                 if genome_name['genome_name'] == genome.name:
                     raise ValidationError(
@@ -79,6 +85,8 @@ class BlastProjectUploadedForm(forms.Form):
     backward_genome_file = forms.ChoiceField(choices=get_genomes_tuple())
     query_sequence_file = forms.FileField(error_messages={'required':"Upload a query sequence file, this file will serve as the -query parameter for the forward BLAST analysis"})
 
+    #this is just possible because choice fields are previously 'cleaned'
+    #it is not a good practice to do that
     def clean_backward_genome_file(self):
         bw_genome = self.cleaned_data['backward_genome_file']
         fw_genome = self.cleaned_data['forward_genome_file']
@@ -87,6 +95,7 @@ class BlastProjectUploadedForm(forms.Form):
         else:
             return bw_genome
 
+#TODO: use the user_email in order to check the scientific names
 class BlastProjectNrForm(forms.Form):
     project_title = forms.CharField(label="Project title",
                                     error_messages={
@@ -95,6 +104,7 @@ class BlastProjectNrForm(forms.Form):
     query_sequence_file = forms.FileField(error_messages={'required':"Upload a query sequence file, this file will serve as the -query parameter for the forward BLAST analysis"})
     taxid_fw = forms.CharField(required=False, label = 'Scientific Names (conversion to Taxonomic Nodes) for Forward BLAST',
                                error_messages={'required':"Specify a Scientific Name for your forward BLAST - use a comma seperated list"})
+    user_email = forms.CharField(required=True)
 
     def clean_taxid_fw(self):
         taxids_fw = self.cleaned_data['taxid_fw']

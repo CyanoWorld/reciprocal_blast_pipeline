@@ -24,8 +24,11 @@ def prepare_data_and_write_nr_snakemake_configurations_and_taxid_files(project_i
     except Exception as e:
         raise IntegrityError("[-] Couldn't get NR project specific data out of the database with exception: {}".format(e))
     try:
+        # check if media dir of project exists if not raise NotADirectoryError
         if isdir('media/'+str(project_id)+'/'):
+            #write project specific snakemake configuration and grant permissions (unix - level)
             write_nr_snakemake_configuration_and_taxid_file(project_id,query_sequences, forward_db_organisms, backward_db_organisms, fw_settings, bw_settings)
+            chmod("./media/" + str(project_id) + "/snakemake_config", 777)
         else:
             raise NotADirectoryError("[-] Couldn't write snakemake config for NR project, there is no project folder.")
     except Exception as e:
@@ -99,6 +102,7 @@ def prepare_data_and_write_genome_upload_snakemake_configurations(project_id):
         raise ValueError("[-] Couldn't write snakemake configuration with exception: {}".format(e))
 
 #writes the snakemake_config for upload genome projects
+#TODO: project input can be changes to project.search_strategy
 def write_genome_upload_snakemake_configuration(backward_genome, bw_settings, dbtype, forward_genome,
                                                 fw_settings, project, project_id, query_sequences):
     try:

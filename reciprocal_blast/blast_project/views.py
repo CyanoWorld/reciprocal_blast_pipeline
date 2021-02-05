@@ -76,12 +76,13 @@ def project_creation(request):
         settings_form_forward = AdvancedSettingsForm_Forward()
         settings_form_backward = AdvancedSettingsForm_Backward()
 
-
+    #user_email just for nr project creation
     context = {'BlastProjectForm': project_creation_form,
                'BlastProjectNrForm': project_creation_nr_from,
                'BlastProjectUploadedForm': project_creation_uploaded_form,
            'AdvancedSettingsForm_Forward': settings_form_forward,
-           'AdvancedSettingsForm_Backward': settings_form_backward}
+           'AdvancedSettingsForm_Backward': settings_form_backward,
+               'user_email':request.user.email}
 
     return render(request,'blast_project/project_creation.html',context)
 

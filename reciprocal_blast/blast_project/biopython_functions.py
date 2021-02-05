@@ -13,6 +13,7 @@ def get_species_taxid(user_email,scientific_name):
         raise IntegrityError("[-] There is no taxonomic node defined by your specified scientific name: {} Exception: {}".format(scientific_name,e))
     return taxid, translation
 
+#try to fetch the user_email in the form
 def get_species_taxid_without_email(scientific_name):
     try:
         search = Entrez.esearch(term=scientific_name, db="taxonomy", retmode="xml")
