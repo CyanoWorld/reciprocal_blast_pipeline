@@ -48,7 +48,7 @@
                 {% endif %}
             </div>
 
-            <div id="advanced_settings" class="form-group" style="display:none">
+            <div id="advanced_settings_3" class="form-group" style="display:none">
                 <p><strong>Settings for Forward Blast:</strong></p>
                 <div class="form-group">
                     <label for="fw_e_value">E-Value</label>
@@ -103,15 +103,15 @@
             <input type="hidden" value="nr" id="project_type" name="project_type">
         </form>
 
-            <button class="btn btn-info" onclick="displayBlastSettings()">Advanced BLAST Settings </button>
+            <button class="btn btn-info" onclick="displayBlastSettings_3()">Advanced BLAST Settings </button>
 
         </div>
 
 
 
     <script>
-        function displayBlastSettings() {
-              var settingsForm = document.getElementById("advanced_settings");
+        function displayBlastSettings_3() {
+              var settingsForm = document.getElementById("advanced_settings_3");
               if (settingsForm.style.display == "none") {
                 settingsForm.style.display = "block";
               } else {
