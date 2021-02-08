@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     </head>
-        <body {% if BlastProjectForm.errors %} onload="loadTemplate('upload')" {% endif %} {% if BlastProjectUploadedForm.errors %} onload="loadTemplate('previous_databases')" {% endif %}>
+        <body {% if BlastProjectForm.errors %} onload="loadTemplate('upload')" {% endif %} {% if BlastProjectNrForm.errors %} onload="loadTemplate('nr')" {% endif %}>
 
 
         <nav class="navbar navbar-light" style="background-color: lightskyblue">
@@ -14,9 +14,9 @@
                   </button>
                   <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
                       <div class="navbar-nav">
-                        <a class="nav-link" href="{% url 'project_creation' %}">Project Creation: Create Your reciprocal BLAST projects<span class="sr-only">(current)</span></a>
-                        <a class="nav-link" href="{% url 'species_taxid' %}">Get Species Taxonomic Nodes For NR Database<span class="sr-only">(current)</span></a>
-                        <a class="nav-link" href="{% url 'upload_databases' %}">Upload New Genome Database Files<span class="sr-only">(current)</span></a>
+                        <a class="nav-link" href="{% url 'project_creation' %}">Project Creation: Create Your Reciprocal BLAST Project<span class="sr-only">(current)</span></a>
+                        <a class="nav-link" href="{% url 'species_taxid' %}">Get Species Taxonomic Nodes From Scientific Name (Check Availability)<span class="sr-only">(current)</span></a>
+                        <a class="nav-link" href="{% url 'upload_databases' %}">Upload New Genome FASTA Files<span class="sr-only">(current)</span></a>
                         <a class="nav-link" href="{% url 'logout' %}">Logout</a>
                       </div>
                   </div>
@@ -44,13 +44,13 @@
                     <label class="custom-control-label" for="nr_database"> Preformatted NR database</label>
 
                 </div>
-
+<!--
                 <div class="custom-control custom-radio custom-control-inline">
                     <input class="custom-control-input" type="radio" id="use_uploaded_databases" name="use_uploaded_databases_radio_button" value="previous_databases" onchange="loadTemplate(this.value)">
                     <label class="custom-control-label" for="use_uploaded_databases"> Use previously uploaded database files</label>
 
                 </div>
-
+-->
                 <div class="custom-control custom-radio custom-control-inline">
                     <input class="custom-control-input" type="radio" id="upload_database" name="upload_database_radio_button" value="upload" onchange="loadTemplate(this.value)">
                     <label class="custom-control-label" for="upload_database">Upload database files</label>
@@ -74,34 +74,38 @@
             <hr>
             {% include 'blast_project/nr_database_form.html' %}
         </div>
-
+<!--
         <div class="container-fluid" id="project_creation_previous_databases" style="display: none">
             <hr>
             <p style="font-size: large; font-weight: bold; text-align: center"> Project creation based on previously uploaded database files </p>
             <hr>
             {% include 'blast_project/previously_uploaded_genomes_form.html' %}
         </div>
+-->
+<!-- Alter JavaScript-Function
+else if (project_type == 'previous_databases') {
+                document.getElementById('project_creation_nr').style.display = 'none'
+                document.getElementById('project_creation_upload').style.display = 'none'
+                document.getElementById('upload_database').checked = false
+                document.getElementById('nr_database').checked = false
+                }
+                document.getElementById('use_uploaded_databases').checked = false
+                document.getElementById('use_uploaded_databases').checked = false
+                document.getElementById('project_creation_previous_databases').style.display = 'none'
+                document.getElementById('project_creation_previous_databases').style.display = 'none'
 
+-->
+    <br>
     <script>
         function loadTemplate(project_type) {
             document.getElementById('project_creation_' + project_type).style.display = "block";
             if (project_type == 'nr') {
                 document.getElementById('project_creation_upload').style.display = 'none'
-                document.getElementById('project_creation_previous_databases').style.display = 'none'
                 document.getElementById('upload_database').checked = false
-                document.getElementById('use_uploaded_databases').checked = false
-
-            } else if (project_type == 'previous_databases') {
-                document.getElementById('project_creation_nr').style.display = 'none'
-                document.getElementById('project_creation_upload').style.display = 'none'
-                document.getElementById('upload_database').checked = false
-                document.getElementById('nr_database').checked = false
 
             } else if (project_type == 'upload') {
                 document.getElementById('project_creation_nr').style.display = 'none'
-                document.getElementById('project_creation_previous_databases').style.display = 'none'
                 document.getElementById('nr_database').checked = false
-                document.getElementById('use_uploaded_databases').checked = false
             }
         }
 

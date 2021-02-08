@@ -14,9 +14,9 @@
                   </button>
                   <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
                       <div class="navbar-nav">
-                        <a class="nav-link" href="{% url 'project_creation' %}">Project Creation: Create Your reciprocal BLAST projects<span class="sr-only">(current)</span></a>
-                        <a class="nav-link" href="{% url 'species_taxid' %}">Get Species Taxonomic Nodes For NR Database<span class="sr-only">(current)</span></a>
-                        <a class="nav-link" href="{% url 'upload_databases' %}">Upload New Genome Database Files<span class="sr-only">(current)</span></a>
+                        <a class="nav-link" href="{% url 'project_creation' %}">Project Creation: Create Your Reciprocal BLAST Project<span class="sr-only">(current)</span></a>
+                        <a class="nav-link" href="{% url 'species_taxid' %}">Get Species Taxonomic Nodes From Scientific Name (Check Availability)<span class="sr-only">(current)</span></a>
+                        <a class="nav-link" href="{% url 'upload_databases' %}">Upload New Genome FASTA Files<span class="sr-only">(current)</span></a>
                         <a class="nav-link" href="{% url 'logout' %}">Logout</a>
                       </div>
                   </div>
@@ -24,9 +24,10 @@
 
         <div id="titles" class="header" >
             <hr>
-            <h1 class="text-center">{% block title %} SynMibi Reciprocal BLAST Projects Dashboard {% endblock %}</h1>
+            <h1 class="text-center">{% block title %} SynMibi Reciprocal BLAST Project Dashboard {% endblock %}</h1>
             <hr>
-            <h2 class="text-center"> Welcome to your projects dashboard, {{request.user}}! </h2>
+            <h2 class="text-center"> Welcome to your project dashboard, {{request.user}}! </h2>
+            <p style="text-align: center"> Monitor your current projects on the <strong>Pipeline Dashboard</strong>, view your results on the projects <strong>Detail Page</strong> or delete one of your projects by visiting the <strong>Delete Project</strong> page. If you want to create a completely new project or upload some genome databases take a look at the navigation bar at the top of this page. </p>
         </div>
 
         <div class="container-fluid">
@@ -37,18 +38,20 @@
             {% for project in projects %}
                 {% if project.using_nr_database == False %}
                 <hr>
-                <ul class="list-group list-group-horizontal" >
-                    <li class="list-group-item"> Project-ID: {{project.id}} </li>
-                    <li class="list-group-item"> Project title: {{project.project_title}} </li>
-                    <li class="list-group-item"> <a href="{% url 'project_details' project_id=project.id %}"> Detail Page</a> </li>
-                    <li class="list-group-item"> <a href="{% url 'delete_project' project_id=project.id %}"> Delete Project</a></li>
-                    <li class="list-group-item"> <a href="{% url 'pipeline_dashboard' project_id=project.id %}"> Pipeline Dashboard</a></li>
+                <ul class="list-group list-group-horizontal" style="background-color: white" >
+                    <li class="list-group-item" style="background-color: white"> Project-ID: {{project.id}} </li>
+                    <li class="list-group-item" style="background-color: white"> Project title: {{project.project_title}} </li>
+                    <li class="list-group-item" style="background-color: white"> <button type="button" class="btn btn-primary"> <a style="color: white" href="{% url 'project_details' project_id=project.id %}"> Detail Page</a> </button></li>
+                    <li class="list-group-item" style="background-color: white"> <button type="button" class="btn btn-primary"> <a style="color: white" href="{% url 'delete_project' project_id=project.id %}"> Delete Project</a> </button> </li>
+                    <li class="list-group-item" style="background-color: white"> <button type="button" class="btn btn-primary"> <a style="color: white" href="{% url 'pipeline_dashboard' project_id=project.id %}"> Pipeline Dashboard</a> </button> </li>
 
+                    <!--
                         {% for genome in genomes %}
                         {% if genome.associated_project.id == project.id %}
                             <li class="list-group-item"> {{genome.reciprocal_type}} genome - {{genome.genome_name}}</li>
                         {% endif %}
                         {% endfor %}
+                        -->
                 </ul>
                 {% endif %}
             {% endfor %}
@@ -60,9 +63,9 @@
                 <ul class="list-group list-group-horizontal" >
                     <li class="list-group-item"> Project-ID: {{project.id}} </li>
                     <li class="list-group-item"> Project title: {{project.project_title}} </li>
-                    <li class="list-group-item"> <a href="{% url 'project_details' project_id=project.id %}"> Detail Page</a> </li>
-                    <li class="list-group-item"> <a href="{% url 'delete_project' project_id=project.id %}"> Delete Project</a></li>
-                    <li class="list-group-item"> <a href="{% url 'pipeline_nr_dashboard' project_id=project.id %}"> Pipeline Dashboard</a></li>
+                    <li class="list-group-item"> <button type="button" class="btn btn-primary"> <a style="color: white" href="{% url 'project_details' project_id=project.id %}"> Detail Page</a> </li>
+                    <li class="list-group-item"> <button type="button" class="btn btn-primary"> <a style="color: white" href="{% url 'delete_project' project_id=project.id %}"> Delete Project</a></li>
+                    <li class="list-group-item"> <button type="button" class="btn btn-primary"> <a style="color: white" href="{% url 'pipeline_nr_dashboard' project_id=project.id %}"> Pipeline Dashboard</a></li>
                 </ul>
                 {% endif %}
 
@@ -71,7 +74,6 @@
             {% endif %}
          </div>
 
-        </div>
 
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>

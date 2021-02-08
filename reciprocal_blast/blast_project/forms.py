@@ -43,7 +43,7 @@ class BlastProjectForm(forms.Form):
 
     def clean_query_sequence_file(self):
         query_file = self.cleaned_data['query_sequence_file']
-        if query_file.name.endswith('.faa') != True or query_file.name.endswith('.fasta') != True:
+        if query_file.name.endswith('.faa') != True and query_file.name.endswith('.fasta') != True:
             raise ValidationError("[-] Please upload only fasta files!")
         else:
             return query_file
@@ -51,7 +51,7 @@ class BlastProjectForm(forms.Form):
     def clean_forward_genome_file(self):
         genome = self.cleaned_data['forward_genome_file']
         if genome != None:
-            if genome.name.endswith('.faa') != True or genome.name.endswith('.fasta') != True:
+            if genome.name.endswith('.faa') != True and genome.name.endswith('.fasta') != True:
                 raise ValidationError("[-] Please upload only fasta files!")
 
             for genome_name in Genomes.objects.all().values('genome_name'):
@@ -63,7 +63,7 @@ class BlastProjectForm(forms.Form):
     def clean_backward_genome_file(self):
         genome = self.cleaned_data['backward_genome_file']
         if genome != None:
-            if genome.name.endswith('.faa') != True or genome.name.endswith('.fasta') != True:
+            if genome.name.endswith('.faa') != True and genome.name.endswith('.fasta') != True:
                 raise ValidationError("[-] Please upload only fasta files!")
 
             for genome_name in Genomes.objects.all().values('genome_name'):
@@ -72,6 +72,7 @@ class BlastProjectForm(forms.Form):
                         '[-] A genome database with that name already exist, please specify another file! Or try to use previously uploaded databases!')
         return genome
 
+'''
 class BlastProjectUploadedForm(forms.Form):
     project_title = forms.CharField(label="Project title",
                                     error_messages={
@@ -94,6 +95,7 @@ class BlastProjectUploadedForm(forms.Form):
             raise ValidationError('[-] Do not use the same databases for the forward and backward blast.')
         else:
             return bw_genome
+'''
 
 #TODO: use the user_email in order to check the scientific names
 class BlastProjectNrForm(forms.Form):
@@ -128,6 +130,13 @@ class BlastProjectNrForm(forms.Form):
             except Exception as e:
                 raise ValidationError('[-] Use a comma separated list of scientific names. An error occured during parsing of the scientific names. Exception: {}'.format(e))
         return taxids
+
+    def clean_query_sequence_file(self):
+        query_file = self.cleaned_data['query_sequence_file']
+        if query_file.name.endswith('.faa') != True and query_file.name.endswith('.fasta') != True:
+            raise ValidationError("[-] Please upload only fasta files!")
+        else:
+            return query_file
 
 class AdvancedSettingsForm_Forward(forms.Form):
     fw_e_value = forms.DecimalField(label="FW E-Value", required=False, initial=0.001)

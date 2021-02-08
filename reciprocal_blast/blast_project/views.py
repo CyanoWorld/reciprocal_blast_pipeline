@@ -10,7 +10,8 @@ from .blast_execution import view_builded_snakefile, snakemake_config_exists, \
     exec_snakemake, read_snakemake_logs
 from .decorators import unauthenticated_user
 from .forms import BlastProjectForm, BlastProjectNrForm, AdvancedSettingsForm_Forward, AdvancedSettingsForm_Backward, \
-    CreateUserForm, SpeciesNameForm, BlastProjectUploadedForm, UploadDatabaseForm
+    CreateUserForm, SpeciesNameForm, UploadDatabaseForm
+#BlastProjectUploadedForm
 from .models import BlastProject, Genomes, ForwardBlastSettings, BackwardBlastSettings, QuerySequences, \
     TaxNodesForForwardDatabase, TaxNodesForBackwardDatabase
 from .project_creation import create_project_with_uploaded_files, create_project_with_nr_database, \
@@ -38,7 +39,7 @@ def project_creation(request):
         try:
             if request.POST['project_type'] == 'upload':
                 project_creation_nr_from = BlastProjectNrForm()
-                project_creation_uploaded_form = BlastProjectUploadedForm()
+                #project_creation_uploaded_form = BlastProjectUploadedForm()
 
                 project_creation_form = BlastProjectForm(request.POST, request.FILES)
 
@@ -47,14 +48,14 @@ def project_creation(request):
                     return success_view(request)
 
             if request.POST['project_type'] == 'nr':
-                project_creation_uploaded_form = BlastProjectUploadedForm()
+                #project_creation_uploaded_form = BlastProjectUploadedForm()
                 project_creation_form = BlastProjectForm()
 
                 project_creation_nr_from = BlastProjectNrForm(request.POST, request.FILES)
                 if project_creation_nr_from.is_valid() and settings_form_forward.is_valid() and settings_form_backward.is_valid():
                     create_project_with_nr_database(request, project_creation_nr_from,settings_form_forward,settings_form_backward)
                     return success_view(request)
-
+            '''
             if request.POST['project_type'] == 'previously_uploaded':
                 project_creation_nr_from = BlastProjectNrForm()
                 project_creation_form = BlastProjectForm()
@@ -64,7 +65,7 @@ def project_creation(request):
                 if project_creation_uploaded_form.is_valid() and settings_form_forward.is_valid() and settings_form_backward.is_valid():
                     create_project_with_previously_uploaded_genomes(request, project_creation_form,settings_form_forward, settings_form_backward)
                     return success_view(request)
-
+            '''
         except Exception as e:
             return failure_view(request,e)
 
@@ -72,14 +73,14 @@ def project_creation(request):
     else:
         project_creation_form = BlastProjectForm()
         project_creation_nr_from = BlastProjectNrForm()
-        project_creation_uploaded_form = BlastProjectUploadedForm()
+        #project_creation_uploaded_form = BlastProjectUploadedForm()
         settings_form_forward = AdvancedSettingsForm_Forward()
         settings_form_backward = AdvancedSettingsForm_Backward()
 
     #user_email just for nr project creation
     context = {'BlastProjectForm': project_creation_form,
                'BlastProjectNrForm': project_creation_nr_from,
-               'BlastProjectUploadedForm': project_creation_uploaded_form,
+               #'BlastProjectUploadedForm': project_creation_uploaded_form,
            'AdvancedSettingsForm_Forward': settings_form_forward,
            'AdvancedSettingsForm_Backward': settings_form_backward,
                'user_email':request.user.email}
