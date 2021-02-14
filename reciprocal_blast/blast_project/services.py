@@ -8,8 +8,6 @@ from os import listdir, walk, mkdir
 from os.path import isfile, join, isdir
 from shutil import rmtree
 
-#TODO add exceptions and error handling
-#TODO deprecated do deleting while deleting project
 #provides the possibility to delete files if a user has accidently moved files into that directory
 def delete_files_without_projects():
     try:
@@ -49,9 +47,6 @@ def check_if_genomes_should_be_resaved(project_id):
     except Exception as e:
         raise IntegrityError("[-] Couldn't resave genome databases during deletion of the project...")
 
-
-
-#TODO return error pages
 def save_project_from_form_or_raise_exception(new_title, new_strategy, user):
     try:
         project = BlastProject(project_title=new_title, search_strategy=new_strategy,project_username=user)
@@ -113,7 +108,6 @@ def upload_file(project_file,destination):
     except Exception as e:
         raise IntegrityError('[-] A very specific bad thing happened during file upload of: {} Exception: {}'.format(project_file.name,e))
 
-#TODO url of genome files should be in database
 def save_genomes_and_query_in_db(query_sequences, forward_genome_name, backward_genome_name, project):
     try:
         uploaded_file_url_forward = 'media/databases/'+forward_genome_name

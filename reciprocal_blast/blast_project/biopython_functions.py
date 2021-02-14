@@ -1,7 +1,6 @@
 from Bio import Entrez
 from django.db import IntegrityError
 
-
 def get_species_taxid(user_email,scientific_name):
     try:
         Entrez.email = user_email

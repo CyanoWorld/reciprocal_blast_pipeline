@@ -1,3 +1,9 @@
+'''
+Content: functions for snakemake execution setup and execution
+Preparation and writing of the snakemake configuration file, this involves database interactions and
+
+'''
+
 from .models import BlastProject, Genomes, ForwardBlastSettings, BackwardBlastSettings, QuerySequences, \
     TaxNodesForBackwardDatabase, TaxNodesForForwardDatabase
 from django.shortcuts import get_object_or_404
@@ -102,7 +108,7 @@ def prepare_data_and_write_genome_upload_snakemake_configurations(project_id):
         raise ValueError("[-] Couldn't write snakemake configuration with exception: {}".format(e))
 
 #writes the snakemake_config for upload genome projects
-#TODO: project input can be changes to project.search_strategy
+#TODO: rather than importing the whole project object just import project.search_strategy
 def write_genome_upload_snakemake_configuration(backward_genome, bw_settings, dbtype, forward_genome,
                                                 fw_settings, project, project_id, query_sequences):
     try:
@@ -197,7 +203,7 @@ def read_snakemake_logs(project_id):
             #splits the current line of the log file in order to get the current percentage as an integer value
             #this integer value is then passed to the context of the view
             if 'steps' and '%' in line:
-                latest_percentage =  line.split(' ')[4].split('(')[1].split(')')[0]
+                latest_percentage = line.split(' ')[4].split('(')[1].split(')')[0]
         latest_file.close()
         return content, latest_percentage
     #this exception is not being used in the template

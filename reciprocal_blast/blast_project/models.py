@@ -15,6 +15,7 @@ class TaxNodesForForwardDatabase(models.Model):
     associated_project = models.ForeignKey(BlastProject,on_delete=models.CASCADE)
     taxonomic_node = models.IntegerField()
     organism_name = models.CharField(max_length=200)
+
     #at this point the taxnode should be considered as true as filtering for wrong taxnodes is done in the form
     def if_valid_save_organism_name(self,user_email):
         try:
