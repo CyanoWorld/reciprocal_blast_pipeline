@@ -122,14 +122,14 @@ class BlastProjectNrForm(forms.Form):
 
     def clean_taxid_bw(self):
         taxids_bw = self.cleaned_data['taxid_bw']
-        taxids = []
-        for name in taxids_bw.split(','):
-            try:
-                taxid = get_species_taxid_without_email(name)
-                taxids.append(int(taxid))
-            except Exception as e:
-                raise ValidationError('[-] Use a comma separated list of scientific names. An error occured during parsing of the scientific names. Exception: {}'.format(e))
-        return taxids
+        if len(taxids_bw.split(',')) > 1:
+            raise ValidationError(
+                '[-] Specify at least one scientific name!')
+        try:
+            taxid = get_species_taxid_without_email(taxids_bw)
+        except Exception as e:
+            raise ValidationError('[-] An error occured during parsing of the scientific names. Exception: {}'.format(e))
+        return [taxid]
 
     def clean_query_sequence_file(self):
         query_file = self.cleaned_data['query_sequence_file']
