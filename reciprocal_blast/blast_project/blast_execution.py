@@ -106,8 +106,8 @@ def prepare_data_and_write_genome_upload_snakemake_configurations(project_id):
 def write_genome_upload_snakemake_configuration(backward_genome, bw_settings, dbtype, forward_genome,
                                                 fw_settings, project, project_id, query_sequences):
     try:
-        forward_genome_path = getcwd() + '\\media\\databases\\'+forward_genome.genome_name
-        backward_genome_path = getcwd() + '\\media\\databases\\' + backward_genome.genome_name
+        forward_genome_path = getcwd() + '/media/databases/'+forward_genome.genome_name
+        backward_genome_path = getcwd() + '/media/databases/' + backward_genome.genome_name
         snakemake_config = open("media/" + str(project_id) + '/snakemake_config','w')
         snakemake_config.write("fw_db: \'"+forward_genome_path+"\'\n")
         snakemake_config.write("bw_db: \'"+backward_genome_path+"\'\n")
@@ -214,7 +214,7 @@ def exec_snakemake(project_id):
     if project.using_nr_database == True:
         snakemake_working_dir = 'media/'+str(project_id)+'/'
         snakemake_config_file = 'media/'+str(project_id)+'/snakemake_config'
-        snakefile_dir = getcwd()+'\\static\\snakefile_nr_database\\Snakefile'
+        snakefile_dir = getcwd()+'/static/snakefile_nr_database/Snakefile'
         #print("[+] execute snakemake ...")
         #snakemake --snakefile 'C:\Users\lujeb\Documents\github_projects\reciprocal_blast_pipeline\reciprocal_blast\static\snakefile_nr_database\Snakefile' --configfile 'snakemake_config' --cores 2
         #subprocess.Popen(['snakemake','--dry-run','--cores','2','--wms-monitor','http://127.0.0.1:5000'], shell=False, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, cwd=snakemake_working_dir)
@@ -226,7 +226,7 @@ def exec_snakemake(project_id):
         # print("[+] execute snakemake ...")
         # subprocess.Popen(['snakemake','--dry-run','--cores','2','--wms-monitor','http://127.0.0.1:5000'], shell=False, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, cwd=snakemake_working_dir)
         #print("[+] WORKING DIR: "+getcwd())
-        snakefile_dir = getcwd()+'\\static\\snakefile_genome_upload\\Snakefile'
+        snakefile_dir = getcwd()+'/static/snakefile_genome_upload/Snakefile'
         #print('\n[+] SNAKEFILE DIR: '+snakefile_dir,'\n[+] SNAKEMAKE WORKING DIR: '+snakemake_working_dir,'\n[+] SNAKEMAKE CONFIG DIR: '+snakemake_config_file)
         #snakemake --snakefile F:\programming\github_projects\bachelor_project_github\reciprocal_blast_pipeline\reciprocal_blast\static\snakefile_genome_upload\Snakefile --cores 2 --configfile media/1/snakemake_config --directory media/1/ --dry-run
         #print('\n[+] COMMAND: snakemake --snakefile {} --cores 2 --configfile {} --directory {}\n'.format(snakefile_dir,snakemake_config_file,snakemake_working_dir))

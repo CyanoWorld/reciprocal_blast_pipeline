@@ -38,7 +38,7 @@ def create_project_with_previously_uploaded_genomes(request, project_creation_fo
             prepare_data_and_write_genome_upload_snakemake_configurations(project.id)
 
     except Exception as e:
-        raise IntegrityError("[-] Couldn't perform project creation due to exception: {}".format(e))
+        raise IntegrityError("[-] Couldn't perform project creation due to following exception: {}".format(e))
 
 def create_project_with_nr_database(request, project_creation_form,settings_form_forward,settings_form_backward):
     try:
@@ -66,7 +66,7 @@ def create_project_with_nr_database(request, project_creation_form,settings_form
 
             prepare_data_and_write_nr_snakemake_configurations_and_taxid_files(project.id)
     except Exception as e:
-        raise IntegrityError("[-] Couldn't perform project creation due to exception: {}".format(e))
+        raise IntegrityError("[-] Couldn't perform project creation due to following exception: {}".format(e))
 
 def create_project_with_uploaded_files(request, project_creation_form,settings_form_forward,settings_form_backward):
     try:
@@ -82,6 +82,12 @@ def create_project_with_uploaded_files(request, project_creation_form,settings_f
             save_backward_settings_from_form_or_raise_exception(project, settings_form_backward.cleaned_data)
 
             #these conditions check wether a previously genome database should be used or if a file gets uploaded
+            #four conditions:
+            # available = previously uploaded
+            # fw and bw not available
+            # fw available and bw not
+            # bw available and fw not
+            # bw and fw available
             if  project_creation_form.cleaned_data['forward_genome_file'] == None and project_creation_form.cleaned_data['backward_genome_file'] == None:
                 forward_genome = project_creation_form.cleaned_data['forward_genome_uploaded_file']
                 forward_genome_data = Genomes.objects.filter(genome_name=forward_genome).order_by('id').first()
@@ -116,7 +122,7 @@ def create_project_with_uploaded_files(request, project_creation_form,settings_f
                 upload_file(forward_genome_data, 'media/' + 'databases/' + forward_genome_data.name)
                 upload_file(backward_genome_data, 'media/' + 'databases/' + backward_genome_data.name)
             else:
-                raise IntegrityError("[-] Something with the databas specifications is not correct")
+                raise IntegrityError("[-] Something with the database specifications is not correct")
 
 
 
