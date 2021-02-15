@@ -1,0 +1,84 @@
+configfile: "./snakemake_config"
+
+rule all:
+	input:
+		"reciprocal_results.html",'organisms_orthologs.png','organisms_orthologs_graph.html','amount_hits.png','amount_hits.html'
+
+rule forward_blast:
+	input: taxids="taxonomic_nodes_forward.txt", fw_queries=config['fw_query']
+	output: "blastp_fw_out.table"
+	params: word_size=config['fw_word_size'], e_value=config['fw_evalue'], num_alignments=config['fw_num_alignments'], num_descriptions=config['fw_num_descriptions'], num_threads=config['fw_num_threads']
+	shell: "blastp -db nr -outfmt \"6 qseqid sseqid evalue bitscore qgi sgi sacc staxids sscinames scomnames stitle\" -out {output} -word_size {params.word_size} -evalue {params.e_value} -num_alignments {params.num_alignments} -num_descriptions {params.num_descriptions} -num_threads {params.num_threads} -taxidlist {input.taxids} -query {input.fw_queries}"
+
+rule fw_result_processing:
+	input: fw_res="blastp_fw_out.table"
+	output: gi_list="bw_queries_gi_list_for_blastdbcmd.txt"
+	script:
+		"../../static/snakefile_nr_database/extract_bw_query_sequences.py"
+
+rule bw_query_preparation:
+	input: "bw_queries_gi_list_for_blastdbcmd.txt"
+	output: "bw_queries.faa"
+	shell: "blastdbcmd -db nr -entry_batch {input} -out {output}"
+
+
+rule backward_blast:
+	input: bw_queries="bw_queries.faa", taxids="taxonomic_nodes_backward.txt"
+	output: "blastp_bw_out.table"
+	params: word_size=config['bw_word_size'], e_value=config['bw_evalue'], num_alignments=config['bw_num_alignments'], num_descriptions=config['bw_num_descriptions'], max_hsps=config['bw_max_hsps'], num_threads=config['bw_num_threads']
+	shell:
+		"blastp -db nr -outfmt \"6 qseqid sseqid evalue bitscore qgi sgi sacc staxids sscinames scomnames stitle\" -out {output[0]} -taxidlist {input.taxids} -word_size {params.word_size} -evalue {params.e_value} -num_alignments {params.num_alignments} -num_descriptions {params.num_descriptions} -max_hsps {params.max_hsps} -num_threads {params.num_threads} -query {input.bw_queries}"
+
+#different versions of the backward blast rule that may replace above rule due to executing separated backward BLASTs for each organism
+'''
+#blastp -db nr -outfmt \"6 qseqid sseqid evalue bitscore qgi sgi sacc staxids sscinames scomnames stitle\" -out {$i} -taxids {$i} -word_size {params.word_size} -evalue {params.e_value} -num_alignments {params.num_alignments} -num_descriptions {params.num_descriptions} -max_hsps {params.max_hsps} -num_threads {params.num_threads} -query {input.bw_queries}
+taxid_list=[1140,1148]
+rule backward_blast:
+	input: bw_queries="bw_queries.faa"
+	output: "blastp_bw_out.table"
+	params: word_size=config['bw_word_size'], e_value=config['bw_evalue'], num_alignments=config['bw_num_alignments'], num_descriptions=config['bw_num_descriptions'], max_hsps=config['bw_max_hsps'], num_threads=config['bw_num_threads']
+	shell:
+		"for taxid in {{taxid_list}}; do echo {{taxid}}; done"
+
+rule backward_blast:
+	input: bw_queries="bw_queries.faa", taxids="taxonomic_nodes_backward.txt"
+	output: "blastp_bw_out.table"
+	params: word_size=config['bw_word_size'], e_value=config['bw_evalue'], num_alignments=config['bw_num_alignments'], num_descriptions=config['bw_num_descriptions'], max_hsps=config['bw_max_hsps'], num_threads=config['bw_num_threads']
+	run:
+		taxnodefile = open(input.taxids,'r')
+		taxnodes = []
+		taxids = []
+		for taxid in taxnodefile.readlines():
+			taxnodes.append(int(taxid))
+			taxnodes.append(taxid)
+		taxnodefile.close()
+		for taxonomic_node in taxnodes:
+			taxid = str(taxonomic_node)
+			shell("blastp -db nr -outfmt \"6 qseqid sseqid evalue bitscore qgi sgi sacc staxids sscinames scomnames stitle\" -out {taxid} -taxids {taxonomic_node} -word_size {params.word_size} -evalue {params.e_value} -num_alignments {params.num_alignments} -num_descriptions {params.num_descriptions} -max_hsps {params.max_hsps} -num_threads {params.num_threads} -query {input.bw_queries}")
+
+		out = open(output[0],'w')
+		for taxid in taxnodes:
+			tempfile = open(taxid,'r')
+			for line in tempfile.readlines():
+				out.write(line)
+			tempfile.close()
+		out.close()
+'''
+rule reciprocal_best_hits:
+	input: bw_res="blastp_bw_out.table", fw_res="blastp_fw_out.table"
+	output: rec_best_hits="reciprocal_best_hits_protein_ids.txt"
+	script:
+		"../../static/snakefile_nr_database/extract_reciprocal_best_hits.py"
+
+rule blast_tables_to_html:
+	input: fw_res="blastp_fw_out.table", rec_res="reciprocal_best_hits_protein_ids.txt"
+	output: rec_html="reciprocal_results.html"
+	script:
+		"../../static/snakefile_nr_database/blast_tables_to_html.py"
+
+rule create_result_images:
+	input: fw_res="blastp_fw_out.table", rec_res="reciprocal_best_hits_protein_ids.txt"
+	params: org_orth_png="../../static/result_images/" + str(config['project_id']) + '/organisms_orthologs.png', amount_hits_png="../../static/result_images/" + str(config['project_id']) + '/amount_hits.png', input_queries=config['fw_query']
+	output: 'organisms_orthologs.png', 'organisms_orthologs_graph.html', 'amount_hits.png','amount_hits.html'
+	script:
+		 "../../static/snakefile_nr_database/create_result_images.py"

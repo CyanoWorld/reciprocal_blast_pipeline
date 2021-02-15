@@ -1,0 +1,147 @@
+<html>
+    <head>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2" crossorigin="anonymous">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    </head>
+        <body>
+
+
+        <nav class="navbar navbar-light" style="background-color: lightskyblue">
+            <a class="navbar-brand" href="{% url 'main'%}">Home</a>
+                  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                  </button>
+                  <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+                      <div class="navbar-nav">
+                        <a class="nav-link" href="{% url 'project_creation' %}">Project Creation: Create Your reciprocal BLAST projects<span class="sr-only">(current)</span></a>
+                        <a class="nav-link" href="{% url 'species_taxid' %}">Get Species Taxonomic Nodes For NR Database<span class="sr-only">(current)</span></a>
+                        <a class="nav-link" href="{% url 'upload_databases' %}">Upload New Genome Database Files<span class="sr-only">(current)</span></a>
+                        <a class="nav-link" href="{% url 'logout' %}">Logout</a>
+                      </div>
+                  </div>
+        </nav>
+
+        <div class="header" >
+            <hr>
+            <h1 class="text-center">{% block title %} SynMibi Reciprocal BLAST PipeLine DashBoard {% endblock %}</h1>
+            <hr>
+            <h2 class="text-center"> Welcome to your PipeLine dashboard, {{request.user}}!</p> </h2>
+        </div>
+
+
+        <div class="container-fluid">
+            <hr>
+            {% if project.pipeline_executed is True %}
+                <a class="btn btn-primary" href="http://127.0.0.1:5000/workflows/"> PANOPTES MONITORING </a>
+                <hr>
+                <h2> Progress of your SNAKEMAKE execution</h2>
+                <hr>
+                <div class="progress">
+                    <div class="progress-bar progress-bar-striped progress-bar-animated" style="width:{{ pipeline_percentage}}">{{ pipeline_percentage }}</div>
+                </div>
+            {% endif %}
+
+            {% if not content %}
+                <p> Something went wrong ... there is no configuration file for snakemake in your project folder! </p>
+            {% endif %}
+
+            {% if not content %}
+                <p> Something went wrong ... there is no configuration file for snakemake in your project folder! </p>
+            {% endif %}
+
+            {% if content %}
+                {% if project.pipeline_executed is False %}
+                <form action="{% url 'execute_snakefile' %}" method="GET">
+                    {% csrf_token %}
+                    <input type="hidden" value="{{project.id}}" name="execute_snakefile" id="execute_snakefile">
+                    <input type="submit" value="execute SNAKEMAKE" class="btn btn-primary">
+                </form>
+                {% endif %}
+            {% endif %}
+
+                        <hr>
+                <button class="btn btn-info" onclick="displaySnakefileLogs()"> SNAKEMAKE Log-File </button>
+            <hr>
+
+            <div class="container-fluid" id="SNAKEFILE_logs" style="display:none">
+            {% if no_logs %}
+                <hr>
+                <p style="padding-left: 3em;font-size: large; font-weight: bold"> There are no SNAKEMAKE logs yet.
+                {% if project.pipeline_executed is False %}
+                    You haven't executed the pipeline.
+                {% endif %}
+                </p>
+                <hr>
+
+            {% endif %}
+
+            {% if log %}
+                <h2 class="text-center">Content of latest SNAKEMAKE logfile for this project</h2>
+                <hr>
+            {% for logfile,lines in log.items %}
+                <p style="padding-left: 3em;font-size: large; font-weight: bold"> SNAKEMAKE execution content: </p>
+                <hr>
+                {% for line in lines %}
+                    {% if 'rule' in line %}
+                        <p style="padding-left: 3em;font-size: large; font-weight: bold"><i>{{line}}</i></p>
+                    {% elif 'steps' in line %}
+                        <p style="padding-left: 3em;font-size: large"><i>{{line}}</i></p>
+                    {% else %}
+                        <p style="padding-left: 6em"><i>{{line}}</i></p>
+                    {% endif %}
+                {% endfor %}
+            {% endfor %}
+            {% endif %}
+        </div>
+
+        <hr>
+            <button class="btn btn-info" onclick="displaySnakefileContent()"> SNAKEFILE content </button>
+        <hr>
+
+        <div class="container-fluid" id="SNAKEFILE_content" style="display:none">
+            {% if content %}
+                <h2 class="text-center">SNAKEFILE content</h2>
+                {% for rule,lines in content.items %}
+                    <hr>
+                    <p><strong>{{ rule }}</strong></p>
+                    {% for line in lines %}
+                        <p style="padding-left: 3em"><i>{{line}}</i></p>
+                    {% endfor %}
+                    <hr>
+                {% endfor %}
+            {% endif %}
+
+        </div>
+
+
+
+        </div>
+
+
+        <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.min.js" integrity="sha384-w1Q4orYjBQndcko6MimVbzY0tgp4pWB4lZ7lr30WKz0vr/aWKhXdBNmNb5D92v7s" crossorigin="anonymous"></script>
+        <script>
+
+        function displaySnakefileContent() {
+              var settingsForm = document.getElementById("SNAKEFILE_content");
+              if (settingsForm.style.display == "none") {
+                settingsForm.style.display = "block";
+              } else {
+                settingsForm.style.display = "none";
+              }
+            }
+
+        function displaySnakefileLogs() {
+              var settingsForm = document.getElementById("SNAKEFILE_logs");
+              if (settingsForm.style.display == "none") {
+                settingsForm.style.display = "block";
+              } else {
+                settingsForm.style.display = "none";
+              }
+            }
+
+        </script>
+    </body>
+</html>

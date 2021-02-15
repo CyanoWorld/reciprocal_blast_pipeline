@@ -1,0 +1,7 @@
+reciprocal_blast/media/*
+reciprocal_blast/static/result_images/*
+.idea/*
+reciprocal_blast/.panoptes.db
+reciprocal_blast/db.sqlite3
+reciprocal_blast/blast_project/migrations/0*
+reciprocal_blast/blast_project/migrations/__pycache__/*
