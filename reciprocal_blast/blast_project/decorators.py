@@ -1,7 +1,6 @@
 from django.http import Http404
 from django.shortcuts import redirect
 
-#TODO refactoring | adding decorator functions to appropriate functions
 def unauthenticated_user(view_func):
 
     def wrapper_func(request,*args,**kwargs):
@@ -11,6 +10,7 @@ def unauthenticated_user(view_func):
             return view_func(request,*args,**kwargs)
     return wrapper_func
 
+#TODO use this decorator at appropriate functions
 def allowed_user(allowed_roles=[]):
     def decorator(view_func):
         def wrapper_func(request,*args,**kwargs):

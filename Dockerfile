@@ -1,5 +1,5 @@
-#
-# miniconda snakemake - NCBI BLAST+ 2.11.0+ Dockerfile
+#AUTHOR Lukas Becker
+# miniconda - django - snakemake - NCBI BLAST+ 2.11.0+ - Dockerfile
 #
 
 #base image; maybe choose another image
@@ -11,6 +11,7 @@ RUN mkdir /opt/blast
 # set working directory
 WORKDIR /blast
 
+# Update path environment variable
 ENV PATH /blast/miniconda3/bin:$PATH
 
 # Download and install anaconda
@@ -22,7 +23,7 @@ RUN rm Miniconda3-latest-Linux-x86_64.sh
 # Download & install BLAST
 RUN curl ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/LATEST/ncbi-blast-2.11.0+-x64-linux.tar.gz | tar -zxvpf- 
 
-# Update environment variable
+# Update path environment variable
 ENV PATH /blast/ncbi-blast-2.11.0+/bin:$PATH
 
 # Update miniconda
@@ -42,8 +43,9 @@ COPY requirements.txt /blast/
 RUN pip install -r requirements.txt 
 COPY /reciprocal_blast /blast/
 
+#create default BLASTDB environment variable
+ENV BLASTDB /blast/media/databases
 # Delete not required packages etc..
 RUN apt-get autoremove --purge --yes && apt-get clean && rm -rf /var/lib/apt/lists/*
-
-# Optional commands e.g. initiating scripts 
+# Optional commands e.g. initiating scripts
 CMD ["bash"]
