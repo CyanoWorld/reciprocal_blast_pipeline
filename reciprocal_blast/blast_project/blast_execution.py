@@ -10,10 +10,10 @@ from django.shortcuts import get_object_or_404
 from django.db import IntegrityError
 from shutil import copy
 from os.path import isfile, isdir
-from os import remove, chmod, listdir, getcwd, system
+from os import remove, chmod, listdir, getcwd, system, chdir
 from datetime import datetime
 from pathlib import Path
-from subprocess import Popen
+from subprocess import Popen, call
 from subprocess import PIPE as subPIPE
 from subprocess import STDOUT as subSTDOUT
 
@@ -73,13 +73,25 @@ def write_nr_snakemake_configuration_and_taxid_file(project_id, query_sequences,
 #writes the taxid files that are used by the nr snakefile
 def write_taxid_file(project_id,filename,taxonomic_nodes):
     try:
+        current_working_directory = getcwd()
+        project_working_directory = current_working_directory+'/media/'+str(project_id)
+        chdir(project_working_directory)
+        for taxid in taxonomic_nodes:
+            output_file = str(i)+".taxid"
+            call(["get_species_taxids.sh","-t",taxid,">",output_file])
+
+        call(["cat","*.taxid",">",filename])
+    except Exception as e:
+        raise IOError("[-] Coudn't write taxonomic node file with exception: {}".format(e))
+    '''
+    try:
         taxid_file = open("media/" + str(project_id) + "/"+filename, "w")
         for organism in taxonomic_nodes:
             taxid_file.write(str(organism.taxonomic_node) + "\n")
         taxid_file.close()
     except Exception as e:
         raise IOError("[-] Coudn't write taxonomic node file with exception: {}".format(e))
-
+    '''
 #is executed at the end of project creation
 #collects all necessary data based on a project instance by loading relevant database entries
 def prepare_data_and_write_genome_upload_snakemake_configurations(project_id):

@@ -1,5 +1,5 @@
 #AUTHOR Lukas Becker
-# miniconda - django - snakemake - NCBI BLAST+ 2.11.0+ - Dockerfile
+# miniconda - django - snakemake - NCBI BLAST+ 2.11.0+ - edirect - Dockerfile
 #
 
 #base image; maybe choose another image
