@@ -74,10 +74,23 @@ WSGI_APPLICATION = 'reciprocal_blast.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
 
+'''
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+    }
+}
+'''
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'postgres',
+        'USER': 'postgres',
+        'PASSWORD': 'postgres',
+        'HOST': 'db',
+        'PORT': 5432,
     }
 }
 
@@ -123,5 +136,5 @@ STATICFILES_DIRS = (
     os.path.join(BASE_DIR, "static"),
     '/blast_project/static/',
 )
-#FILE_UPLOAD_TEMP_DIR = '/tmp'
+FILE_UPLOAD_TEMP_DIR = '/tmp'
 #os.path.join(BASE_DIR, 'media')

@@ -11,9 +11,9 @@ services:
     build: .
     command:  bash -c "python manage.py makemigrations && python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
     volumes:
-      - C:\Users\lujeb\Documents\github_projects\fresh_folder_django_project\data:/blast/media
-      - C:\Users\lujeb\Documents\github_projects\fresh_folder_django_project\tmp:/blast/tmp
-      - C:\Users\lujeb\Documents\github_projects\fresh_folder_django_project\reciprocal_blast:/blast
+      - C:\Users\lujeb\Documents\github_projects\bachelor_project\reciprocal_blast_pipeline\data:/blast/media
+      - C:\Users\lujeb\Documents\github_projects\bachelor_project\reciprocal_blast_pipeline\tmp:/blast/tmp
+      - C:\Users\lujeb\Documents\blast\db:/blast/nr_database
     ports:
       - "8000:8000"
       - "5000:5000"
