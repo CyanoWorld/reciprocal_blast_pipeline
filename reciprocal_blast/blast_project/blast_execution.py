@@ -10,7 +10,7 @@ from django.shortcuts import get_object_or_404
 from django.db import IntegrityError
 from shutil import copy
 from os.path import isfile, isdir
-from os import remove, chmod, listdir, getcwd, system, chdir
+from os import remove, chmod, listdir, getcwd, system, chdir, waitpid
 from datetime import datetime
 from pathlib import Path
 from subprocess import Popen, call
@@ -74,15 +74,28 @@ def write_nr_snakemake_configuration_and_taxid_file(project_id, query_sequences,
 def write_taxid_file(project_id,filename,taxonomic_nodes):
     try:
         current_working_directory = getcwd()
-        project_working_directory = current_working_directory+'/media/'+str(project_id)
+        project_working_directory = current_working_directory + '/media/'+str(project_id)
         chdir(project_working_directory)
         for taxid in taxonomic_nodes:
-            output_file = str(i)+".taxid"
-            call(["get_species_taxids.sh","-t",taxid,">",output_file])
-
-        call(["cat","*.taxid",">",filename])
+            get_species_taxids_file = str(taxid.taxonomic_node)+".taxid"
+            #print(str(taxid.taxonomic_node))
+            output = open(get_species_taxids_file,'w')
+            process = Popen(["get_species_taxids.sh -t "+str(taxid.taxonomic_node)],stdout=output,shell=True)
+            waitpid(process.pid,0)
+            output.close()
+            
+        blast_taxonomic_file = open(filename,'w')	
+        for taxid in taxonomic_nodes:
+            input_file = str(taxid.taxonomic_node)+".taxid"
+            input_file = open(input_file,'r')
+            for organism in input_file.readlines():
+            	blast_taxonomic_file.write(organism)
+            input_file.close()
+        blast_taxonomic_file.close()
+        chdir(current_working_directory)
     except Exception as e:
         raise IOError("[-] Coudn't write taxonomic node file with exception: {}".format(e))
+        
     '''
     try:
         taxid_file = open("media/" + str(project_id) + "/"+filename, "w")
