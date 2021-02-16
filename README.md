@@ -42,30 +42,15 @@ Once you have started the application you can visit the browser interface by typ
 | /register      | GET, POST     |   register | Account registration.|
 | /login | GET, POST      |    login | Login for application access.|
 |/logout|GET|logout|Logut.|
-
-
-
-## snakemake, miniconda, BLAST, django and postgres in a docker container
-Edit the docker-compose.yml file with right file paths to volumes. Start the network container with:
-`docker-compose up`. Keep in mind, if you delete the containers with `docker-compose down` all data in the volume folders will be lost.
-
-## snakemake, miniconda and BLAST in a docker container
-Build the docker image with:
-`docker build --tag snakeblast:1.0 .` this will take a while. The image has a size of 2.38 GB. 
-
-Start a container and bind a volume to it:
-`docker run -v path_on_your_local_machine/desired_directory_for_volume_sharing:/blast/data -i -d --name snakeblast snakeblast:1.0`
-
-Start a shell inside the container and start working with snakemake and BLAST:
-`docker exec -it snakeblast /bin/bash`
-
-Execute snakemake where X are your desired cores to use:
-`cd /data && snakemake --cores X `
-
-This will probably take some time. Once snakemake has finished the "all" job, there will be two .csv output files in the /data directory, one is called backward_blast_results.csv which is currently the result file for this first approach towards a full reciprocal pipeline. 
-
-Stop the container:
-`docker stop snakeblast`
-
-Restart the container:
-`docker start snakeblast`
+|/<int:project_id>|GET|project_details|Displays project specific data such as the settings for the reciprocal BLAST and result graphs. Differs depending on the project type.|
+|/<int:project_id>/reciprocal_results|GET|reciprocal_results|Displays a table of the reciprocal best hits with additional information concerning the BLAST run (e.g. e-value, bitscore, etc.).|
+|<int:project_id>/delete|GET, POST (recommended by django)|delete_project|Displays a short project summary and a delete button. If this button is pressed the project gets deleted (UNIX specific).|
+|<int:project_id>/pipeline_dashboard|GET|pipeline_dashboard|Displays the current status of the pipeline. Buttons for monitoring the pipeline status via panoptes and for viewing snakemake log files. If the pipeline was not executed there is a button that triggers the execution.|
+|<int:project_id>/pipeline_nr_dashboard|GET|pipeline_nr_dashboard|* (s.description above)|
+|/execute_snakefile|POST|execute_snakefile|Triggers the snakemake execution for uploaded genome projects.|
+|/execute_nr_snakefile|POST|execute_nr_snakefile|Triggers the snakemake execution for the non-redundant database projects.|
+|/project_creation|GET,POST|project_creation|Displays a menu for project creation. There are two possibilities, a project creation based on the non-redundant database and based on uploading FASTA files as genome databases or reusing previously uploaded genome databases.|
+|/species_taxid|GET,POST|species_taxid|Allows a quick checkup for the presence of project specific species within the non-redundant database.|
+|/upload_genome|GET,POST|upload_genome|Allows uploading FASTA files that can serve as databases for future reciprocal BLAST projects.|
+|/success|GET|success_view|Redirects to the project dashboard if a POST method succeeded.|
+|/failure|GET|failure_view|Displays the raised exception with some informations.|
