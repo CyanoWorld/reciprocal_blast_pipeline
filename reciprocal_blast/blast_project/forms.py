@@ -1,10 +1,16 @@
+'''
+Content: forms for the view.py file that are loaded into the templates.
+Some of the forms have specific __init__ and validation functions.
+'''
+
 from django import forms
-from .models import BlastProject, Genomes
+from .models import Genomes
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
-from .biopython_functions import get_species_taxid, get_species_taxid_without_email
+from .biopython_functions import get_species_taxid_without_email
 
+#TODO: put this into services
 def get_genomes_tuple():
     try:
         genomes = []
@@ -16,6 +22,7 @@ def get_genomes_tuple():
     except:
         return (('no genomes available','no genomes available'))
 
+#used in upload_genomes_form.html
 class BlastProjectForm(forms.Form):
     project_title = forms.CharField(label="Project title",
                                     error_messages={'required':"A project title is required for saving project metadata into the database"})
@@ -80,6 +87,7 @@ class BlastProjectForm(forms.Form):
         return genome
 
 #TODO: use the user_email in order to check the scientific names
+#used in nr_database_form.html
 class BlastProjectNrForm(forms.Form):
     project_title = forms.CharField(label="Project title",
                                     error_messages={

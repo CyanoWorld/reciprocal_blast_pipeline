@@ -1,3 +1,8 @@
+'''
+Content: models for the database.
+All models get translated to database tables.
+'''
+
 from django.db import models
 from django.contrib.auth.models import User
 from .biopython_functions import get_scientific_name_by_taxid

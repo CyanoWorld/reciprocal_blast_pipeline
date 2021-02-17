@@ -1,7 +1,8 @@
 '''
 Content: functions for snakemake execution setup and execution
-Preparation and writing of the snakemake configuration file, this involves database interactions and
-
+Preparation and writing of the snakemake configuration file, this involves database interactions and execution of external
+programs such as get_species_taxids and snakemake.
+Execution of external programs is done with the subprocess package.
 '''
 
 from .models import BlastProject, Genomes, ForwardBlastSettings, BackwardBlastSettings, QuerySequences, \

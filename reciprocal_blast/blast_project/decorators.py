@@ -1,8 +1,12 @@
+'''
+Content: decorator functions for the views.py file in order to just allow logged in users
+or authorized users to use specific functions.
+'''
+
 from django.http import Http404
 from django.shortcuts import redirect
 
 def unauthenticated_user(view_func):
-
     def wrapper_func(request,*args,**kwargs):
         if request.user.is_authenticated:
             return redirect('home')

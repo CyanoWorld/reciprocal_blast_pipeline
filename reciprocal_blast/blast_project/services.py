@@ -1,11 +1,11 @@
 from django.core.files.storage import FileSystemStorage
 
-from django.db import IntegrityError, transaction
+from django.db import IntegrityError
 
 from .models import BlastProject, Genomes, ForwardBlastSettings, BackwardBlastSettings, QuerySequences, TaxNodesForForwardDatabase, TaxNodesForBackwardDatabase
 
-from os import listdir, walk, mkdir
-from os.path import isfile, join, isdir
+from os import walk, mkdir
+from os.path import isfile,  isdir
 from shutil import rmtree
 
 #provides the possibility to delete files if a user has accidently moved files into that directory
@@ -30,9 +30,13 @@ def delete_project_files_by_project_id(project_id):
     try:
         if isdir('media/' + str(project_id) + '/'):
             rmtree('media/'+str(project_id)+'/')
+        if isdir('static/result_images/'+str(project_id)):
+            rmtree('static/result_images/'+str(project_id))
     except Exception as e:
         raise ValueError('[-] unable to remove project directory: {} with exception: {}'.format(project_id,e))
 
+#this function is executed after deleting a project, thus it will pretend that uploaded genomes gets deleted
+#if they are not connected to any project after deleting a project
 def check_if_genomes_should_be_resaved(project_id):
     try:
         # if the associated genome database just has this project as its use, the genome database won't appear in the database anymore
@@ -45,7 +49,7 @@ def check_if_genomes_should_be_resaved(project_id):
             genome_first.save()
             genome_second.save()
     except Exception as e:
-        raise IntegrityError("[-] Couldn't resave genome databases during deletion of the project...")
+        raise IntegrityError("[-] Couldn't resave genome databases during deletion of the project with Exception: {}".format(e))
 
 def save_project_from_form_or_raise_exception(new_title, new_strategy, user):
     try:
@@ -180,7 +184,7 @@ def get_html_results(project_id,filename):
         with open("media/"+str(project_id)+"/"+filename) as res:
             data = res.readlines()
         return data
-    except FileNotFoundError as e:
+    except Exception as e:
         raise FileNotFoundError("[-] Couldn't read file {} with Exception: {}".format(e))
 
 def load_html_graph(project_id,filename):

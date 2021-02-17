@@ -14,8 +14,7 @@ from .forms import BlastProjectForm, BlastProjectNrForm, AdvancedSettingsForm_Fo
 #BlastProjectUploadedForm
 from .models import BlastProject, Genomes, ForwardBlastSettings, BackwardBlastSettings, QuerySequences, \
     TaxNodesForForwardDatabase, TaxNodesForBackwardDatabase
-from .project_creation import create_project_with_uploaded_files, create_project_with_nr_database, \
-    create_project_with_previously_uploaded_genomes
+from .project_creation import create_project_with_uploaded_files, create_project_with_nr_database
 from .services import delete_files_without_projects, \
     delete_project_files_by_project_id, upload_file, set_executed_on_true_and_save_project, snakemake_project_finished, \
     get_html_results, load_html_graph, save_new_genome_file_in_db, \

@@ -1,3 +1,8 @@
+'''
+Content: anchor point for project creation. Functions are used by the views.py function project_creation.
+External functions are used for creating the project directories and snakemake files, this is done in services.py and blast_execution.py.
+'''
+
 from django.db import IntegrityError, transaction
 from .models import Genomes
 from .blast_execution import prepare_data_and_write_genome_upload_snakemake_configurations, prepare_data_and_write_nr_snakemake_configurations_and_taxid_files
@@ -6,39 +11,6 @@ from .services import save_genomes_and_query_in_db, save_project_from_form_or_ra
     save_forward_settings_from_form_or_raise_exception, save_backward_settings_from_form_or_raise_exception, \
     save_nr_project_from_form_or_raise_exception, save_query_file_in_db, \
     create_nr_project_dir, validate_fw_taxids_and_save_into_database, validate_bw_taxids_and_save_into_database
-
-
-def create_project_with_previously_uploaded_genomes(request, project_creation_form,settings_form_forward,settings_form_backward):
-
-    try:
-        # ensures that everything is correctly saved into the database, if an error occurres saving would not be transmitted
-        with transaction.atomic():
-            new_title = project_creation_form.cleaned_data['project_title']
-            new_strategy = project_creation_form.cleaned_data['search_strategy']
-            project = save_project_from_form_or_raise_exception(new_title, new_strategy, request.user)
-
-
-            forward_genome = project_creation_form.cleaned_data['forward_genome_file']
-            backward_genome = project_creation_form.cleaned_data['backward_genome_file']
-
-            # just the genome/database name is required in order to reuse this object
-            forward_genome_data = Genomes.objects.filter(genome_name=forward_genome).order_by('id').first()
-            backward_genome_data = Genomes.objects.filter(genome_name=backward_genome).order_by('id').first()
-
-            query_sequences = request.FILES['query_sequence_file']
-
-            create_project_dir(project)
-            upload_file(query_sequences,
-                        'media/' + str(project.id) + '/' + 'query_sequences' + '/' + query_sequences.name)
-            save_genomes_and_query_in_db(query_sequences, forward_genome_data.genome_name,
-                                         backward_genome_data.genome_name, project)
-
-            save_forward_settings_from_form_or_raise_exception(project, settings_form_forward.cleaned_data)
-            save_backward_settings_from_form_or_raise_exception(project, settings_form_backward.cleaned_data)
-            prepare_data_and_write_genome_upload_snakemake_configurations(project.id)
-
-    except Exception as e:
-        raise IntegrityError("[-] Couldn't perform project creation due to following exception: {}".format(e))
 
 def create_project_with_nr_database(request, project_creation_form,settings_form_forward,settings_form_backward):
     try:
