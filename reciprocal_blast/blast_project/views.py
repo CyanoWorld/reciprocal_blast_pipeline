@@ -40,7 +40,6 @@ def project_creation(request):
         try:
             if request.POST['project_type'] == 'upload':
                 project_creation_nr_from = BlastProjectNrForm()
-                #project_creation_uploaded_form = BlastProjectUploadedForm()
 
                 project_creation_form = BlastProjectForm(request.POST, request.FILES)
 
@@ -49,24 +48,13 @@ def project_creation(request):
                     return success_view(request)
 
             if request.POST['project_type'] == 'nr':
-                #project_creation_uploaded_form = BlastProjectUploadedForm()
                 project_creation_form = BlastProjectForm()
 
                 project_creation_nr_from = BlastProjectNrForm(request.POST, request.FILES)
                 if project_creation_nr_from.is_valid() and settings_form_forward.is_valid() and settings_form_backward.is_valid():
                     create_project_with_nr_database(request, project_creation_nr_from,settings_form_forward,settings_form_backward)
                     return success_view(request)
-            '''
-            if request.POST['project_type'] == 'previously_uploaded':
-                project_creation_nr_from = BlastProjectNrForm()
-                project_creation_form = BlastProjectForm()
 
-                project_creation_uploaded_form = BlastProjectUploadedForm(request.POST, request.FILES)
-
-                if project_creation_uploaded_form.is_valid() and settings_form_forward.is_valid() and settings_form_backward.is_valid():
-                    create_project_with_previously_uploaded_genomes(request, project_creation_form,settings_form_forward, settings_form_backward)
-                    return success_view(request)
-            '''
         except Exception as e:
             return failure_view(request,e)
 

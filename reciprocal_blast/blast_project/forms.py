@@ -37,6 +37,7 @@ class BlastProjectForm(forms.Form):
         #refresh available genomes
         self.fields['backward_genome_uploaded_file'].choices=get_genomes_tuple()
         self.fields['forward_genome_uploaded_file'].choices=get_genomes_tuple()
+
         if data:
             print(self.fields['backward_genome_uploaded_file'])
             if data.get('backward_genome_file', None) == '':
@@ -77,31 +78,6 @@ class BlastProjectForm(forms.Form):
                     raise ValidationError(
                         '[-] A genome database with that name already exist, please specify another file! Or try to use previously uploaded databases!')
         return genome
-
-'''
-class BlastProjectUploadedForm(forms.Form):
-    project_title = forms.CharField(label="Project title",
-                                    error_messages={
-                                        'required': "A project title is required for saving project metadata into the database"})
-    search_strategy = forms.ChoiceField(choices=(('blastp', 'blastp'), ('blastn', 'blastn')), label="Search strategy",
-                                        error_messages={
-                                            'required': "Please specify a search strategy otherwise you won't be able to execute a BLAST run .."})
-
-    #error_messages={'required': "Use a database file, this is the database for the second BLAST (from your query sequences)"}
-    forward_genome_file = forms.ChoiceField(choices=get_genomes_tuple())
-    backward_genome_file = forms.ChoiceField(choices=get_genomes_tuple())
-    query_sequence_file = forms.FileField(error_messages={'required':"Upload a query sequence file, this file will serve as the -query parameter for the forward BLAST analysis"})
-
-    #this is just possible because choice fields are previously 'cleaned'
-    #it is not a good practice to do that
-    def clean_backward_genome_file(self):
-        bw_genome = self.cleaned_data['backward_genome_file']
-        fw_genome = self.cleaned_data['forward_genome_file']
-        if bw_genome == fw_genome:
-            raise ValidationError('[-] Do not use the same databases for the forward and backward blast.')
-        else:
-            return bw_genome
-'''
 
 #TODO: use the user_email in order to check the scientific names
 class BlastProjectNrForm(forms.Form):

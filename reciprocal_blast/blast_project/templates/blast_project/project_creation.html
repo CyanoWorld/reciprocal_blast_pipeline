@@ -44,13 +44,7 @@
                     <label class="custom-control-label" for="nr_database"> Preformatted NR database</label>
 
                 </div>
-<!--
-                <div class="custom-control custom-radio custom-control-inline">
-                    <input class="custom-control-input" type="radio" id="use_uploaded_databases" name="use_uploaded_databases_radio_button" value="previous_databases" onchange="loadTemplate(this.value)">
-                    <label class="custom-control-label" for="use_uploaded_databases"> Use previously uploaded database files</label>
 
-                </div>
--->
                 <div class="custom-control custom-radio custom-control-inline">
                     <input class="custom-control-input" type="radio" id="upload_database" name="upload_database_radio_button" value="upload" onchange="loadTemplate(this.value)">
                     <label class="custom-control-label" for="upload_database">Upload database files</label>
@@ -74,27 +68,7 @@
             <hr>
             {% include 'blast_project/nr_database_form.html' %}
         </div>
-<!--
-        <div class="container-fluid" id="project_creation_previous_databases" style="display: none">
-            <hr>
-            <p style="font-size: large; font-weight: bold; text-align: center"> Project creation based on previously uploaded database files </p>
-            <hr>
-            {% include 'blast_project/previously_uploaded_genomes_form.html' %}
-        </div>
--->
-<!-- Alter JavaScript-Function
-else if (project_type == 'previous_databases') {
-                document.getElementById('project_creation_nr').style.display = 'none'
-                document.getElementById('project_creation_upload').style.display = 'none'
-                document.getElementById('upload_database').checked = false
-                document.getElementById('nr_database').checked = false
-                }
-                document.getElementById('use_uploaded_databases').checked = false
-                document.getElementById('use_uploaded_databases').checked = false
-                document.getElementById('project_creation_previous_databases').style.display = 'none'
-                document.getElementById('project_creation_previous_databases').style.display = 'none'
 
--->
     <br>
     <script>
         function loadTemplate(project_type) {
