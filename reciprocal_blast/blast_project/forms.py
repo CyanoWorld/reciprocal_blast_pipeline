@@ -26,6 +26,8 @@ class BlastProjectForm(forms.Form):
 
     forward_genome_uploaded_file = forms.TypedChoiceField(choices=get_genomes_tuple(),required=False, error_messages={'required':'Please specify an uploaded genome database'})
     backward_genome_uploaded_file = forms.TypedChoiceField(choices=get_genomes_tuple(),required=False, error_messages={'required':'Please specify an uploaded genome database'})
+    #forward_genome_uploaded_file = forms.ModelChoiceField(queryset=Genomes.objects.all().values('genome_name'),required=False, error_messages={'required':'Please specify an uploaded genome database'})
+    #backward_genome_uploaded_file = forms.ModelChoiceField(queryset=Genomes.objects.all().values('genome_name'),required=False, error_messages={'required':'Please specify an uploaded genome database'})
 
     query_sequence_file = forms.FileField(error_messages={'required':"Upload a query sequence file, this file will serve as the -query parameter for the forward BLAST analysis"})
 
@@ -33,6 +35,7 @@ class BlastProjectForm(forms.Form):
     def __init__(self,data=None,*args,**kwargs):
         super(BlastProjectForm,self).__init__(data,*args,**kwargs)
         if data:
+            print(self.fields['backward_genome_uploaded_file'])
             if data.get('backward_genome_file', None) == '':
                 self.fields['backward_genome_uploaded_file'].required = True
                 self.fields['backward_genome_file'].required = False
