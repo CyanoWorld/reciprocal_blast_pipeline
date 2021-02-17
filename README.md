@@ -1,9 +1,9 @@
 # reciprocal_blast_pipeline
 ## Quick installation with docker
-Clone this repository into a desired directory: `git clone https://git.hhu.de/synmibi/reciprocal_blast_pipeline.git`
-Open a shell and cd into that directory, then type: `docker-compose up`
-This can take several minutes to complete. After the reciprocal_blast_pipeline_web and reciprocal_blast_pipeline_db container have started open a new shell and cd into the project directory, then type: `docker exec -it reciprocal_blast_pipeline_web /bin/bash`
-This will open a custom shell of the web container. Type: `panoptes`
+Clone this repository into a desired directory: `git clone https://git.hhu.de/synmibi/reciprocal_blast_pipeline.git`.
+Open a shell and cd into that directory, then type: `docker-compose up`.
+This can take several minutes to complete. After the reciprocal_blast_pipeline_web and reciprocal_blast_pipeline_db container have started open a new shell and cd into the project directory, then type: `docker exec -it reciprocal_blast_pipeline_web /bin/bash`.
+This will open a custom shell of the web container. Type: `panoptes`.
 This will start the panoptes server. In future versions panoptes will start with an entrypoint script.
 Now you can access the application by typing `127.0.0.1:8080/blast_project/` into your browser.
 
