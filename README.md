@@ -44,7 +44,7 @@ Once you have started the application you can visit the browser interface by typ
 | localhost:8080/blast_project| GET| main |Homepage and project dashboard, gives an overview about current projects and serves as an anchor point for reaching the project specific subsites.|
 | /register      | GET, POST     |   register | Account registration.|
 | /login | GET, POST      |    login | Login for application access.|
-|/logout|GET|logout|Logut.|
+|/logout|GET|logout|Logout.|
 |/project_id|GET|project_details|Displays project specific data such as the settings for the reciprocal BLAST and result graphs. Differs depending on the project type.|
 |/project_id/reciprocal_results|GET|reciprocal_results|Displays a table of the reciprocal best hits with additional information concerning the BLAST run (e.g. e-value, bitscore, etc.).|
 |/project_id/delete|GET, POST (recommended by django)|delete_project|Displays a short project summary and a delete button. If this button is pressed the project gets deleted (UNIX specific).|
