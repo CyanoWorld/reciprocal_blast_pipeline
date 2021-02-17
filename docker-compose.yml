@@ -9,13 +9,13 @@ services:
       - POSTGRES_PASSWORD=postgres
   web:
     build: .
-    command:  bash -c "python manage.py makemigrations && python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
+    command:  bash -c "python manage.py makemigrations && python manage.py migrate && python manage.py runserver 0.0.0.0:8080"
     volumes:
-      - C:\Users\lujeb\Documents\github_projects\bachelor_project\reciprocal_blast_pipeline\data:/blast/media
-      - C:\Users\lujeb\Documents\github_projects\bachelor_project\reciprocal_blast_pipeline\tmp:/blast/tmp
-      - C:\Users\lujeb\Documents\blast\db:/blast/nr_database
+      - ./data:/blast/reciprocal_blast/media
+      - ./tmp:/blast/reciprocal_blast/tmp
+      - ./reciprocal_blast:/blast/reciprocal_blast
     ports:
-      - "8000:8000"
+      - "8080:8080"
       - "5000:5000"
     depends_on:
       - db

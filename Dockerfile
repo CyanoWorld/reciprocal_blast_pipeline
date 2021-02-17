@@ -20,7 +20,7 @@ RUN bash Miniconda3-latest-Linux-x86_64.sh -b -p /blast/miniconda3
 RUN rm Miniconda3-latest-Linux-x86_64.sh
 
 # Download & install BLAST
-RUN curl ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/LATEST/ncbi-blast-2.11.0+-x64-linux.tar.gz | tar -zxvpf- 
+RUN curl ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/2.11.0/ncbi-blast-2.11.0+-x64-linux.tar.gz | tar -zxvpf-
 
 # Download & install NCBI EDIRECT
 RUN curl -s ftp://ftp.ncbi.nlm.nih.gov/entrez/entrezdirect/edirect.tar.gz | \
@@ -51,12 +51,17 @@ RUN conda install -c bioconda snakemake
 
 # Set-up django and postgres packages
 COPY requirements.txt /blast/
-RUN pip install -r requirements.txt 
-COPY /reciprocal_blast /blast/
+RUN pip install -r requirements.txt
+
+#copy django project into container
+RUN mkdir /blast/reciprocal_blast
+COPY /reciprocal_blast /blast/reciprocal_blast
 
 #create default BLASTDB environment variable
-RUN mkdir /nr_database
+RUN mkdir /blast/nr_database
 ENV BLASTDB /blast/nr_database
+#set appropriate working directory in order to allow development with docker
+WORKDIR /blast/reciprocal_blast
 # Delete not required packages etc..
 RUN apt-get autoremove --purge --yes && apt-get clean && rm -rf /var/lib/apt/lists/*
 # Optional commands e.g. initiating scripts
