@@ -1,4 +1,13 @@
 # reciprocal_blast_pipeline
+## Quick installation with docker
+Clone this repository into a desired directory: `git clone https://git.hhu.de/synmibi/reciprocal_blast_pipeline.git`
+Open a shell and cd into that directory, then type: `docker-compose up`
+This can take several minutes to complete. After the reciprocal_blast_pipeline_web and reciprocal_blast_pipeline_db container have started open a new shell and cd into the project directory, then type: `docker exec -it reciprocal_blast_pipeline_web /bin/bash`
+This will open a custom shell of the web container. Type: `panoptes`
+This will start the panoptes server. In future versions panoptes will start with an entrypoint script.
+Now you can access the application by typing `127.0.0.1:8080/blast_project/` into your browser.
+
+
 ## Installation
 In order to start developing and using this application you need to download the application from the git-repository. There are two possibilities for installing the application either you install the package distribution platform [anaconda](https://www.anaconda.com/) or the container virtualization platform [docker](https://www.docker.com/). Installation via docker involves execution of the docker-compose.yml file with the command `docker-compose up`. This will download and install the desired images and software requirements defined in the Dockerfile and requirements.txt file. Additionally, the application gets copied into the docker container. This may take some time. The resulting docker web image has a size of 3.02 Gigabyte.
 For installing the application within a conda environment you need the anaconda distribution platform and the biosnakedjango-\{system\}.yml file for your specific system. You can install the required packages in a virtual environment by starting a shell and submitting the command: `conda env create -f biosnakedjango-{system}.yml`
