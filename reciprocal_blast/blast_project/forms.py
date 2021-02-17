@@ -24,8 +24,8 @@ class BlastProjectForm(forms.Form):
     forward_genome_file = forms.FileField(error_messages={'required':"Upload a forward genome file fasta, this is the database for the first BLAST (not your query sequence genome)"},required=True)
     backward_genome_file = forms.FileField(error_messages={'required':"Upload a backward genome file fasta, this is the database for the second BLAST (from your query sequences)"},required=True)
 
-    forward_genome_uploaded_file = forms.TypedChoiceField(choices=get_genomes_tuple(),required=False, error_messages={'required':'Please specify an uploaded genome database'})
-    backward_genome_uploaded_file = forms.TypedChoiceField(choices=get_genomes_tuple(),required=False, error_messages={'required':'Please specify an uploaded genome database'})
+    forward_genome_uploaded_file = forms.ChoiceField(choices=get_genomes_tuple(),required=False, error_messages={'required':'Please specify an uploaded genome database'})
+    backward_genome_uploaded_file = forms.ChoiceField(choices=get_genomes_tuple(),required=False, error_messages={'required':'Please specify an uploaded genome database'})
     #forward_genome_uploaded_file = forms.ModelChoiceField(queryset=Genomes.objects.all().values('genome_name'),required=False, error_messages={'required':'Please specify an uploaded genome database'})
     #backward_genome_uploaded_file = forms.ModelChoiceField(queryset=Genomes.objects.all().values('genome_name'),required=False, error_messages={'required':'Please specify an uploaded genome database'})
 
@@ -34,6 +34,9 @@ class BlastProjectForm(forms.Form):
 
     def __init__(self,data=None,*args,**kwargs):
         super(BlastProjectForm,self).__init__(data,*args,**kwargs)
+        #refresh available genomes
+        self.fields['backward_genome_uploaded_file'].choices=get_genomes_tuple()
+        self.fields['forward_genome_uploaded_file'].choices=get_genomes_tuple()
         if data:
             print(self.fields['backward_genome_uploaded_file'])
             if data.get('backward_genome_file', None) == '':
