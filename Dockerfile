@@ -46,8 +46,8 @@ RUN conda config --add channels defaults
 RUN conda config --add channels bioconda
 RUN conda config --add channels conda-forge
 
-# Download and install snakemake via the bioconda channel
-RUN conda install -c bioconda snakemake
+# Download and install snakemake via the bioconda channel; version: 5.32.2
+RUN conda install -c bioconda snakemake=5.32.2
 
 # Set-up django and postgres packages
 COPY requirements.txt /blast/
