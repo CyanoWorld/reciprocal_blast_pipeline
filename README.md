@@ -7,6 +7,8 @@ This will open a custom shell of the web container. Type: `panoptes`.
 This will start the panoptes server. In future versions panoptes will start with an entrypoint script.
 Now you can access the application by typing `127.0.0.1:8080/blast_project/` into your browser.
 
+If you run into an error concerning the Django's database connection, try to CTRL-C the container process and restart both containers with `docker-compose up`.
+
 
 ## Installation
 
