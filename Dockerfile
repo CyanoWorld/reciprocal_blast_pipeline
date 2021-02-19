@@ -16,8 +16,8 @@ WORKDIR /blast
 # Download and install anaconda; version: 4.9.2
 RUN wget https://repo.anaconda.com/miniconda/Miniconda3-py38_4.9.2-Linux-x86_64.sh
 #-b Batch mode with no PATH modifications to ~/.bashrc
-RUN bash Miniconda3-latest-Linux-x86_64.sh -b -p /blast/miniconda3
-RUN rm Miniconda3-latest-Linux-x86_64.sh
+RUN bash Miniconda3-py38_4.9.2-Linux-x86_64.sh -b -p /blast/miniconda3
+RUN rm Miniconda3-py38_4.9.2-Linux-x86_64.sh
 
 # Download & install BLAST
 RUN curl ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/2.11.0/ncbi-blast-2.11.0+-x64-linux.tar.gz | tar -zxvpf-
