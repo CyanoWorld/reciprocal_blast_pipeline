@@ -7,9 +7,9 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    path('register',views.registrationPage,name='register'),
-    path('login', views.loginPage, name='login'),
-    path('logout', views.logoutUser, name='logout'),
+    path('register',views.registration_view,name='register'),
+    path('login', views.login_view, name='login'),
+    path('logout', views.logout_user, name='logout'),
     path('success',views.success_view,name='success_view'),
     path('<int:project_id>/pipeline_dashboard',views.pipeline_dashboard,name="pipeline_dashboard"),
     path('<int:project_id>/pipeline_nr_dashboard', views.pipeline_nr_dashboard, name="pipeline_nr_dashboard"),

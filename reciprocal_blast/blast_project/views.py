@@ -71,7 +71,7 @@ def project_creation(request):
 
 #login view
 @unauthenticated_user
-def loginPage(request):
+def login_view(request):
 
     if request.method == 'POST':
         username = request.POST.get('username')
@@ -86,13 +86,13 @@ def loginPage(request):
     return render(request,'blast_project/login.html')
 
 #logout view
-def logoutUser(request):
+def logout_user(request):
     logout(request)
     return redirect('login')
 
 #registration view
 @unauthenticated_user
-def registrationPage(request):
+def registration_view(request):
     userForm = CreateUserForm()
     if request.method == 'POST':
         userForm = CreateUserForm(request.POST)
