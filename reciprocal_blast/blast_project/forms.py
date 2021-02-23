@@ -1,6 +1,11 @@
 '''
 Content: forms for the view.py file that are loaded into the templates.
 Some of the forms have specific __init__ and validation functions.
+
+instances of the classes are used in the POST part of some view functions
+
+more information on:
+https://docs.djangoproject.com/en/2.2/topics/forms/
 '''
 
 from django import forms
@@ -22,7 +27,7 @@ def get_genomes_tuple():
     except:
         return (('no genomes available','no genomes available'))
 
-#used in upload_genomes_form.html
+#used in upload_genomes_form.html during project creation
 class BlastProjectForm(forms.Form):
     project_title = forms.CharField(label="Project title",
                                     error_messages={'required':"A project title is required for saving project metadata into the database"})
@@ -148,18 +153,26 @@ class AdvancedSettingsForm_Backward(forms.Form):
     bw_max_hsps = forms.IntegerField(label="FW Number of high scoring pairs to output", required=False, initial=1)
     #bw_max_target_seqs = forms.IntegerField(label="FW Number of maximal alignment outputs", required=False,initial=1)
 
+#TODO add email validation
+#registration and login form
 class CreateUserForm(UserCreationForm):
     class Meta:
         model = User
         fields = ['username','email','password1','password2']
 
+#species_taxid.html template form
 class SpeciesNameForm(forms.Form):
     organism_name = forms.CharField(label="Organism Name", initial='Cyanobacteria')
 
+#upload_database.html template form
 class UploadDatabaseForm(forms.Form):
     genome_file = forms.FileField(error_messages={'required':"Upload a genome fasta file for database preparement"})
+
     def clean_genome_file(self):
         genome = self.cleaned_data['genome_file']
+        if genome.name.endswith('.faa') != True and genome.name.endswith('.fasta') != True:
+            raise ValidationError("[-] Please upload only fasta files!")
+
         for genome_name in Genomes.objects.all().values('genome_name'):
             if genome_name['genome_name'] == genome.name:
                 raise ValidationError('[-] A genome database with that name already exist, please specify another file! Or try to use previously uploaded databases!')
