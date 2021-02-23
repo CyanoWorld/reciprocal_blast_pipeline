@@ -71,20 +71,22 @@ def write_nr_snakemake_configuration_and_taxid_file(project_id, query_sequences,
     except Exception as e:
         raise ValueError("[-] Error creating project associated configuration files with Exception: {}".format(e))
 
+#TODO refactor this function, integrate a rule in the snakefile that is triggered by pipeline execution
 #writes the taxid files that are used by the nr snakefile
 #if you develop on windows out comment this text
 def write_taxid_file(project_id,filename,taxonomic_nodes):
     try:
+        #if a filter is specified (forward BLAST scientific name is not empty)
         if len(taxonomic_nodes) > 0:
             current_working_directory = getcwd()
             project_working_directory = current_working_directory + '/media/'+str(project_id)
-            chdir(project_working_directory)
+            chdir(project_working_directory) #change into project directory
             for taxid in taxonomic_nodes:
                 get_species_taxids_file = str(taxid.taxonomic_node)+".taxid"
                 #print(str(taxid.taxonomic_node))
                 output = open(get_species_taxids_file,'w')
                 process = Popen(["get_species_taxids.sh -t "+str(taxid.taxonomic_node)],stdout=output,shell=True)
-                waitpid(process.pid,0)
+                waitpid(process.pid,0) #wait until Popen process has finished
                 output.close()
 
             blast_taxonomic_file = open(filename,'w')
@@ -96,6 +98,7 @@ def write_taxid_file(project_id,filename,taxonomic_nodes):
                 input_file.close()
             blast_taxonomic_file.close()
             chdir(current_working_directory)
+        # if no filter is specified (against whole nr database)
         else:
             taxid_file = open("media/" + str(project_id) + "/" + filename, "w")
             for organism in taxonomic_nodes:
@@ -104,7 +107,7 @@ def write_taxid_file(project_id,filename,taxonomic_nodes):
     except Exception as e:
         raise IOError("[-] Coudn't write taxonomic node file with exception: {}".format(e))
 
-        
+    #use this code if you develop under windows without docker
     '''
     try:
         taxid_file = open("media/" + str(project_id) + "/"+filename, "w")
@@ -258,15 +261,11 @@ def exec_snakemake(project_id):
         snakefile_dir = getcwd()+'/static/snakefile_nr_database/Snakefile'
         #print("[+] execute snakemake ...")
         #snakemake --snakefile 'C:\Users\lujeb\Documents\github_projects\reciprocal_blast_pipeline\reciprocal_blast\static\snakefile_nr_database\Snakefile' --configfile 'snakemake_config' --cores 2
-        #subprocess.Popen(['snakemake','--dry-run','--cores','2','--wms-monitor','http://127.0.0.1:5000'], shell=False, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, cwd=snakemake_working_dir)
         Popen(['snakemake','--snakefile',snakefile_dir,'--wms-monitor','http://127.0.0.1:5000','--cores','2','--configfile',snakemake_config_file,'--directory',snakemake_working_dir], shell=False, stdout=subPIPE, stderr=subSTDOUT)
 
     else:
         snakemake_working_dir = 'media/'+str(project_id)+'/'
         snakemake_config_file = 'media/'+str(project_id)+'/' + 'snakemake_config'
-        # print("[+] execute snakemake ...")
-        # subprocess.Popen(['snakemake','--dry-run','--cores','2','--wms-monitor','http://127.0.0.1:5000'], shell=False, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, cwd=snakemake_working_dir)
-        #print("[+] WORKING DIR: "+getcwd())
         snakefile_dir = getcwd()+'/static/snakefile_genome_upload/Snakefile'
         #print('\n[+] SNAKEFILE DIR: '+snakefile_dir,'\n[+] SNAKEMAKE WORKING DIR: '+snakemake_working_dir,'\n[+] SNAKEMAKE CONFIG DIR: '+snakemake_config_file)
         #snakemake --snakefile F:\programming\github_projects\bachelor_project_github\reciprocal_blast_pipeline\reciprocal_blast\static\snakefile_genome_upload\Snakefile --cores 2 --configfile media/1/snakemake_config --directory media/1/ --dry-run

@@ -23,6 +23,7 @@ def create_project_with_nr_database(request, project_creation_form,settings_form
 
             project = save_nr_project_from_form_or_raise_exception(new_title, request.user)
 
+            #validation is previously handled in the forms.py class
             validate_fw_taxids_and_save_into_database(project, request.user.email, taxonomic_nodes_fw)
             validate_bw_taxids_and_save_into_database(project, request.user.email, taxonomic_nodes_bw)
 
@@ -36,6 +37,7 @@ def create_project_with_nr_database(request, project_creation_form,settings_form
             upload_file(query_sequences,
                         'media/' + str(project.id) + '/' + 'query_sequences' + '/' + query_sequences.name)
 
+            #this function of the blast_execution.py file triggers a function that translates high order taxids into species ids for limiting BLAST searches
             prepare_data_and_write_nr_snakemake_configurations_and_taxid_files(project.id)
     except Exception as e:
         raise IntegrityError("[-] Couldn't perform project creation due to following exception: {}".format(e))

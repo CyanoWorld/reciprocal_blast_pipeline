@@ -1,5 +1,9 @@
-from django.urls import path
+'''
+Content: URLs and associated view functions.
+For further information see Django developer guidelines
+'''
 
+from django.urls import path
 from . import views
 
 urlpatterns = [

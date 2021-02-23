@@ -21,11 +21,7 @@ from .services import delete_files_without_projects, \
     check_if_genomes_should_be_resaved
 
 
-# TODO refactoring and annotating
-#General informations concerning views:
-#request.method == 'GET' view
-
-
+#Detail list of all available views is given in the readme.md
 
 #This view loads the project_creation.html template which in turn includes the upload_genomes_form.html as well as
 #the nr_database_form.html. It then
@@ -61,20 +57,19 @@ def project_creation(request):
     else:
         project_creation_form = BlastProjectForm()
         project_creation_nr_from = BlastProjectNrForm()
-        #project_creation_uploaded_form = BlastProjectUploadedForm()
         settings_form_forward = AdvancedSettingsForm_Forward()
         settings_form_backward = AdvancedSettingsForm_Backward()
 
     #user_email just for nr project creation
     context = {'BlastProjectForm': project_creation_form,
                'BlastProjectNrForm': project_creation_nr_from,
-               #'BlastProjectUploadedForm': project_creation_uploaded_form,
            'AdvancedSettingsForm_Forward': settings_form_forward,
            'AdvancedSettingsForm_Backward': settings_form_backward,
                'user_email':request.user.email}
 
     return render(request,'blast_project/project_creation.html',context)
 
+#login view
 @unauthenticated_user
 def loginPage(request):
 
@@ -90,10 +85,12 @@ def loginPage(request):
             return render(request, 'blast_project/login.html')
     return render(request,'blast_project/login.html')
 
+#logout view
 def logoutUser(request):
     logout(request)
     return redirect('login')
 
+#registration view
 @unauthenticated_user
 def registrationPage(request):
     userForm = CreateUserForm()

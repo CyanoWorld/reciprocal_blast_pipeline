@@ -1,9 +1,13 @@
-from django.core.files.storage import FileSystemStorage
+'''
+Content: functions for file uploading / loading procedures and database transactions
 
+Use this file for additional database transactions or file uploading / loading procedures that are triggered in the views
+
+additionally two functions are present for reading html results produced by snakemake
+one function that checks if the pipeline has finished or not, this function is used in the detail view in order to load html results
+'''
 from django.db import IntegrityError
-
 from .models import BlastProject, Genomes, ForwardBlastSettings, BackwardBlastSettings, QuerySequences, TaxNodesForForwardDatabase, TaxNodesForBackwardDatabase
-
 from os import walk, mkdir
 from os.path import isfile,  isdir
 from shutil import rmtree
@@ -150,6 +154,7 @@ def save_backward_settings_from_form_or_raise_exception(project,settings_form_ba
     except Exception as e:
         raise IntegrityError("[-] Couldn't save backward BLAST settings with exception: {}".format(e))
 
+#TODO add function that resets the execution boolean in order to allow a re-execution of the pipeline if an error occured
 def set_executed_on_true_and_save_project(current_project):
     try:
         current_project.pipeline_executed = True
@@ -157,6 +162,7 @@ def set_executed_on_true_and_save_project(current_project):
     except Exception as e:
         raise IntegrityError('[-] Could not set pipeline_executed on true with Exception: {}'.format(e))
 
+#taxids are a list of integers produced in the respective forms.py class
 def validate_fw_taxids_and_save_into_database(project, user_email, taxids):
     for id in taxids:
             tax_fw_node = TaxNodesForForwardDatabase(associated_project=project, taxonomic_node=id)
@@ -165,6 +171,7 @@ def validate_fw_taxids_and_save_into_database(project, user_email, taxids):
             else:
                 raise IntegrityError("[-] Couldn't save taxonomic node {} for FW database into project database! There is no organism with such a name!".format(id))
 
+#taxids are a list of integers produced in the respective forms.py class
 def validate_bw_taxids_and_save_into_database(project, user_email, taxids):
     for id in taxids:
             tax_bw_node = TaxNodesForBackwardDatabase(associated_project=project, taxonomic_node=id)
@@ -173,12 +180,14 @@ def validate_bw_taxids_and_save_into_database(project, user_email, taxids):
             else:
                 raise IntegrityError("[-] Couldn't save taxonomic node {} for BW database into project database! There is no organism with such a name!".format(id))
 
+#checks if the pipeline finishes (if result html table is present)
 def snakemake_project_finished(project_id):
     if isfile('media/'+str(project_id)+'/reciprocal_results.html'):
         return True
     else:
         return False
 
+#loads the reciprocal results table that is written with one of the last rules in the snakefiles
 def get_html_results(project_id,filename):
     try:
         with open("media/"+str(project_id)+"/"+filename) as res:
@@ -187,6 +196,7 @@ def get_html_results(project_id,filename):
     except Exception as e:
         raise FileNotFoundError("[-] Couldn't read file {} with Exception: {}".format(e))
 
+#loads the html graphs that are written with one of the last rules in the snakefiles
 def load_html_graph(project_id,filename):
     try:
         html_file = open('media/'+str(project_id)+'/'+filename)
