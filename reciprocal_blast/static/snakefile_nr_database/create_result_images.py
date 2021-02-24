@@ -42,6 +42,7 @@ if len(result_data['qseqid'].unique()) <= 200:
 
     input_query_ids = result_data['qseqid'].unique()
 
+    '''
     try:
         query_seqs = open(snakemake.params['input_queries'])
         description = {}
@@ -61,7 +62,7 @@ if len(result_data['qseqid'].unique()) <= 200:
         for i, box in enumerate(bar.get_children()):
             tooltip = mpld3.plugins.LineLabelTooltip(box, label=input_query_ids[i])
             mpld3.plugins.connect(figure, tooltip)
-
+    '''
     plt.grid()
     plt.xticks(query_amount, labels, rotation=90)
     plt.savefig(snakemake.params['org_orth_png'])
@@ -87,7 +88,7 @@ if len(result_data['qseqid'].unique()) <= 200:
     bar = plt.bar(query_amount, reciprocal_hits, align='center')
     plt.ylabel("amount of hits in other organisms",fontsize=14)
     plt.xlabel("protein accession number (gi)",fontsize=14)
-
+    '''
     try:
         for i, box in enumerate(bar.get_children()):
             tooltip = mpld3.plugins.LineLabelTooltip(box, label=description[input_query_ids[i]])
@@ -97,11 +98,12 @@ if len(result_data['qseqid'].unique()) <= 200:
         for i, box in enumerate(bar.get_children()):
             tooltip = mpld3.plugins.LineLabelTooltip(box, label=input_query_ids[i])
             mpld3.plugins.connect(figure, tooltip)
-
+    '''
     for rect in bar:
         height = rect.get_height()
         #print(height)
         plt.text(rect.get_x() + rect.get_width()/2.0, height, '%d' % int(height), ha='center', va='bottom',fontsize=12)
+
 
     plt.grid()
     plt.xticks(query_amount, labels, rotation=90)
