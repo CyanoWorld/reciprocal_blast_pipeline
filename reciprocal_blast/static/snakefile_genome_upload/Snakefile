@@ -1,9 +1,11 @@
+#pipeline for genome upload projects, a detailed description is given in the bachelor thesis of this project
 configfile: "./snakemake_config"
 
 rule all:
 	input:
 		"reciprocal_results.html",'statistics.png','statistics.html'
 
+#makeblastdb cmd for forward database formatting (rule is executed before forward BLAST rule)
 rule make_forward_database:
 	input: config['fw_db']
 	output: config['fw_db']+'.pdb'
@@ -22,6 +24,7 @@ rule get_backward_sequences:
 	script: 
 		"../../static/snakefile_genome_upload/process_fw_blast_results.py"
 
+#makeblastdb cmd for backward database formatting (rule is executed before backward BLAST rule)
 rule make_backward_database:
 	input: config['bw_db']
 	output: config['bw_db']+'.pdb'
@@ -34,18 +37,21 @@ rule backward_blast:
 	params: blast_in=config['bw_db'], word_size=config['bw_word_size'], e_value=config['bw_evalue'], num_alignments=config['bw_num_alignments'], search_type=config['search_type'], num_descriptions=config['bw_num_descriptions'], max_hsps=config['bw_max_hsps'], num_threads=config['bw_num_threads']
 	shell: "{params.search_type} -db {params.blast_in} -query {input.query} -outfmt \"6 qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore\" -word_size {params.word_size} -evalue {params.e_value} -num_alignments {params.num_alignments} -num_descriptions {params.num_descriptions} -max_hsps {params.max_hsps} -num_threads {params.num_threads} -out {output} "
 
+#identification of RBHs
 rule get_reciprocal_best_hits_proteins_ids:
 	input: bw_result="blastp_bw_out.table", fw_result="blastp_fw_out.table"
 	output: "reciprocal_best_hits_protein_ids.txt"
 	script: 
 		"../../static/snakefile_genome_upload/extract_valid_accession_ids_from_blast_results.py"
 
+#result processing
 rule blast_tables_to_html:
 	input: fw_res="blastp_fw_out.table", rec_res="reciprocal_best_hits_protein_ids.txt"
 	output: "reciprocal_results.html"
 	script:
 		"../../static/snakefile_genome_upload/blast_tables_to_html.py"
 
+#result processing
 rule create_result_images:
 	input: fw_res="blastp_fw_out.table", rec_res="reciprocal_best_hits_protein_ids.txt"
 	params: statistics="../../static/result_images/" + str(config['project_id']) + '/statistics.png'

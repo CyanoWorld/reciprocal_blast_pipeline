@@ -1,3 +1,5 @@
+#this script is used to identify RBHs it converts the queries and subjects of the forward and backward BLAST output tables into dictionaries
+#and compares both dictionaries in order to identify RBHs, a detailed description is given in the bachelor-thesis of this project
 import pandas as pd
 import numpy as np
 import itertools as it

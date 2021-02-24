@@ -1,3 +1,4 @@
+#this script is used by the snakemake pipeline in order to produce result images
 import matplotlib.pyplot as plt, mpld3
 import pandas as pd
 #import numpy as np

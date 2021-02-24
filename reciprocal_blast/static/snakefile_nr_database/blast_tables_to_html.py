@@ -1,3 +1,4 @@
+#this script writes the RBHs identified by the reciprocal BLAST pipeline into an html table
 import pandas as pd
 
 rec_prot=pd.read_table(snakemake.input['rec_res'])

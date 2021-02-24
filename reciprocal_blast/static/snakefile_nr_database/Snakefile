@@ -1,3 +1,4 @@
+#pipeline for nr projects, a detailed description is given in the bachelor thesis of this project
 configfile: "./snakemake_config"
 
 rule all:
@@ -10,12 +11,14 @@ rule forward_blast:
 	params: word_size=config['fw_word_size'], e_value=config['fw_evalue'], num_alignments=config['fw_num_alignments'], num_descriptions=config['fw_num_descriptions'], num_threads=config['fw_num_threads']
 	shell: "blastp -db nr -outfmt \"6 qseqid sseqid evalue bitscore qgi sgi sacc staxids sscinames scomnames stitle\" -out {output} -word_size {params.word_size} -evalue {params.e_value} -num_alignments {params.num_alignments} -num_descriptions {params.num_descriptions} -num_threads {params.num_threads} -taxidlist {input.taxids} -query {input.fw_queries}"
 
+#collects the subject id's of the forward BLAST and writes those id's into a file that is used by the next rule
 rule fw_result_processing:
 	input: fw_res="blastp_fw_out.table"
 	output: gi_list="bw_queries_gi_list_for_blastdbcmd.txt"
 	script:
 		"../../static/snakefile_nr_database/extract_bw_query_sequences.py"
 
+#prepares the backward query fasta file
 rule bw_query_preparation:
 	input: "bw_queries_gi_list_for_blastdbcmd.txt"
 	output: "bw_queries.faa"
@@ -64,18 +67,21 @@ rule backward_blast:
 			tempfile.close()
 		out.close()
 '''
+#identification of RBHs
 rule reciprocal_best_hits:
 	input: bw_res="blastp_bw_out.table", fw_res="blastp_fw_out.table"
 	output: rec_best_hits="reciprocal_best_hits_protein_ids.txt"
 	script:
 		"../../static/snakefile_nr_database/extract_reciprocal_best_hits.py"
 
+#result processing
 rule blast_tables_to_html:
 	input: fw_res="blastp_fw_out.table", rec_res="reciprocal_best_hits_protein_ids.txt"
 	output: rec_html="reciprocal_results.html"
 	script:
 		"../../static/snakefile_nr_database/blast_tables_to_html.py"
 
+#result processing
 rule create_result_images:
 	input: fw_res="blastp_fw_out.table", rec_res="reciprocal_best_hits_protein_ids.txt"
 	params: org_orth_png="../../static/result_images/" + str(config['project_id']) + '/organisms_orthologs.png', amount_hits_png="../../static/result_images/" + str(config['project_id']) + '/amount_hits.png', input_queries=config['fw_query']

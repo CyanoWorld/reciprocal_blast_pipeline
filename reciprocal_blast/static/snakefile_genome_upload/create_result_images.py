@@ -1,3 +1,5 @@
+#this script is used by the snakemake pipeline in order to produce result images
+#currently it produces a subplot with statistical informations, based on the forward BLAST output of RBHs
 import pandas as pd
 import matplotlib.pyplot as plt, mpld3
 
