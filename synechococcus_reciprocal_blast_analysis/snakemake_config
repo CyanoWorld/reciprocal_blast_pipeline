@@ -1,0 +1,13 @@
+fw_query: 'query_sequences/synechococcus_kaiA.faa'
+fw_word_size: 3
+fw_num_alignments: 10000
+fw_evalue: 0.001000000000000
+fw_num_descriptions: 500
+fw_num_threads: 1
+bw_word_size: 3
+bw_num_alignments: 1
+bw_evalue: 0.001000000000000
+bw_num_descriptions: 1
+bw_max_hsps: 1
+bw_num_threads: 1
+project_id: 4

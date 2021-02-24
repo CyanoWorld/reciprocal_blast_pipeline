@@ -1,0 +1,43 @@
+
+
+<style>
+
+</style>
+
+<div id="fig_el4791404003939199365642989528"></div>
+<script>
+function mpld3_load_lib(url, callback){
+  var s = document.createElement('script');
+  s.src = url;
+  s.async = true;
+  s.onreadystatechange = s.onload = callback;
+  s.onerror = function(){console.warn("failed to load library " + url);};
+  document.getElementsByTagName("head")[0].appendChild(s);
+}
+
+if(typeof(mpld3) !== "undefined" && mpld3._mpld3IsLoaded){
+   // already loaded: just create the figure
+   !function(mpld3){
+       
+       mpld3.draw_figure("fig_el4791404003939199365642989528", {"width": 1000.0, "height": 600.0, "axes": [{"bbox": [0.125, 0.10999999999999999, 0.775, 0.77], "xlim": [0.5599999999999999, 1.44], "ylim": [0.0, 947.1], "xdomain": [0.5599999999999999, 1.44], "ydomain": [0.0, 947.1], "xscale": "linear", "yscale": "linear", "axes": [{"position": "bottom", "nticks": 1, "tickvalues": [1], "tickformat_formatter": "", "tickformat": null, "scale": "linear", "fontsize": 10.0, "grid": {"gridOn": true, "color": "#B0B0B0", "dasharray": "none", "alpha": 1.0}, "visible": true}, {"position": "left", "nticks": 6, "tickvalues": null, "tickformat_formatter": "", "tickformat": null, "scale": "linear", "fontsize": 10.0, "grid": {"gridOn": true, "color": "#B0B0B0", "dasharray": "none", "alpha": 1.0}, "visible": true}], "axesbg": "#FFFFFF", "axesbgalpha": null, "zoomable": true, "id": "el479140400363152912", "lines": [], "paths": [{"data": "data01", "xindex": 0, "yindex": 1, "coordinates": "data", "pathcodes": ["M", "L", "L", "L", "Z"], "id": "el479140400363023712", "dasharray": "none", "alpha": 1, "facecolor": "#1F77B4", "edgecolor": "none", "edgewidth": 1.0, "zorder": 1}], "markers": [], "texts": [{"text": "902", "position": [1.0, 902.0], "coordinates": "data", "h_anchor": "middle", "v_baseline": "auto", "rotation": -0.0, "fontsize": 12.0, "color": "#000000", "alpha": 1, "zorder": 3, "id": "el479140400363023088"}, {"text": "protein accession number (gi)", "position": [0.5, -0.26764670514670513], "coordinates": "axes", "h_anchor": "middle", "v_baseline": "hanging", "rotation": -0.0, "fontsize": 14.0, "color": "#000000", "alpha": 1, "zorder": 3, "id": "el479140400363155408"}, {"text": "amount of organisms in which orthologs are found", "position": [-0.05374551971326165, 0.5], "coordinates": "axes", "h_anchor": "middle", "v_baseline": "auto", "rotation": -90.0, "fontsize": 14.0, "color": "#000000", "alpha": 1, "zorder": 3, "id": "el479140400363321232"}], "collections": [], "images": [], "sharex": [], "sharey": []}], "data": {"data01": [[0.6, 0.0], [1.4, 0.0], [1.4, 902.0], [0.6, 902.0]]}, "id": "el479140400393919936", "plugins": [{"type": "reset"}, {"type": "zoom", "button": true, "enabled": false}, {"type": "boxzoom", "button": true, "enabled": false}, {"type": "tooltip", "id": "el479140400363023712", "labels": ["WP_011377921.1 MULTISPECIES: circadian clock protein KaiA [Synechococcus]\n"], "hoffset": 0, "voffset": 10, "location": "mouse"}]});
+   }(mpld3);
+}else if(typeof define === "function" && define.amd){
+   // require.js is available: use it to load d3/mpld3
+   require.config({paths: {d3: "https://d3js.org/d3.v5"}});
+   require(["d3"], function(d3){
+      window.d3 = d3;
+      mpld3_load_lib("https://mpld3.github.io/js/mpld3.v0.5.2.js", function(){
+         
+         mpld3.draw_figure("fig_el4791404003939199365642989528", {"width": 1000.0, "height": 600.0, "axes": [{"bbox": [0.125, 0.10999999999999999, 0.775, 0.77], "xlim": [0.5599999999999999, 1.44], "ylim": [0.0, 947.1], "xdomain": [0.5599999999999999, 1.44], "ydomain": [0.0, 947.1], "xscale": "linear", "yscale": "linear", "axes": [{"position": "bottom", "nticks": 1, "tickvalues": [1], "tickformat_formatter": "", "tickformat": null, "scale": "linear", "fontsize": 10.0, "grid": {"gridOn": true, "color": "#B0B0B0", "dasharray": "none", "alpha": 1.0}, "visible": true}, {"position": "left", "nticks": 6, "tickvalues": null, "tickformat_formatter": "", "tickformat": null, "scale": "linear", "fontsize": 10.0, "grid": {"gridOn": true, "color": "#B0B0B0", "dasharray": "none", "alpha": 1.0}, "visible": true}], "axesbg": "#FFFFFF", "axesbgalpha": null, "zoomable": true, "id": "el479140400363152912", "lines": [], "paths": [{"data": "data01", "xindex": 0, "yindex": 1, "coordinates": "data", "pathcodes": ["M", "L", "L", "L", "Z"], "id": "el479140400363023712", "dasharray": "none", "alpha": 1, "facecolor": "#1F77B4", "edgecolor": "none", "edgewidth": 1.0, "zorder": 1}], "markers": [], "texts": [{"text": "902", "position": [1.0, 902.0], "coordinates": "data", "h_anchor": "middle", "v_baseline": "auto", "rotation": -0.0, "fontsize": 12.0, "color": "#000000", "alpha": 1, "zorder": 3, "id": "el479140400363023088"}, {"text": "protein accession number (gi)", "position": [0.5, -0.26764670514670513], "coordinates": "axes", "h_anchor": "middle", "v_baseline": "hanging", "rotation": -0.0, "fontsize": 14.0, "color": "#000000", "alpha": 1, "zorder": 3, "id": "el479140400363155408"}, {"text": "amount of organisms in which orthologs are found", "position": [-0.05374551971326165, 0.5], "coordinates": "axes", "h_anchor": "middle", "v_baseline": "auto", "rotation": -90.0, "fontsize": 14.0, "color": "#000000", "alpha": 1, "zorder": 3, "id": "el479140400363321232"}], "collections": [], "images": [], "sharex": [], "sharey": []}], "data": {"data01": [[0.6, 0.0], [1.4, 0.0], [1.4, 902.0], [0.6, 902.0]]}, "id": "el479140400393919936", "plugins": [{"type": "reset"}, {"type": "zoom", "button": true, "enabled": false}, {"type": "boxzoom", "button": true, "enabled": false}, {"type": "tooltip", "id": "el479140400363023712", "labels": ["WP_011377921.1 MULTISPECIES: circadian clock protein KaiA [Synechococcus]\n"], "hoffset": 0, "voffset": 10, "location": "mouse"}]});
+      });
+    });
+}else{
+    // require.js not available: dynamically load d3 & mpld3
+    mpld3_load_lib("https://d3js.org/d3.v5.js", function(){
+         mpld3_load_lib("https://mpld3.github.io/js/mpld3.v0.5.2.js", function(){
+                 
+                 mpld3.draw_figure("fig_el4791404003939199365642989528", {"width": 1000.0, "height": 600.0, "axes": [{"bbox": [0.125, 0.10999999999999999, 0.775, 0.77], "xlim": [0.5599999999999999, 1.44], "ylim": [0.0, 947.1], "xdomain": [0.5599999999999999, 1.44], "ydomain": [0.0, 947.1], "xscale": "linear", "yscale": "linear", "axes": [{"position": "bottom", "nticks": 1, "tickvalues": [1], "tickformat_formatter": "", "tickformat": null, "scale": "linear", "fontsize": 10.0, "grid": {"gridOn": true, "color": "#B0B0B0", "dasharray": "none", "alpha": 1.0}, "visible": true}, {"position": "left", "nticks": 6, "tickvalues": null, "tickformat_formatter": "", "tickformat": null, "scale": "linear", "fontsize": 10.0, "grid": {"gridOn": true, "color": "#B0B0B0", "dasharray": "none", "alpha": 1.0}, "visible": true}], "axesbg": "#FFFFFF", "axesbgalpha": null, "zoomable": true, "id": "el479140400363152912", "lines": [], "paths": [{"data": "data01", "xindex": 0, "yindex": 1, "coordinates": "data", "pathcodes": ["M", "L", "L", "L", "Z"], "id": "el479140400363023712", "dasharray": "none", "alpha": 1, "facecolor": "#1F77B4", "edgecolor": "none", "edgewidth": 1.0, "zorder": 1}], "markers": [], "texts": [{"text": "902", "position": [1.0, 902.0], "coordinates": "data", "h_anchor": "middle", "v_baseline": "auto", "rotation": -0.0, "fontsize": 12.0, "color": "#000000", "alpha": 1, "zorder": 3, "id": "el479140400363023088"}, {"text": "protein accession number (gi)", "position": [0.5, -0.26764670514670513], "coordinates": "axes", "h_anchor": "middle", "v_baseline": "hanging", "rotation": -0.0, "fontsize": 14.0, "color": "#000000", "alpha": 1, "zorder": 3, "id": "el479140400363155408"}, {"text": "amount of organisms in which orthologs are found", "position": [-0.05374551971326165, 0.5], "coordinates": "axes", "h_anchor": "middle", "v_baseline": "auto", "rotation": -90.0, "fontsize": 14.0, "color": "#000000", "alpha": 1, "zorder": 3, "id": "el479140400363321232"}], "collections": [], "images": [], "sharex": [], "sharey": []}], "data": {"data01": [[0.6, 0.0], [1.4, 0.0], [1.4, 902.0], [0.6, 902.0]]}, "id": "el479140400393919936", "plugins": [{"type": "reset"}, {"type": "zoom", "button": true, "enabled": false}, {"type": "boxzoom", "button": true, "enabled": false}, {"type": "tooltip", "id": "el479140400363023712", "labels": ["WP_011377921.1 MULTISPECIES: circadian clock protein KaiA [Synechococcus]\n"], "hoffset": 0, "voffset": 10, "location": "mouse"}]});
+            })
+         });
+}
+</script>
