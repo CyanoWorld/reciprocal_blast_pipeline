@@ -203,7 +203,9 @@ def view_builded_snakefile(project_id,nr_or_upload):
         snakefile.close()
 
         content = {}
-        for line in lines[2:]:
+        rule = ''
+        #adjust to start reading at a certain line
+        for line in lines[3:]:
             if 'rule' in line:
                 rule = line
                 content[rule] = []
