@@ -3,3 +3,4 @@ psycopg2-binary>=2.8
 mpld3==0.5.2
 biopython==1.78
 panoptes-ui==0.2.0
+wget
