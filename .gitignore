@@ -4,6 +4,8 @@ data/*
 tmp/*
 .idea/*
 reciprocal_blast/.panoptes.db
+reciprocal_blast/reciprocal_blast/__pycache__/*
+reciprocal_blast/blast_project/__pycache__/*
 reciprocal_blast/db.sqlite3
 reciprocal_blast/blast_project/migrations/0*
 reciprocal_blast/blast_project/migrations/__pycache__/*
