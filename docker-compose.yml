@@ -14,7 +14,6 @@ services:
       - ./data:/blast/reciprocal_blast/media
       - ./tmp:/blast/reciprocal_blast/tmp
       - ./reciprocal_blast:/blast/reciprocal_blast
-      - C:\Users\lujeb\Documents\blast\db:/blast/nr_database
     ports:
       - "8080:8080"
       - "5000:5000"
