@@ -16,6 +16,18 @@ class BlastProject(models.Model):
     def __str__(self):
         return "{}".format(self.project_title)
 
+'''
+class RefSeqGenomeEntry(models.Model):
+    completeness_level = models.CharField(max_length=30)
+    assembly_accession = models.CharField(max_length=200)
+    protein_genome = models.URLField()
+    organism_name = models.CharField(max_length=200)
+    taxid = models.IntegerField()
+    species_taxid = models.IntegerField()
+    def __str__(self):
+        return "RefSeq Genome Entry: {}".format()
+'''
+
 class TaxNodesForForwardDatabase(models.Model):
     associated_project = models.ForeignKey(BlastProject,on_delete=models.CASCADE)
     taxonomic_node = models.IntegerField()

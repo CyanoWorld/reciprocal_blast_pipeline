@@ -33,7 +33,11 @@ def refseq_file_exists(directory):
     return isfile(directory+'assembly_summary_refseq.txt')
 
 #completeness_level = 'Chromosome', 'Scaffold', 'Complete Genome', 'Contig'
-def read_current_assembly_summary_with_pandas(summary_file_path,completeness_level):
+def read_current_assembly_summary_with_pandas(summary_file_path):
+    def set_protein_assembly_file(ftp_path):
+        protein_genome = ftp_path.split('/')[-1:][0]
+        protein_genome = ftp_path + '/' + str(protein_genome) + '_protein.faa.gz'
+        return protein_genome
 
     try:
         refseq_table = pd.read_table(summary_file_path, skiprows=[0, 1], header=None)
@@ -46,17 +50,10 @@ def read_current_assembly_summary_with_pandas(summary_file_path,completeness_lev
         raise ValueError("[-] Exception during pandas parsing of assembly_summary_refseq.txt file ...\n\tException: {}".format(e))
 
     try:
-        summary_dict = {}
-        accession = []
-        organism_name = []
-        for index, row in refseq_table[refseq_table['assembly_level'] == 'Complete Genome'].iterrows():
-            protein_genome = row['ftp_path'].split('/')[-1:][0]
-            protein_genome = row['ftp_path'] + '/' + str(protein_genome) + '_protein.faa.gz'
-            accession.append(row['assembly_accession'])
-            organism_name.append(str(row['assembly_accession']) + " " + str(row['organism_name']))
-            summary_dict[row['assembly_accession']] = [protein_genome, row['taxid'], row['species_taxid'],
-                                                       row['organism_name']]
-        html_input_list = tuple(zip(accession, organism_name))
+        # refseq_table = refseq_table[refseq_table['assembly_level'] == 'Complete Genome']
+        refseq_table = refseq_table[['assembly_accession', 'organism_name', 'taxid', 'species_taxid', 'ftp_path']]
+        refseq_table['ftp_path'] = refseq_table['ftp_path'].apply(lambda row: set_protein_assembly_file(row))
+        html_input_list = tuple(zip(refseq_table['assembly_accession'], refseq_table['organism_name']))
     except Exception as e:
         raise ValueError("[-] Exception during creation of dictionary for assembly_summary_refseq.txt file ...\n\tException: {}".format(e))
-    return summary_dict, html_input_list
+    return refseq_table, html_input_list
