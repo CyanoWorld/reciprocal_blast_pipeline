@@ -1,4 +1,8 @@
 # reciprocal_blast_pipeline
+
+## Branch Documentation: TODOS
+1. refactor `read_current_assembly_summary_with_pandas()` function: add assembly level argument for input
+2. add function for parsing of taxid files in combination with `read_current_assembly_summary_with_pandas()`
 ## Quick installation with docker
 Clone this repository into a desired directory: `git clone https://git.hhu.de/synmibi/reciprocal_blast_pipeline.git`.
 Open a shell and cd into that directory, then type: `docker-compose up`.

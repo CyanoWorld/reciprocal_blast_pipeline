@@ -32,6 +32,8 @@ def delete_downloaded_assembly_summary(directory):
 def refseq_file_exists(directory):
     return isfile(directory+'assembly_summary_refseq.txt')
 
+#TODO: extend function for reading just specific genome files that can serve as input for the form ?
+#TODO: add parsing of taxid files
 #completeness_level = 'Chromosome', 'Scaffold', 'Complete Genome', 'Contig'
 def read_current_assembly_summary_with_pandas(summary_file_path):
     #function for changing the ftp_header in the pandas table
@@ -58,5 +60,5 @@ def read_current_assembly_summary_with_pandas(summary_file_path):
         refseq_table['ftp_path'] = refseq_table['ftp_path'].apply(lambda row: set_protein_assembly_file(row))
         html_input_list = tuple(zip(refseq_table['assembly_accession'], refseq_table['organism_name']))
     except Exception as e:
-        raise ValueError("[-] Exception during creation of dictionary for assembly_summary_refseq.txt file ...\n\tException: {}".format(e))
+        raise ValueError("[-] Exception during extraction of smaller dataframe from refseq_table dataframe ...\n\tException: {}".format(e))
     return refseq_table, html_input_list
