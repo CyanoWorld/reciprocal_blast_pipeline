@@ -34,11 +34,13 @@ def refseq_file_exists(directory):
 
 #completeness_level = 'Chromosome', 'Scaffold', 'Complete Genome', 'Contig'
 def read_current_assembly_summary_with_pandas(summary_file_path):
+    #function for changing the ftp_header in the pandas table
     def set_protein_assembly_file(ftp_path):
         protein_genome = ftp_path.split('/')[-1:][0]
         protein_genome = ftp_path + '/' + str(protein_genome) + '_protein.faa.gz'
         return protein_genome
 
+    #init parsing refseq table with pandas
     try:
         refseq_table = pd.read_table(summary_file_path, skiprows=[0, 1], header=None)
         header = ["assembly_accession", "bioproject", "biosample", "wgs_master", "refseq_category", "taxid",
@@ -49,8 +51,9 @@ def read_current_assembly_summary_with_pandas(summary_file_path):
     except Exception as e:
         raise ValueError("[-] Exception during pandas parsing of assembly_summary_refseq.txt file ...\n\tException: {}".format(e))
 
+    #extract necessary data fields: assembly number, names, taxids and the correct ftp_filepath for downloading with gzip
     try:
-        # refseq_table = refseq_table[refseq_table['assembly_level'] == 'Complete Genome']
+        #refseq_table = refseq_table[refseq_table['assembly_level'] == 'Complete Genome']
         refseq_table = refseq_table[['assembly_accession', 'organism_name', 'taxid', 'species_taxid', 'ftp_path']]
         refseq_table['ftp_path'] = refseq_table['ftp_path'].apply(lambda row: set_protein_assembly_file(row))
         html_input_list = tuple(zip(refseq_table['assembly_accession'], refseq_table['organism_name']))
