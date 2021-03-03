@@ -22,11 +22,15 @@ def download_current_assembly_summary_into_specific_directory(directory):
 
 #deletes the downloaded assembly summary file - returns True if successfull else raise an error
 def delete_downloaded_assembly_summary(directory):
-    try:
-        remove(directory+'/assembly_summary_refseq.txt')
-    except Exception as e:
-        raise OSError("[-] Couldn't delete assembly_summary_refseq.txt file ...\n\tException: {}".format(e))
+    if(isfile(directory+'assembly_summary_refseq.txt')):
+        try:
+            remove(directory+'assembly_summary_refseq.txt')
+        except Exception as e:
+            raise OSError("[-] Couldn't delete assembly_summary_refseq.txt file ...\n\tException: {}".format(e))
     return True
+
+def refseq_file_exists(directory):
+    return isfile(directory+'assembly_summary_refseq.txt')
 
 #completeness_level = 'Chromosome', 'Scaffold', 'Complete Genome', 'Contig'
 def read_current_assembly_summary_with_pandas(summary_file_path,completeness_level):
@@ -43,10 +47,16 @@ def read_current_assembly_summary_with_pandas(summary_file_path,completeness_lev
 
     try:
         summary_dict = {}
-        for index, row in refseq_table[refseq_table['assembly_level'] == completeness_level].iterrows():
+        accession = []
+        organism_name = []
+        for index, row in refseq_table[refseq_table['assembly_level'] == 'Complete Genome'].iterrows():
             protein_genome = row['ftp_path'].split('/')[-1:][0]
             protein_genome = row['ftp_path'] + '/' + str(protein_genome) + '_protein.faa.gz'
-            summary_dict[row['organism_name']] = [protein_genome,row['taxid'],row['species_taxid'],row['assembly_accession']]
+            accession.append(row['assembly_accession'])
+            organism_name.append(str(row['assembly_accession']) + " " + str(row['organism_name']))
+            summary_dict[row['assembly_accession']] = [protein_genome, row['taxid'], row['species_taxid'],
+                                                       row['organism_name']]
+        html_input_list = tuple(zip(accession, organism_name))
     except Exception as e:
         raise ValueError("[-] Exception during creation of dictionary for assembly_summary_refseq.txt file ...\n\tException: {}".format(e))
-    return summary_dict
+    return summary_dict, html_input_list

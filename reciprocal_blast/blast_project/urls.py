@@ -22,5 +22,8 @@ urlpatterns = [
     path('species_taxid',views.species_taxid,name='species_taxid'),
     path('upload_databases',views.upload_databases,name='upload_databases'),
     path('project_creation',views.project_creation,name='project_creation'),
+    path('refseq_database_transactions',views.refseq_database_download,name='refseq_database_transactions'),
+    path('download_refseq_summary',views.download_refseq_file,name='download_refseq_summary'),
+    path('delete_refseq_summary_file',views.delete_refseq_summary_file,name='delete_refseq_summary_file'),
     path('', views.main, name='main'),
 ]

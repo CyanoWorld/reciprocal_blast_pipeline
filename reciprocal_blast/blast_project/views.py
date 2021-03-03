@@ -11,7 +11,6 @@ from .blast_execution import view_builded_snakefile, snakemake_config_exists, \
 from .decorators import unauthenticated_user
 from .forms import BlastProjectForm, BlastProjectNrForm, AdvancedSettingsForm_Forward, AdvancedSettingsForm_Backward, \
     CreateUserForm, SpeciesNameForm, UploadDatabaseForm
-#BlastProjectUploadedForm
 from .models import BlastProject, Genomes, ForwardBlastSettings, BackwardBlastSettings, QuerySequences, \
     TaxNodesForForwardDatabase, TaxNodesForBackwardDatabase
 from .project_creation import create_project_with_uploaded_files, create_project_with_nr_database
@@ -20,11 +19,38 @@ from .services import delete_files_without_projects, \
     get_html_results, load_html_graph, save_new_genome_file_in_db, \
     check_if_genomes_should_be_resaved
 
-
+from .refseq_ftp_transactions import download_current_assembly_summary_into_specific_directory, delete_downloaded_assembly_summary, \
+    refseq_file_exists
 #Detail list of all available views is given in the readme.md
 
+@login_required(login_url='login')
+def refseq_database_download(request):
+    context={'refseq_exists':False}
+    if(refseq_file_exists("./static/refseq_summary_file/")):
+        context['refseq_exists'] = True
+
+    return render(request, 'blast_project/refseq_database_transactions.html', context)
+
+#directory with / at the end
+@login_required(login_url='login')
+def download_refseq_file(request):
+    try:
+        download_current_assembly_summary_into_specific_directory("./static/refseq_summary_file/")
+    except Exception as e:
+        return failure_view(request,e)
+    return redirect('refseq_database_transactions')
+
+#directory with / at the end
+@login_required(login_url='login')
+def delete_refseq_summary_file(request):
+    try:
+        delete_downloaded_assembly_summary("./static/refseq_summary_file/")
+    except Exception as e:
+        return failure_view(request,e)
+    return  redirect('refseq_database_transactions')
+
 #This view loads the project_creation.html template which in turn includes the upload_genomes_form.html as well as
-#the nr_database_form.html. It then
+#the nr_database_form.html.
 @login_required(login_url='login')
 def project_creation(request):
     if request.method == 'POST':
@@ -273,7 +299,6 @@ def pipeline_nr_dashboard(request,project_id):
     return render(request,'blast_project/pipeline_nr_dashboard.html', context)
 
 #this view is triggered if the user pressed the EXECUTE NR SNAKEMAKE button in the pipeline_nr_dashboard.html template
-#it
 @login_required(login_url='login')
 def execute_nr_snakefile(request):
     project_id = request.GET['execute_nr_snakefile']

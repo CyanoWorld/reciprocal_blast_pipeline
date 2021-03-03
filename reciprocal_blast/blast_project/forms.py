@@ -14,6 +14,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from .biopython_functions import get_species_taxid_without_email
+from .refseq_ftp_transactions import read_current_assembly_summary_with_pandas
 
 #TODO: put this into services
 def get_genomes_tuple():
@@ -26,6 +27,9 @@ def get_genomes_tuple():
         return genomes
     except:
         return (('no genomes available','no genomes available'))
+
+class RefseqDatabasesForm(forms.Form):
+    pass
 
 #used in upload_genomes_form.html during project creation
 class BlastProjectForm(forms.Form):
