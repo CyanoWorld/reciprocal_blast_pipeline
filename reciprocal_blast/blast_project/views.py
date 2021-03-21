@@ -168,7 +168,7 @@ def main(request):
         #query set of project specific databases
         target_genomes = Genomes.objects.filter(associated_project__in=projects)
         #deletes folders that are not included as projects ids in the database
-        delete_files_without_projects()
+        #delete_files_without_projects()
     except Exception as e:
         return failure_view(request,e)
     context = {

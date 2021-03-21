@@ -1,8 +1,24 @@
 document.addEventListener('DOMContentLoaded',function () {
-   $('#myTable').DataTable();
+    //dataTables: https://datatables.net/
+    //DataTables is included via javascript files in the HTML document refseq_database_transactions
+    //two features are used to enable an easy interaction with the available refseq files
+    //full description of used input is given in the buttons and select Extension section of
+    //the DataTables homepage
+    $('#myTable').DataTable( {
+        dom: 'Bfrtip',
+        buttons: [
+            'copy',
+            'csv',
+            'selectAll',
+            'selectNone',
+            'selectRows'
+        ],
+        select: true
+    } );
    document.getElementById('refseqTable').style.display = "block";
 })
 
+//Not in use:
 //This function can be used to loop over table rows
 // Add: <input type="text" id="myInput" onkeyup="searchTable()" placeholder="Search for names..">
 function searchTable() {

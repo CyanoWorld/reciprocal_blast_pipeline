@@ -1,7 +1,10 @@
 <html>
     <head>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2" crossorigin="anonymous">
+    <!-- DataTables stylesheets-->
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.24/css/jquery.dataTables.css" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/select/1.3.2/css/select.dataTables.min.css" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/buttons/1.7.0/css/buttons.dataTables.min.css" crossorigin="anonymous">
 
     {% load static %}
     <script src="{% static 'javascript/refseq_transaction.js' %}"></script>
@@ -32,59 +35,60 @@
             <hr>
         </div>
 
-        <div class="container-fluid" style="text-align: center">
+        <div class="container-fluid">
 
-            <h2> Download or Delete assembly_summary_refseq.txt File </h2>
-            <hr>
-            {% if refseq_exists == False %}
-            <form action="{% url 'download_refseq_summary' %}" method="GET" onsubmit="showLoader('loading','download_button')">
-                {% csrf_token %}
-                <input type="submit" value="Download New RefSeq Assembly Summary" class="btn btn-primary" id="download_button">
-
-                <div id="loading" style="display: none" >
-                  <div class="container-fluid" >
+            <div class="row" style="display: none" id="loading_refseq_table">
+                <div style="text-align: center" >
+                  <div class="container-fluid">
                       <p align="center"><iframe src="https://giphy.com/embed/11FuEnXyGsXFba" width="200" height="200" frameBorder="0" class="giphy-embed" allowFullScreen></iframe></p>
                       <p><a href="https://giphy.com/gifs/icon-loading-beaker-11FuEnXyGsXFba"></a></p>
                   </div>
                 </div>
-            </form>
-            {% endif %}
-
-            {% if refseq_exists == True %}
-            <form action="{% url 'delete_refseq_summary_file' %}" method="GET" >
-                {% csrf_token %}
-                <input type="submit" value="Delete Refseq Summary File" class="btn btn-danger">
-            </form>
-
-            <hr>
-
-            <div class="form-check">
-                <form  action="{% url 'refseq_database_transactions' %}" name="refseq_database_transaction" method="POST" onsubmit="showLoader('loading_refseq_table','choices')">
-                    {% csrf_token %}
-                    <div id="choices" style="text-align: left">
-                        {% for level, option in RefseqDatabasesForm.refseq_levels.field.choices %}
-                        <div class="form-check">
-                            <input type="checkbox" class="form-check-input" id="{{level}}" name="refseq_level []" value="{{level}}">
-                            <label class="form-check-label" for="{{level}}"> {{option}} </label>
-                        </div>
-                        {% endfor %}
-                        <hr>
-                        <input type="submit" value="View Content" class="btn btn-primary">
-                    </div>
-
-                    <div id="loading_refseq_table" style="display: none;text-align: center" >
-                      <div class="container-fluid" >
-                          <p align="center"><iframe src="https://giphy.com/embed/11FuEnXyGsXFba" width="200" height="200" frameBorder="0" class="giphy-embed" allowFullScreen></iframe></p>
-                          <p><a href="https://giphy.com/gifs/icon-loading-beaker-11FuEnXyGsXFba"></a></p>
-                      </div>
-                    </div>
-
-                </form>
-
-                <!-- Button that triggers download and redirects to another page? -->
-                <!-- <button type="button" class="btn btn-primary"> <a style="color: white" href="{% url 'refseq_genome_download' %}"> Browse and download Genomes </a> </button> -->
             </div>
-            {% endif %}
+
+
+            <div class="row" id="downloadChoices">
+                {% if refseq_exists == True %}
+                <div class="col">
+                    <div class="form-check">
+                        <form  action="{% url 'refseq_database_transactions' %}" name="refseq_database_transaction" method="POST" onsubmit="showLoader('loading_refseq_table','downloadChoices')">
+                            {% csrf_token %}
+                            <div id="choices" style="text-align: left">
+                                {% for level, option in RefseqDatabasesForm.refseq_levels.field.choices %}
+                                <div class="form-check" >
+                                    <input type="checkbox" class="form-check-input" id="{{level}}" name="refseq_level []" value="{{level}}">
+                                    <label class="form-check-label" for="{{level}}"> {{option}} </label>
+                                </div>
+                                {% endfor %}
+                                <br>
+                                <input type="submit" value="View Content" class="btn btn-primary">
+                            </div>
+                        </form>
+
+                        <!-- Button that triggers download and redirects to another page? -->
+                        <!-- <button type="button" class="btn btn-primary"> <a style="color: white" href="{% url 'refseq_genome_download' %}"> Browse and download Genomes </a> </button> -->
+                    </div>
+                </div>
+                {% endif %}
+                <div class="col" style="width: 150px;height: 150px;display: flex;align-items: center;justify-content: center;text-align: center;">
+                    {% if refseq_exists == False %}
+                    <form action="{% url 'download_refseq_summary' %}" method="GET" onsubmit="showLoader('loading_refseq_table','downloadChoices')">
+                        {% csrf_token %}
+                        <input type="submit" value="Download New RefSeq Assembly Summary" class="btn btn-primary">
+                    </form>
+                    {% endif %}
+
+                    {% if refseq_exists == True %}
+                    <form action="{% url 'delete_refseq_summary_file' %}" method="GET" >
+                        {% csrf_token %}
+                        <input type="submit" value="Delete Refseq Summary File" class="btn btn-danger">
+                    </form>
+                    {% endif %}
+
+                </div>
+
+            </div>
+
 
             <div class="container-fluid" id="refseqTable" style="display: none">
             <hr>
@@ -123,5 +127,13 @@
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.min.js" integrity="sha384-w1Q4orYjBQndcko6MimVbzY0tgp4pWB4lZ7lr30WKz0vr/aWKhXdBNmNb5D92v7s" crossorigin="anonymous"></script>
+    <!-- input scripts for DataTables: https://datatables.net/ -->
     <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.js"></script>
+    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/select/1.3.2/js/dataTables.select.min.js"></script>
+    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/buttons/1.7.0/js/dataTables.buttons.min.js"></script>
+    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/buttons/1.7.0/js/buttons.html5.min.js"></script>
+
+    <script type="text/javascript" charset="utf8" src=""></script>
+
+
 </html>

@@ -21,8 +21,8 @@ class TestRefseqFtpTransactions(TestCase):
 
     # completeness_level = 'Chromosome', 'Scaffold', 'Complete Genome', 'Contig'
     def test_parsing_refseq_file(self):
-        refseq_summary = read_current_assembly_summary_with_pandas('./blast_project/tests/assembly_summary_refseq.txt',['Complete Genome','Chromosome'])
-        self.assertGreater(len(refseq_summary[0]['assembly_accession'].keys()), 1000)
+        refseq_summary = read_current_assembly_summary_with_pandas('./blast_project/tests/',['Complete Genome','Chromosome'])
+        self.assertGreater(len(refseq_summary[0]['assembly_accession']), 1000)
 
     def test_get_process_id(self):
         pid = subprocess.Popen(['python','./blast_project/tests/static/long_process.py'])

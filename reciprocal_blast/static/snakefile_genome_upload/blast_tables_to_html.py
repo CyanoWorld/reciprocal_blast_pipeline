@@ -39,7 +39,6 @@ html_string = '''
 
   </head>
   <body>
-
     {table}
   </body>
 </html>
