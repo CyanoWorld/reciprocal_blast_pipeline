@@ -2,11 +2,11 @@
 
 ## Branch Documentation: TODOS
 1. added [HTML datatables plugin] (https://datatables.net/plug-ins/filtering/type-based/html)
-    2. add checkboxes for each row and put table into form
+    1. add checkboxes for each row and put table into form
 2. create plan for refseq download projects
-    3. check wether new models need to be created or current models need to get refactored
+    1. check wether new models need to be created or current models need to get refactored
 3. genome download, decompression and database formatting via SNAKEMAKE or via python script for which an interaction with the Popen communicate function should be established
-    4. check the pid field ind the RefSeqTransaction
+    1. check the pid field in the RefSeqTransaction model
 
 ```Python
 class RefSeqTransaction(models.Model):
