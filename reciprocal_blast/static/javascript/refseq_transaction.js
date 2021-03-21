@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded',function () {
     //two features are used to enable an easy interaction with the available refseq files
     //full description of used input is given in the buttons and select Extension section of
     //the DataTables homepage
-    $('#myTable').DataTable( {
+    var table = $('#myTable').DataTable( {
         dom: 'Bfrtip',
         buttons: [
             'copy',
@@ -17,7 +17,6 @@ document.addEventListener('DOMContentLoaded',function () {
     } );
    document.getElementById('refseqTable').style.display = "block";
 })
-
 //Not in use:
 //This function can be used to loop over table rows
 // Add: <input type="text" id="myInput" onkeyup="searchTable()" placeholder="Search for names..">

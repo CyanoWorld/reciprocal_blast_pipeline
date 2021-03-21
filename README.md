@@ -1,10 +1,13 @@
 # reciprocal_blast_pipeline
+## refseq database transactions
+Download the current refseq database summary file and parse their input in order to get a selection of genome assemblies.
+Download genome assemblies by submitting a form or by uploading a CSV file with ftp-path's. This section of the application uses
+the JavaScript [HTML DataTables plugin] (https://datatables.net/plug-ins/filtering/type-based/html).
 
-## Branch Documentation: TODOS
-1. added [HTML datatables plugin] (https://datatables.net/plug-ins/filtering/type-based/html)
-    1. add checkboxes for each row and put table into form
-2. create plan for refseq download projects
+## TODOS
+1. create plan for refseq download projects
     1. check wether new models need to be created or current models need to get refactored
+2. add functionality to the download refseq genomes button
 3. genome download, decompression and database formatting via SNAKEMAKE or via python script for which an interaction with the Popen communicate function should be established
     1. check the pid field in the RefSeqTransaction model
 

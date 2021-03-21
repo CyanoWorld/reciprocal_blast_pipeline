@@ -37,6 +37,7 @@
 
         <div class="container-fluid">
 
+
             <div class="row" style="display: none" id="loading_refseq_table">
                 <div style="text-align: center" >
                   <div class="container-fluid">
@@ -46,46 +47,61 @@
                 </div>
             </div>
 
-
-            <div class="row" id="downloadChoices">
-                {% if refseq_exists == True %}
-                <div class="col">
-                    <div class="form-check">
-                        <form  action="{% url 'refseq_database_transactions' %}" name="refseq_database_transaction" method="POST" onsubmit="showLoader('loading_refseq_table','downloadChoices')">
-                            {% csrf_token %}
-                            <div id="choices" style="text-align: left">
-                                {% for level, option in RefseqDatabasesForm.refseq_levels.field.choices %}
-                                <div class="form-check" >
-                                    <input type="checkbox" class="form-check-input" id="{{level}}" name="refseq_level []" value="{{level}}">
-                                    <label class="form-check-label" for="{{level}}"> {{option}} </label>
+            <div class="container-fluid" id="downloadChoices">
+                <div class="row" style="text-align: center">
+                    <div class="col"> <p>View your selected assemblies and download a summary of the entries as CSV file.</p> </div>
+                    <div class="col"> <p>Check your selection and download selected genomes.</p> </div>
+                    <div class="col"> <p>Delete or download refseq summary file.</p> </div>
+                </div>
+                <div class="row">
+                    {% if refseq_exists == True %}
+                    <div class="col">
+                        <div class="form-check">
+                            <form  action="{% url 'refseq_database_transactions' %}" name="refseq_database_transaction" method="POST" onsubmit="showLoader('loading_refseq_table','downloadChoices')">
+                                {% csrf_token %}
+                                <div id="choices" style="text-align: left">
+                                    {% for level, option in RefseqDatabasesForm.refseq_levels.field.choices %}
+                                    <div class="form-check" >
+                                        <input type="checkbox" class="form-check-input" id="{{level}}" name="refseq_level []" value="{{level}}">
+                                        <label class="form-check-label" for="{{level}}"> {{option}} </label>
+                                    </div>
+                                    {% endfor %}
+                                    <br>
+                                    <input type="submit" value="View Content" class="btn btn-primary">
                                 </div>
-                                {% endfor %}
-                                <br>
-                                <input type="submit" value="View Content" class="btn btn-primary">
-                            </div>
-                        </form>
+                            </form>
 
-                        <!-- Button that triggers download and redirects to another page? -->
-                        <!-- <button type="button" class="btn btn-primary"> <a style="color: white" href="{% url 'refseq_genome_download' %}"> Browse and download Genomes </a> </button> -->
+                            <!-- Button that triggers download and redirects to another page? -->
+                            <!-- <button type="button" class="btn btn-primary"> <a style="color: white" href="{% url 'refseq_genome_download' %}"> Browse and download Genomes </a> </button> -->
+                        </div>
+                    </div>
+
+                    <div class="col" style="width: 150px;height: 150px;display: flex;align-items: center;justify-content: center;text-align: center;">
+                        <!-- <button type="button" class="btn btn-primary"> <a style="color: white" href="{% url 'refseq_genome_download' %}"> Download Selected Genome Assemblies </a> </button> -->
+                        <button id="submitTable" type="submit" class="btn btn-primary"> Download Selected Genome Assemblies  </button>
+                    </div>
+                    {% endif %}
+
+
+
+                    <div class="col" style="width: 150px;height: 150px;display: flex;align-items: center;justify-content: center;text-align: center;">
+                        {% if refseq_exists == False %}
+                        <form action="{% url 'download_refseq_summary' %}" method="GET" onsubmit="showLoader('loading_refseq_table','downloadChoices')">
+                            {% csrf_token %}
+                            <input type="submit" value="Download New RefSeq Assembly Summary" class="btn btn-primary">
+                        </form>
+                        {% endif %}
+
+                        {% if refseq_exists == True %}
+                        <form action="{% url 'delete_refseq_summary_file' %}" method="GET" >
+                            {% csrf_token %}
+                            <input type="submit" value="Delete Refseq Summary File" class="btn btn-danger">
+                        </form>
+                        {% endif %}
+
                     </div>
                 </div>
-                {% endif %}
-                <div class="col" style="width: 150px;height: 150px;display: flex;align-items: center;justify-content: center;text-align: center;">
-                    {% if refseq_exists == False %}
-                    <form action="{% url 'download_refseq_summary' %}" method="GET" onsubmit="showLoader('loading_refseq_table','downloadChoices')">
-                        {% csrf_token %}
-                        <input type="submit" value="Download New RefSeq Assembly Summary" class="btn btn-primary">
-                    </form>
-                    {% endif %}
 
-                    {% if refseq_exists == True %}
-                    <form action="{% url 'delete_refseq_summary_file' %}" method="GET" >
-                        {% csrf_token %}
-                        <input type="submit" value="Delete Refseq Summary File" class="btn btn-danger">
-                    </form>
-                    {% endif %}
-
-                </div>
 
             </div>
 
@@ -121,7 +137,7 @@
             {% endif %}
             </div>
 
-         </div>
+    </div>
 
     </body>
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
