@@ -2,6 +2,7 @@ from gzip import decompress
 from os import remove, chdir, getcwd
 from os.path import isfile
 from wget import download
+import json
 import pandas as pd
 
 #downloads the current refseq assembly file into an specified directory
@@ -35,7 +36,7 @@ def refseq_file_exists(directory):
 #TODO: extend function for reading just specific genome files that can serve as input for the form ?
 #TODO: add parsing of taxid files
 #completeness_level = 'Chromosome', 'Scaffold', 'Complete Genome', 'Contig'
-def read_current_assembly_summary_with_pandas(summary_file_path):
+def read_current_assembly_summary_with_pandas(summary_file_path, refseq_level_checklist):
     #function for changing the ftp_header in the pandas table
     def set_protein_assembly_file(ftp_path):
         protein_genome = ftp_path.split('/')[-1:][0]
@@ -44,7 +45,7 @@ def read_current_assembly_summary_with_pandas(summary_file_path):
 
     #init parsing refseq table with pandas
     try:
-        refseq_table = pd.read_table(summary_file_path, skiprows=[0, 1], header=None)
+        refseq_table = pd.read_table(summary_file_path+'assembly_summary_refseq.txt', skiprows=[0, 1], header=None)
         header = ["assembly_accession", "bioproject", "biosample", "wgs_master", "refseq_category", "taxid",
                   "species_taxid", "organism_name", "infraspecific_name", "isolate", "version_status", "assembly_level",
                   "release_type", "genome_rep", "seq_rel_date", "asm_name", "submitter", "gbrs_paired_asm",
@@ -55,10 +56,23 @@ def read_current_assembly_summary_with_pandas(summary_file_path):
 
     #extract necessary data fields: assembly number, names, taxids and the correct ftp_filepath for downloading with gzip
     try:
-        #refseq_table = refseq_table[refseq_table['assembly_level'] == 'Complete Genome']
-        refseq_table = refseq_table[['assembly_accession', 'organism_name', 'taxid', 'species_taxid', 'ftp_path']]
+        refseq_table = refseq_table[['assembly_accession', 'organism_name', 'taxid', 'species_taxid','assembly_level', 'ftp_path']]
         refseq_table['ftp_path'] = refseq_table['ftp_path'].apply(lambda row: set_protein_assembly_file(row))
-        html_input_list = tuple(zip(refseq_table['assembly_accession'], refseq_table['organism_name']))
+
+        pandas_genome_level_dataframes = []
+        for genome_level in refseq_level_checklist:
+            pandas_genome_level_dataframes.append(refseq_table[refseq_table['assembly_level'] == genome_level])
+
+        desired_refseq_genomes_dataframe = pd.concat(pandas_genome_level_dataframes)
+
+        #tuple list for dropdown menu, not implemented yet
+        #html_input_list = tuple(zip(refseq_table['assembly_accession'], refseq_table['organism_name']))
     except Exception as e:
         raise ValueError("[-] Exception during extraction of smaller dataframe from refseq_table dataframe ...\n\tException: {}".format(e))
-    return refseq_table, html_input_list
+    return [desired_refseq_genomes_dataframe]
+
+def transform_data_table_to_json_dict(df):
+    json_records = df.reset_index().to_json(orient='records')
+    data = []
+    data = json.loads(json_records)
+    return data

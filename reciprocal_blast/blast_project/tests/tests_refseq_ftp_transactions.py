@@ -1,8 +1,10 @@
 from django.test import SimpleTestCase
-
+import subprocess
 from django.test import TestCase, Client
 from os.path import isfile
 from os import remove
+from blast_project.models import RefSeqTransaction
+from time import sleep
 from blast_project.refseq_ftp_transactions import download_current_assembly_summary_into_specific_directory, delete_downloaded_assembly_summary, read_current_assembly_summary_with_pandas
 
 class TestRefseqFtpTransactions(TestCase):
@@ -19,6 +21,12 @@ class TestRefseqFtpTransactions(TestCase):
 
     # completeness_level = 'Chromosome', 'Scaffold', 'Complete Genome', 'Contig'
     def test_parsing_refseq_file(self):
-        refseq_summary = read_current_assembly_summary_with_pandas('./blast_project/tests/assembly_summary_refseq.txt')
+        refseq_summary = read_current_assembly_summary_with_pandas('./blast_project/tests/assembly_summary_refseq.txt',['Complete Genome','Chromosome'])
         self.assertGreater(len(refseq_summary[0]['assembly_accession'].keys()), 1000)
-        self.assertEquals(len(refseq_summary[0]['assembly_accession']),len(refseq_summary[1]))
+
+    def test_get_process_id(self):
+        pid = subprocess.Popen(['python','./blast_project/tests/static/long_process.py'])
+        #TODO capture cmdline output in proc
+        self.assertIsNotNone(pid.pid)
+        #sleep(10.5)
+

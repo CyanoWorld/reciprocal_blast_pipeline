@@ -8,7 +8,6 @@
     </head>
         <body>
 
-        <!-- navbar-expand-lg -->
         <nav class="navbar navbar-light" style="background-color: lightskyblue">
             <a class="navbar-brand" href="{% url 'main'%}">Home</a>
                   <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
@@ -16,9 +15,10 @@
                   </button>
                   <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
                       <div class="navbar-nav">
-                        <a class="nav-link" href="{% url 'project_creation' %}">Project Creation: Create Your reciprocal BLAST projects<span class="sr-only">(current)</span></a>
-                        <a class="nav-link" href="{% url 'species_taxid' %}">Get Species Taxonomic Nodes For NR Database<span class="sr-only">(current)</span></a>
-                        <a class="nav-link" href="{% url 'upload_databases' %}">Upload New Genome Database Files<span class="sr-only">(current)</span></a>
+                        <a class="nav-link" href="{% url 'project_creation' %}">Project Creation: Create Your Reciprocal BLAST Project<span class="sr-only">(current)</span></a>
+                        <a class="nav-link" href="{% url 'species_taxid' %}">Get Species Taxonomic Nodes From Scientific Name (Check Availability)<span class="sr-only">(current)</span></a>
+                        <a class="nav-link" href="{% url 'upload_databases' %}">Upload New Genome FASTA Files<span class="sr-only">(current)</span></a>
+                        <a class="nav-link" href="{% url 'refseq_database_transactions' %}">RefSeq Database Transactions<span class="sr-only">(current)</span></a>
                         <a class="nav-link" href="{% url 'logout' %}">Logout</a>
                       </div>
                   </div>

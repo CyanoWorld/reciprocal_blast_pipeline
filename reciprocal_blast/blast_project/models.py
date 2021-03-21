@@ -16,6 +16,17 @@ class BlastProject(models.Model):
     def __str__(self):
         return "{}".format(self.project_title)
 
+class RefSeqTransaction(models.Model):
+    #maybe UID ?
+    terminated = models.BooleanField(default=False)
+    pid = models.IntegerField()
+    process_title = models.CharField(max_length=200)
+    def __str__(self):
+        return "Database Transaction: {}".format(self.process_title)
+
+    def return_pid(self):
+        return str(self.pid)
+
 '''
 class RefSeqGenomeEntry(models.Model):
     completeness_level = models.CharField(max_length=30)

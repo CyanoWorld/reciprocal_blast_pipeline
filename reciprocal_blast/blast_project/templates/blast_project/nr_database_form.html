@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <body>
-     <div class="container-fluid ">
-        <form method = "POST" enctype="multipart/form-data">
+     <div class="container-fluid "  id="formCheck">
+        <form method = "POST" enctype="multipart/form-data"  onsubmit="showLoader('loading','formCheck')">
 
             {% csrf_token %}
 
@@ -101,13 +101,19 @@
             <input type = "submit" value = "Submit" class="btn btn-primary mb-2">
             <input style="display: none" type="text" value="{{user_email}}" id="user_email" name="user_email">
             <input type="hidden" value="nr" id="project_type" name="project_type">
+
         </form>
 
-            <button class="btn btn-info" onclick="displayBlastSettings_3()">Advanced BLAST Settings </button>
+         <button class="btn btn-info" onclick="displayBlastSettings_3()">Advanced BLAST Settings </button>
 
         </div>
 
-
+     <div id="loading" style="display: none" style="text-align: center">
+                      <div class="container-fluid" >
+                          <p align="center"><iframe src="https://giphy.com/embed/11FuEnXyGsXFba" width="200" height="200" frameBorder="0" class="giphy-embed" allowFullScreen></iframe></p>
+                          <p><a href="https://giphy.com/gifs/icon-loading-beaker-11FuEnXyGsXFba"></a></p>
+                      </div>
+    </div>
 
     <script>
         function displayBlastSettings_3() {
@@ -118,6 +124,15 @@
                 settingsForm.style.display = "none";
               }
             }
+    </script>
+
+    <script>
+        function showLoader(idLoadingDiv,idButton){
+            var loadingDiv = document.getElementById(idLoadingDiv)
+            var downloadButton = document.getElementById(idButton)
+            downloadButton.style.display = "none";
+            loadingDiv.style.display = "block";
+        };
     </script>
 </body>
 </html>

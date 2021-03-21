@@ -10,7 +10,7 @@ from .blast_execution import view_builded_snakefile, snakemake_config_exists, \
     exec_snakemake, read_snakemake_logs
 from .decorators import unauthenticated_user
 from .forms import BlastProjectForm, BlastProjectNrForm, AdvancedSettingsForm_Forward, AdvancedSettingsForm_Backward, \
-    CreateUserForm, SpeciesNameForm, UploadDatabaseForm
+    CreateUserForm, SpeciesNameForm, UploadDatabaseForm, RefseqDatabasesForm
 from .models import BlastProject, Genomes, ForwardBlastSettings, BackwardBlastSettings, QuerySequences, \
     TaxNodesForForwardDatabase, TaxNodesForBackwardDatabase
 from .project_creation import create_project_with_uploaded_files, create_project_with_nr_database
@@ -20,14 +20,36 @@ from .services import delete_files_without_projects, \
     check_if_genomes_should_be_resaved
 
 from .refseq_ftp_transactions import download_current_assembly_summary_into_specific_directory, delete_downloaded_assembly_summary, \
-    refseq_file_exists
+    refseq_file_exists, read_current_assembly_summary_with_pandas, transform_data_table_to_json_dict
 #Detail list of all available views is given in the readme.md
 
 @login_required(login_url='login')
+def refseq_genome_download(request):
+    context = {}
+    return render(request,'blast_project/download_refseq_genomes.html',context)
+
+
+#main view for the refseq database transactions
+@login_required(login_url='login')
 def refseq_database_download(request):
     context={'refseq_exists':False}
+
     if(refseq_file_exists("./static/refseq_summary_file/")):
         context['refseq_exists'] = True
+
+    if request.method == "POST":
+        refseq_form = RefseqDatabasesForm(request.POST)
+        try:
+            if refseq_form.is_valid():
+                refseq_level_checklist = request.POST.getlist("refseq_level []")
+                refseq_genomes = read_current_assembly_summary_with_pandas("./static/refseq_summary_file/", refseq_level_checklist)
+                context['header'] = list(refseq_genomes[0].columns)
+                context['rows'] = transform_data_table_to_json_dict(refseq_genomes[0])
+        except Exception as e:
+            return failure_view(request,e)
+    else:
+        refseq_form = RefseqDatabasesForm()
+    context['RefseqDatabasesForm'] = refseq_form
 
     return render(request, 'blast_project/refseq_database_transactions.html', context)
 

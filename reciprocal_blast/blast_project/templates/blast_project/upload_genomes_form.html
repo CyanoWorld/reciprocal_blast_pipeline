@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <body>
-    <div class="container-fluid ">
-        <form method = "POST" enctype="multipart/form-data" onsubmit="displayErrorFormBlockAfterSubmit('upload')">
+    <div class="container-fluid " id="upload_div">
+        <form method = "POST" enctype="multipart/form-data" onsubmit="showLoader_upload('upload_div','upload_giph')">
 
             {% csrf_token %}
 
@@ -150,7 +150,12 @@
 
             <button class="btn btn-info" onclick="displayBlastSettings_1()">Advanced BLAST Settings </button>
         </div>
-
+     <div id="upload_giph" style="display: none" style="text-align: center">
+                      <div class="container-fluid" >
+                          <p align="center"><iframe src="https://giphy.com/embed/11FuEnXyGsXFba" width="200" height="200" frameBorder="0" class="giphy-embed" allowFullScreen></iframe></p>
+                          <p><a href="https://giphy.com/gifs/icon-loading-beaker-11FuEnXyGsXFba"></a></p>
+                      </div>
+    </div>
     <script>
         function displayBlastSettings_1() {
               var settingsForm = document.getElementById("advanced_settings_1");
@@ -160,6 +165,15 @@
                 settingsForm.style.display = "none";
               }
             }
+    </script>
+
+      <script>
+        function showLoader_upload(idLoadingDiv,idButton){
+            var loadingDiv = document.getElementById(idLoadingDiv)
+            var downloadButton = document.getElementById(idButton)
+            downloadButton.style.display = "none";
+            loadingDiv.style.display = "block";
+        };
     </script>
 </body>
 </html>

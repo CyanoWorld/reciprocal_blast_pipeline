@@ -29,7 +29,8 @@ def get_genomes_tuple():
         return (('no genomes available','no genomes available'))
 
 class RefseqDatabasesForm(forms.Form):
-    pass
+    refseq_levels = forms.MultipleChoiceField(required=False,choices=[('Scaffold','Scaffold'),('Chromosome','Chromosome'),('Contig','Contig'),('Complete Genome','Complete Genome')])
+
 
 #used in upload_genomes_form.html during project creation
 class BlastProjectForm(forms.Form):
@@ -94,6 +95,8 @@ class BlastProjectForm(forms.Form):
                     raise ValidationError(
                         '[-] A genome database with that name already exist, please specify another file! Or try to use previously uploaded databases!')
         return genome
+
+
 
 #TODO: use the user_email in order to check the scientific names
 #used in nr_database_form.html

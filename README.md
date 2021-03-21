@@ -1,8 +1,37 @@
 # reciprocal_blast_pipeline
 
 ## Branch Documentation: TODOS
-1. refactor `read_current_assembly_summary_with_pandas()` function: add assembly level argument for input
-2. add function for parsing of taxid files in combination with `read_current_assembly_summary_with_pandas()`
+1. added [HTML datatables plugin] (https://datatables.net/plug-ins/filtering/type-based/html)
+    2. add checkboxes for each row and put table into form
+2. create plan for refseq download projects
+    3. check wether new models need to be created or current models need to get refactored
+3. genome download, decompression and database formatting via SNAKEMAKE or via python script for which an interaction with the Popen communicate function should be established
+    4. check the pid field ind the RefSeqTransaction
+
+```Python
+class RefSeqTransaction(models.Model):
+    terminated = models.BooleanField(default=False)
+    pid = models.IntegerField()
+    process_title = models.CharField(max_length=200)
+    def __str__(self):
+        return "Database Transaction: {}".format(self.process_title)
+
+    def return_pid(self):
+        return str(self.pid)
+
+class RefSeqGenomeEntry(models.Model):
+    #possible to have more than one completeness_level ...
+    completeness_level = models.CharField(max_length=30)
+    assembly_accession = models.CharField(max_length=200)
+    protein_genome = models.URLField()
+    organism_name = models.CharField(max_length=200)
+    taxid = models.IntegerField()
+    species_taxid = models.IntegerField()
+    def __str__(self):
+        return "RefSeq Genome Entry: {}".format()
+
+```
+
 ## Quick installation with docker
 Clone this repository into a desired directory: `git clone https://git.hhu.de/synmibi/reciprocal_blast_pipeline.git`.
 Open a shell and cd into that directory, then type: `docker-compose up`.
