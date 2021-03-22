@@ -17,6 +17,16 @@ document.addEventListener('DOMContentLoaded',function () {
     } );
    document.getElementById('refseqTable').style.display = "block";
 })
+
+function submitSelectedTableRows(){
+     var table = $('#myTable').DataTable();
+    //var tableRows = table.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
+    var dataTableRows = table.rows({selected:true}).data().toArray()
+    console.log("Hello World!")
+    console.log(dataTableRows)
+
+}
+
 //Not in use:
 //This function can be used to loop over table rows
 // Add: <input type="text" id="myInput" onkeyup="searchTable()" placeholder="Search for names..">
