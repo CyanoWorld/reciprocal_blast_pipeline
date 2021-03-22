@@ -2,8 +2,9 @@ from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
+from django.views.decorators.csrf import csrf_exempt, ensure_csrf_cookie
 
 from .biopython_functions import get_species_taxid
 from .blast_execution import view_builded_snakefile, snakemake_config_exists, \
@@ -26,6 +27,14 @@ from .refseq_ftp_transactions import download_current_assembly_summary_into_spec
 @login_required(login_url='login')
 def refseq_genome_download(request):
     context = {}
+    if request.is_ajax():
+        print("[#] Yes")
+    if request.method == 'POST':
+        print("[*] Hello from POST")
+        print("[****] {}".format(request.POST.keys()))
+        context['selectedAssemblies'] = request.POST.getlist('ftp_path[]')[0:20]
+        #print("[****] {}".format(request.POST))
+        #context['selectedAssemblies'] = request.POST['tableBody']
     return render(request,'blast_project/download_refseq_genomes.html',context)
 
 
@@ -69,7 +78,7 @@ def delete_refseq_summary_file(request):
         delete_downloaded_assembly_summary("./static/refseq_summary_file/")
     except Exception as e:
         return failure_view(request,e)
-    return  redirect('refseq_database_transactions')
+    return redirect('refseq_database_transactions')
 
 #This view loads the project_creation.html template which in turn includes the upload_genomes_form.html as well as
 #the nr_database_form.html.

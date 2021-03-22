@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded',function () {
     //the DataTables homepage
     var table = $('#myTable').DataTable( {
         dom: 'Bfrtip',
+        "lengthMenu": [ 10, 25, 50, 75, 100 ],
         buttons: [
             'copy',
             'csv',
@@ -18,13 +19,23 @@ document.addEventListener('DOMContentLoaded',function () {
    document.getElementById('refseqTable').style.display = "block";
 })
 
+//Remove all unselected rows from submit
 function submitSelectedTableRows(){
-     var table = $('#myTable').DataTable();
+    //showLoader('loading_refseq_table','downloadChoices')
+    document.getElementById('refseqTable').style.display = "none";
+    var loadingDiv = document.getElementById('loading_refseq_table')
+    var downloadButton = document.getElementById('downloadChoices')
+    downloadButton.style.display = "none";
+    loadingDiv.style.display = "block";
+    var table = $('#myTable').DataTable();
+    var data = table.rows({selected:true}).data().toArray();
+    for(var i=0;i < data.length;i++){
+        document.getElementById('tableForm').innerHTML += '<input type="text" name="ftp_path[]" value='+data[i][5] +'>'
+        //console.log(data[i][5])
+    }
     //var tableRows = table.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
-    var dataTableRows = table.rows({selected:true}).data().toArray()
-    console.log("Hello World!")
-    console.log(dataTableRows)
-
+    //table.rows({selected:false} ).remove().draw();
+    document.getElementById('tableForm').submit()
 }
 
 //Not in use:
