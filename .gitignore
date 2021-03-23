@@ -11,3 +11,4 @@ reciprocal_blast/blast_project/migrations/0*
 reciprocal_blast/blast_project/migrations/__pycache__/*
 docker-compose.yml
 ./reciprocal_blast/blast_project/__pycache__/*
+*.pyc

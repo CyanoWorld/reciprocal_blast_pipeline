@@ -32,35 +32,43 @@ html_string = '''
 <html>
   <head>
     <title>BLAST Result Table</title>
-    <style>
-    .mystyle {{
-        font-size: 11pt; 
-        font-family: Arial;
-        border-collapse: collapse; 
-        border: 1px solid silver;
-
-    }}
-
-    .mystyle td, th {{
-        padding: 5px;
-        max-width: 200px;
-    }}
-
-    .mystyle tr:nth-child(even) {{
-        background: #E0E0E0;
-    }}
-
-    .mystyle tr:hover {{
-        background: silver;
-        cursor: pointer;
-    }}
-    </style>
-
+    <!-- DataTables stylesheets-->
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.24/css/jquery.dataTables.css" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/select/1.3.2/css/select.dataTables.min.css" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/buttons/1.7.0/css/buttons.dataTables.min.css" crossorigin="anonymous">
   </head>
-  <body>
 
+  <body>
     {table}
   </body>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.js" integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous"></script>
+    <!-- input scripts for DataTables: https://datatables.net/ -->
+    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.js"></script>
+    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/select/1.3.2/js/dataTables.select.min.js"></script>
+    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/buttons/1.7.0/js/dataTables.buttons.min.js"></script>
+    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/buttons/1.7.0/js/buttons.html5.min.js"></script>
+    <script>
+    $(document).ready(function(){{
+        var table = document.getElementsByTagName('table');
+        table[0].id='myTable'
+        $('#myTable').DataTable(
+            {{
+                dom: 'Bfrtip',
+                "lengthMenu": [ 100 ],
+                buttons: [
+                    'copy',
+                    'csv',
+                    'selectAll',
+                    'selectNone',
+                    'selectRows'
+                ],
+                select: true
+            }}
+        );
+    }});
+    </script>
+
 </html>
 '''
 
