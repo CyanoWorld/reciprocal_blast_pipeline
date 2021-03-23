@@ -5,10 +5,11 @@ Download genome assemblies by submitting a form or by uploading a CSV file with 
 the JavaScript [HTML DataTables plugin] (https://datatables.net/plug-ins/filtering/type-based/html).
 
 ## TODOS
-1. create plan for refseq download projects
+1. add tests for snakemake execution
+2. create plan for refseq download projects
     1. check wether new models need to be created or current models need to get refactored
-2. add functionality to the download refseq genomes button
-3. genome download, decompression and database formatting via SNAKEMAKE or via python script for which an interaction with the Popen communicate function should be established
+3. add functionality to the download refseq genomes button
+4. genome download, decompression and database formatting via SNAKEMAKE or via python script for which an interaction with the Popen communicate function should be established
     1. check the pid field in the RefSeqTransaction model
 
 ```Python
