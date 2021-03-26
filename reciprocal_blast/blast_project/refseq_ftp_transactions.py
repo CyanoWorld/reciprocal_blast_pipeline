@@ -1,9 +1,10 @@
-from gzip import decompress
+import gzip
 from os import remove, chdir, getcwd
 from os.path import isfile
 from wget import download
 import json
 import pandas as pd
+import re
 
 #downloads the current refseq assembly file into an specified directory
 def download_current_assembly_summary_into_specific_directory(directory):
@@ -76,3 +77,80 @@ def transform_data_table_to_json_dict(df):
     data = []
     data = json.loads(json_records)
     return data
+
+
+# filter refseq table with taxids optained by the get_species_taxids.sh script
+def read_taxonomy_table(filepath):
+    if (isfile(filepath) == False):
+        raise Exception("[-] There is no taxonomy file called: {}".format(filepath))
+    taxonomy_file = pd.read_table(filepath, header=None)
+    # species_taxid and taxid should normally be interchangeable, the species_taxid may inherit more informations
+    # to current strain (have a look at the README description of the refseq summary file)
+    taxonomy_file.columns = ['species_taxid']
+    return taxonomy_file
+
+
+def filter_table_by_taxonomy(refseq_table, taxonomy_table):
+    # species_taxid
+    return refseq_table.merge(taxonomy_table, how='inner', on=['species_taxid'])
+
+
+# returns the amount of filtered genomes
+def reduction_amount(refseq_table, filtered_table):
+    reduct = len(refseq_table) - len(filtered_table)
+    if (reduct <= 0):
+        raise Exception("[-] After filtering, there is no data remaining!")
+    return reduct
+
+
+# downloading genomes with wget
+def download_genome_from_ftp_path(ftp_path):
+    try:
+        return download(ftp_path)
+    except:
+        return None
+
+
+# function with two responsibilities in order to save memory usage
+def extract_downloaded_file_and_write_taxid_file(genome_downloaded_file, taxid):
+    # decompression to fasta file
+    try:
+        output = open(genome_downloaded_file + ".decompressed.faa", "w")
+        with gzip.open(genome_downloaded_file, "rb") as bytes_out:
+            bytes_from_file = bytes_out.read()
+            line = bytes_from_file.decode("utf-8")
+            output.write(line)
+            output.close()
+        # remove gz file
+        remove(genome_downloaded_file)
+    except Exception as e:
+        output.close()
+        raise Exception("[-] Exception during decompressing: {}".format(e))
+
+    # creation of taxmap file | taxid \t acc_id
+    try:
+        accession_id_pattern = re.compile('>(\S*)')
+        taxmap = open('acc_taxid_map.table', 'a')
+        for acc_id in re.findall(accession_id_pattern, line):
+            taxmap.write(str(taxid) + "\t" + str(acc_id) + "\n")
+        taxmap.close()
+        # print("\t[*] Done writing taxonomic informations into taxmap file ...")
+        return True 
+    except Exception as e:
+        taxmap.close()
+        raise Exception("[-] Exception during writing taxmap file: {}".format(e))
+
+
+def download_assemblies(filtered_table):
+    try:
+        for genome_url, taxid in zip(filtered_table['ftp_path'], filtered_table['species_taxid']):
+            genome_file = download_genome_from_ftp_path(genome_url)
+            #need additional import (import time)
+            #time.sleep(1)
+            # genome_file = wget.download(genome_url)
+            #print("[+] downloaded genome: {}\n[+] taxonomic node: {}".format(genome_url, taxid))
+            if (genome_file):
+                extract_downloaded_file_and_write_taxid_file(genome_file, taxid)
+    except Exception as e:
+        #print("[-] ERROR during download_assemblies")
+        raise Exception("[-] Error during downloading assemblies with Exception: {}".format(e))

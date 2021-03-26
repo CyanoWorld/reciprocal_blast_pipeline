@@ -31,6 +31,49 @@ def get_genomes_tuple():
 class RefseqDatabasesForm(forms.Form):
     refseq_levels = forms.MultipleChoiceField(required=False,choices=[('Scaffold','Scaffold'),('Chromosome','Chromosome'),('Contig','Contig'),('Complete Genome','Complete Genome')])
 
+class RefseqDatabasesProjectForm(forms.Form):
+    project_title = forms.CharField(label="Project title",
+                                    error_messages={'required': "A project title is required for saving project metadata into the database"})
+    refseq_levels = forms.MultipleChoiceField(required=True,
+                                              choices=[('Scaffold','Scaffold'),('Chromosome','Chromosome'),('Contig','Contig'),('Complete Genome','Complete Genome')],
+                                              error_messages={'required':'Please specify the level of genome completeness of your database files'})
+    query_sequence_file = forms.FileField(error_messages={'required':"Upload a query sequence file, this file will serve as the -query parameter for the forward BLAST analysis"})
+    taxid_bw = forms.CharField(required=True,
+                               label='Scientific Names (conversion to Taxonomic Nodes) for Backward BLAST',
+                               error_messages={'required':"Specify a Scientific Name for your backward BLAST - use a comma separated list - names will be converted to taxids that will be written to a file which will serve as the -taxidlist parameter of your backward BLAST"})
+    taxid_fw = forms.CharField(required=False, label = 'Scientific Names (conversion to Taxonomic Nodes) for Forward BLAST',
+                               error_messages={'required':"Specify a Scientific Name for your forward BLAST - use a comma seperated list"})
+
+    def clean_query_sequence_file(self):
+        query_file = self.cleaned_data['query_sequence_file']
+        if query_file.name.endswith('.faa') != True and query_file.name.endswith('.fasta') != True:
+            raise ValidationError("[-] Please upload only fasta files!")
+        else:
+            return query_file
+
+    def clean_taxid_fw(self):
+        taxids_fw = self.cleaned_data['taxid_fw']
+        taxids = []
+        if taxids_fw != '':
+            for name in taxids_fw.split(','):
+                try:
+                    taxid = get_species_taxid_without_email(name)
+                    taxids.append(int(taxid))
+                except Exception as e:
+                    raise ValidationError('[-] Use a comma separated list of scientific names. An error occured during parsing of the scientific names. Exception: {}'.format(e))
+        return taxids
+
+    def clean_taxid_bw(self):
+        taxids_bw = self.cleaned_data['taxid_bw']
+        if len(taxids_bw.split(',')) > 1:
+            raise ValidationError(
+                '[-] Specify just one scientific name!')
+        try:
+            taxid = get_species_taxid_without_email(taxids_bw)
+        except Exception as e:
+            raise ValidationError('[-] An error occured during parsing of the scientific names. Exception: {}'.format(e))
+        return [taxid]
+
 
 #used in upload_genomes_form.html during project creation
 class BlastProjectForm(forms.Form):
@@ -47,7 +90,6 @@ class BlastProjectForm(forms.Form):
     #backward_genome_uploaded_file = forms.ModelChoiceField(queryset=Genomes.objects.all().values('genome_name'),required=False, error_messages={'required':'Please specify an uploaded genome database'})
 
     query_sequence_file = forms.FileField(error_messages={'required':"Upload a query sequence file, this file will serve as the -query parameter for the forward BLAST analysis"})
-
 
     def __init__(self,data=None,*args,**kwargs):
         super(BlastProjectForm,self).__init__(data,*args,**kwargs)
@@ -126,7 +168,7 @@ class BlastProjectNrForm(forms.Form):
         taxids_bw = self.cleaned_data['taxid_bw']
         if len(taxids_bw.split(',')) > 1:
             raise ValidationError(
-                '[-] Specify at least one scientific name!')
+                '[-] Specify just one scientific name!')
         try:
             taxid = get_species_taxid_without_email(taxids_bw)
         except Exception as e:
