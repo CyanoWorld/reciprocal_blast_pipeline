@@ -8,9 +8,9 @@ the JavaScript [HTML DataTables plugin] (https://datatables.net/plug-ins/filteri
 1. add tests for snakemake execution
 2. create plan for refseq download projects
     1. check wether new models need to be created or current models need to get refactored
-3. add functionality to the download refseq genomes button
-4. genome download, decompression and database formatting via SNAKEMAKE or via python script for which an interaction with the Popen communicate function should be established
-    1. check the pid field in the RefSeqTransaction model
+3. create forms for ncbi ftp interactions:
+    1. first form: ncbi genome assembly database selection or creation
+
 
 ```Python
 class RefSeqTransaction(models.Model):

@@ -16,7 +16,7 @@
                         <a class="nav-link" href="{% url 'project_creation' %}">Project Creation: Create Your Reciprocal BLAST Project<span class="sr-only">(current)</span></a>
                         <a class="nav-link" href="{% url 'species_taxid' %}">Get Species Taxonomic Nodes From Scientific Name (Check Availability)<span class="sr-only">(current)</span></a>
                         <a class="nav-link" href="{% url 'upload_databases' %}">Upload New Genome FASTA Files<span class="sr-only">(current)</span></a>
-                        <a class="nav-link" href="{% url 'refseq_database_transactions' %}">RefSeq Database Transactions<span class="sr-only">(current)</span></a>
+                        <a class="nav-link" href="{% url 'refseq_genome_download' %}">RefSeq Database Transactions<span class="sr-only">(current)</span></a>
                         <a class="nav-link" href="{% url 'logout' %}">Logout</a>
                       </div>
                   </div>
@@ -29,9 +29,32 @@
         </div>
 
         <div class="container-fluid" style="text-align: center">
-            <table>
+            <form method = "POST" enctype="multipart/form-data" onsubmit="showLoader_upload('upload_div','upload_giph')">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="database_name">Database Name</label>
+                    <input type="text" class="form-control" id="database_name" name="database_name">
+                </div>
 
-            </table>
+                <div class="form-group">
+                    {{RefseqDatabasesForm.refseq_levels}}
+                </div>
+                <!--
+                {% for level, option in RefseqDatabasesForm.refseq_levels.field.choices %}
+                    <div class="form-check" >
+                        <input type="checkbox" class="form-check-input" id="{{level}}" name="{{refseq_levels.data.name}}" value="{{level}}">
+                        <label class="form-check-label" for="{{level}}"> {{option}} </label>
+                    </div>
+                {% endfor %}
+                -->
+                <div class="form-group">
+                    <label for="taxid_file">Optional File For Limiting BLAST Databases By Taxonomy</label>
+                    <input type="file" class="form-control-file" id="taxid_file" name="taxid_file">
+
+                </div>
+                <input type = "submit" value = "Submit" class="btn btn-primary mb-2">
+                <!-- <input type="hidden" value="upload" id="project_type" name="project_type"> -->
+            </form>
          </div>
 
 

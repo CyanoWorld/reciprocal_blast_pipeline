@@ -11,7 +11,7 @@ from .blast_execution import view_builded_snakefile, snakemake_config_exists, \
     exec_snakemake, read_snakemake_logs
 from .decorators import unauthenticated_user
 from .forms import BlastProjectForm, BlastProjectNrForm, AdvancedSettingsForm_Forward, AdvancedSettingsForm_Backward, \
-    CreateUserForm, SpeciesNameForm, UploadDatabaseForm, RefseqDatabasesForm
+    CreateUserForm, SpeciesNameForm, UploadDatabaseForm, RefseqDatabasesForm, RefseqTableForm
 from .models import BlastProject, Genomes, ForwardBlastSettings, BackwardBlastSettings, QuerySequences, \
     TaxNodesForForwardDatabase, TaxNodesForBackwardDatabase
 from .project_creation import create_project_with_uploaded_files, create_project_with_nr_database
@@ -27,14 +27,19 @@ from .refseq_ftp_transactions import download_current_assembly_summary_into_spec
 @login_required(login_url='login')
 def refseq_genome_download(request):
     context = {}
-    if request.is_ajax():
-        print("[#] Yes")
-    if request.method == 'POST':
-        print("[*] Hello from POST")
-        print("[****] {}".format(request.POST.keys()))
-        context['selectedAssemblies'] = request.POST.getlist('ftp_path[]')[0:20]
-        #print("[****] {}".format(request.POST))
-        #context['selectedAssemblies'] = request.POST['tableBody']
+    if request.method == "POST":
+        refseq_form = RefseqDatabasesForm(request.POST,request.FILES)
+        try:
+            if refseq_form.is_valid():
+                print("It's Valid!")
+            else:
+                print(refseq_form.errors)
+                print("Not Valid!")
+        except Exception as e:
+            return failure_view(request,e)
+    else:
+        refseq_form = RefseqDatabasesForm()
+    context['RefseqDatabasesForm'] = refseq_form
     return render(request,'blast_project/download_refseq_genomes.html',context)
 
 
@@ -43,11 +48,12 @@ def refseq_genome_download(request):
 def refseq_database_download(request):
     context={'refseq_exists':False}
 
+
     if(refseq_file_exists("./static/refseq_summary_file/")):
         context['refseq_exists'] = True
 
     if request.method == "POST":
-        refseq_form = RefseqDatabasesForm(request.POST)
+        refseq_form = RefseqTableForm(request.POST)
         try:
             if refseq_form.is_valid():
                 refseq_level_checklist = request.POST.getlist("refseq_level []")
@@ -57,8 +63,8 @@ def refseq_database_download(request):
         except Exception as e:
             return failure_view(request,e)
     else:
-        refseq_form = RefseqDatabasesForm()
-    context['RefseqDatabasesForm'] = refseq_form
+        refseq_form = RefseqTableForm()
+    context['RefseqTableForm'] = refseq_form
 
     return render(request, 'blast_project/refseq_database_transactions.html', context)
 

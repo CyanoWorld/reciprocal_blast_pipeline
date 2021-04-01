@@ -13,6 +13,7 @@ class BlastProject(models.Model):
     project_username = models.ForeignKey(User,on_delete=models.CASCADE)
     pipeline_executed = models.BooleanField(default=False)
     using_nr_database = models.BooleanField(default=False)
+    using_refseq_database = models.BooleanField(default=False)
     def __str__(self):
         return "{}".format(self.project_title)
 
@@ -26,6 +27,15 @@ class RefSeqTransaction(models.Model):
 
     def return_pid(self):
         return str(self.pid)
+
+class RefseqGenomeAssemblyLevels(models.Model):
+    assembly_level = models.CharField(max_length=50, unique=True)
+
+class RefseqGenome(models.Model):
+    associated_project = models.ForeignKey(BlastProject, on_delete=models.CASCADE)
+    database_description = models.CharField(max_length=200,unique=True)
+    assembly_levels = models.ManyToManyField(RefseqGenomeAssemblyLevels)
+    models.DateTimeField()
 
 '''
 class RefSeqGenomeEntry(models.Model):
@@ -81,10 +91,11 @@ class QuerySequences(models.Model):
     def __str__(self):
         return "query sequence: {} of project {}".format(self.query_file_name, self.associated_project.id)
 
-
+#genomes for all databases except nr database ....
 class Genomes(models.Model):
     associated_project = models.ForeignKey(BlastProject, on_delete=models.CASCADE,blank=True, null=True)
     reciprocal_type = models.CharField(max_length=200, choices=[('forward', 'forward'), ('backward', 'backward')], blank=True, null=True)
+    #creation_date = models.DateTimeField()
     genome_name = models.CharField(max_length=200, blank=False)
     path_to_file = models.CharField(max_length=300, blank=False)
 

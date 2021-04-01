@@ -60,7 +60,7 @@
                             <form  action="{% url 'refseq_database_transactions' %}" name="refseq_database_transaction" method="POST" onsubmit="showLoader('loading_refseq_table','downloadChoices')">
                                 {% csrf_token %}
                                 <div id="choices" style="text-align: left">
-                                    {% for level, option in RefseqDatabasesForm.refseq_levels.field.choices %}
+                                    {% for level, option in RefseqTableForm.refseq_levels.field.choices %}
                                     <div class="form-check" >
                                         <input type="checkbox" class="form-check-input" id="{{level}}" name="refseq_level []" value="{{level}}">
                                         <label class="form-check-label" for="{{level}}"> {{option}} </label>

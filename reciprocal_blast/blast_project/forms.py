@@ -9,12 +9,24 @@ https://docs.djangoproject.com/en/2.2/topics/forms/
 '''
 
 from django import forms
-from .models import Genomes
+from .models import Genomes, RefseqGenome
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from .biopython_functions import get_species_taxid_without_email
 from .refseq_ftp_transactions import read_current_assembly_summary_with_pandas
+
+def get_refseq_genomes():
+    try:
+        genomes = []
+        for genome_name in RefseqGenome.objects.all().values('genome_name'):
+            if genome_name['genome_name'] not in genomes:
+                genomes.append(genome_name['genome_name'])
+        genomes = tuple(zip(genomes,genomes))
+        return genomes
+    except:
+        return (('no genomes available','no genomes available'))
+    return None
 
 #TODO: put this into services
 def get_genomes_tuple():
@@ -28,21 +40,35 @@ def get_genomes_tuple():
     except:
         return (('no genomes available','no genomes available'))
 
-class RefseqDatabasesForm(forms.Form):
+class RefseqTableForm(forms.Form):
     refseq_levels = forms.MultipleChoiceField(required=False,choices=[('Scaffold','Scaffold'),('Chromosome','Chromosome'),('Contig','Contig'),('Complete Genome','Complete Genome')])
+
+#user input for database creation with the refseq assembly summary file
+class RefseqDatabasesForm(forms.Form):
+    database_name = forms.CharField(label="Database title",
+                                    error_messages={'required':'A database title is required!'},required=False)
+    refseq_levels = forms.MultipleChoiceField(required=True,choices=[('Scaffold','Scaffold'),('Chromosome','Chromosome'),('Contig','Contig'),('Complete Genome','Complete Genome')],widget=forms.CheckboxSelectMultiple())
+    #this file upload is optional: if uploaded, the application should limit the refseq summary table by taxonomy
+    taxid_file = forms.FileField(label="Optional: File for limiting refseq databases by taxonomy",required=False)
+
 
 class RefseqDatabasesProjectForm(forms.Form):
     project_title = forms.CharField(label="Project title",
                                     error_messages={'required': "A project title is required for saving project metadata into the database"})
-    refseq_levels = forms.MultipleChoiceField(required=True,
-                                              choices=[('Scaffold','Scaffold'),('Chromosome','Chromosome'),('Contig','Contig'),('Complete Genome','Complete Genome')],
-                                              error_messages={'required':'Please specify the level of genome completeness of your database files'})
     query_sequence_file = forms.FileField(error_messages={'required':"Upload a query sequence file, this file will serve as the -query parameter for the forward BLAST analysis"})
+    forward_genome = forms.ChoiceField(choices=get_genomes_tuple(),required=True, error_messages={'required':'Please specify an uploaded genome database'})
+    backward_genome =forms.ChoiceField(choices=get_genomes_tuple(),required=True, error_messages={'required':'Please specify an uploaded genome database'})
+
     taxid_bw = forms.CharField(required=True,
                                label='Scientific Names (conversion to Taxonomic Nodes) for Backward BLAST',
                                error_messages={'required':"Specify a Scientific Name for your backward BLAST - use a comma separated list - names will be converted to taxids that will be written to a file which will serve as the -taxidlist parameter of your backward BLAST"})
     taxid_fw = forms.CharField(required=False, label = 'Scientific Names (conversion to Taxonomic Nodes) for Forward BLAST',
                                error_messages={'required':"Specify a Scientific Name for your forward BLAST - use a comma seperated list"})
+    def __init__(self,data=None,*args,**kwargs):
+        super(RefseqDatabasesProjectForm,self).__init__(data,*args,**kwargs)
+        #refresh available genomes
+        self.fields['backward_genome'].choices=get_genomes_tuple()
+        self.fields['forward_genome'].choices=get_genomes_tuple()
 
     def clean_query_sequence_file(self):
         query_file = self.cleaned_data['query_sequence_file']
@@ -73,7 +99,6 @@ class RefseqDatabasesProjectForm(forms.Form):
         except Exception as e:
             raise ValidationError('[-] An error occured during parsing of the scientific names. Exception: {}'.format(e))
         return [taxid]
-
 
 #used in upload_genomes_form.html during project creation
 class BlastProjectForm(forms.Form):
