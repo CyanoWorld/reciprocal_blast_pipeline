@@ -29,49 +29,69 @@
         </div>
 
         <div class="container-fluid" style="text-align: center">
-            <form method = "POST" enctype="multipart/form-data" onsubmit="showLoader_upload('upload_div','upload_giph')">
-                {% csrf_token %}
-                <div class="form-group">
-                    <label for="database_name">Database Name</label>
-                    <input type="text" class="form-control" id="database_name" name="database_name">
-                    {% if RefseqDatabasesForm.database_name.errors %}
-                    <div class="alert alert-danger">
-                        <strong>{{RefseqDatabasesForm.database_name.errors}}</strong>
-                    </div>
-                    {% endif %}
-                </div>
+            <div class="container-fluid" id="upload_div">
+                <form method = "POST" enctype="multipart/form-data" onsubmit="showLoader_upload('upload_div','upload_giph')" >
+                    {% csrf_token %}
+                    <div class="form-row">
+                        <div class="col">
+                             <div class="form-group">
+                                <label for="database_name">Database Name</label>
+                                <input type="text" class="form-control" id="database_name" name="database_name">
+                                {% if RefseqDatabasesForm.database_name.errors %}
+                                <div class="alert alert-danger">
+                                    <strong>{{RefseqDatabasesForm.database_name.errors}}</strong>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="form-group" style="text-align: left">
+                                {{RefseqDatabasesForm.refseq_levels}}
+                                {% if RefseqDatabasesForm.refseq_levels.errors %}
+                                <div class="alert alert-danger">
+                                    <strong>{{RefseqDatabasesForm.refseq_levels.errors}}</strong>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="form-group">
+                                <label for="taxid_file">Optional File For Limiting BLAST Databases By Taxonomy</label>
+                                <input type="file" class="form-control-file" id="taxid_file" name="taxid_file">
+                                {% if RefseqDatabasesForm.taxid_file.errors %}
+                                <div class="alert alert-danger">
+                                    <strong>{{RefseqDatabasesForm.taxid_file.errors}}</strong>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
 
-                <div class="form-group">
-                    {{RefseqDatabasesForm.refseq_levels}}
-                    {% if RefseqDatabasesForm.refseq_levels.errors %}
-                    <div class="alert alert-danger">
-                        <strong>{{RefseqDatabasesForm.refseq_levels.errors}}</strong>
+
+
+                        <!--
+                        {% for level, option in RefseqDatabasesForm.refseq_levels.field.choices %}
+                            <div class="form-check" >
+                                <input type="checkbox" class="form-check-input" id="{{level}}" name="{{refseq_levels.data.name}}" value="{{level}}">
+                                <label class="form-check-label" for="{{level}}"> {{option}} </label>
+                            </div>
+                        {% endfor %}
+                        -->
+
                     </div>
-                    {% endif %}
-                </div>
-                <!--
-                {% for level, option in RefseqDatabasesForm.refseq_levels.field.choices %}
-                    <div class="form-check" >
-                        <input type="checkbox" class="form-check-input" id="{{level}}" name="{{refseq_levels.data.name}}" value="{{level}}">
-                        <label class="form-check-label" for="{{level}}"> {{option}} </label>
-                    </div>
-                {% endfor %}
-                -->
-                <div class="form-group">
-                    <label for="taxid_file">Optional File For Limiting BLAST Databases By Taxonomy</label>
-                    <input type="file" class="form-control-file" id="taxid_file" name="taxid_file">
-                    {% if RefseqDatabasesForm.taxid_file.errors %}
-                    <div class="alert alert-danger">
-                        <strong>{{RefseqDatabasesForm.taxid_file.errors}}</strong>
-                    </div>
-                    {% endif %}
-                </div>
-                <input type = "submit" value = "Submit" class="btn btn-primary mb-2">
-                <!-- <input type="hidden" value="upload" id="project_type" name="project_type"> -->
-            </form>
+
+                    <input type = "submit" value = "Submit" class="btn btn-primary mb-2">
+                    <!-- <input type="hidden" value="upload" id="project_type" name="project_type"> -->
+                </form>
+            </div>
+
          </div>
-
-
+        <div id="upload_giph" style="display: none" style="text-align: center">
+          <div class="container-fluid" >
+              <p align="center"><iframe src="https://giphy.com/embed/11FuEnXyGsXFba" width="200" height="200" frameBorder="0" class="giphy-embed" allowFullScreen></iframe></p>
+              <p><a href="https://giphy.com/gifs/icon-loading-beaker-11FuEnXyGsXFba"></a></p>
+          </div>
+        </div>
+        <hr>
 
 
 
@@ -83,8 +103,8 @@
         function showLoader(idLoadingDiv,idButton){
             var loadingDiv = document.getElementById(idLoadingDiv)
             var downloadButton = document.getElementById(idButton)
-            downloadButton.style.display = "none";
-            loadingDiv.style.display = "block";
+            downloadButton.style.display = "block";
+            loadingDiv.style.display = "none";
         };
     </script>
 </html>
