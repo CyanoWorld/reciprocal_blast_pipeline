@@ -1,0 +1,1 @@
+INSERT INTO blast_project_refseqgenomeassemblylevels(assembly_level) VALUES ('Complete Genome'),('Chromosome'),('Scaffold'),('Contig');
