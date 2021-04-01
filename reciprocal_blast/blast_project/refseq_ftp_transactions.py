@@ -5,6 +5,9 @@ from wget import download
 import json
 import pandas as pd
 import re
+from .models import RefseqGenome
+
+
 
 #downloads the current refseq assembly file into an specified directory
 def download_current_assembly_summary_into_specific_directory(directory):
@@ -154,3 +157,7 @@ def download_assemblies(filtered_table):
     except Exception as e:
         #print("[-] ERROR during download_assemblies")
         raise Exception("[-] Error during downloading assemblies with Exception: {}".format(e))
+
+
+def refseq_download_project(refseq_database_form_cleaned_data):
+    pass

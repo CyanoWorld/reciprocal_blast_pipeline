@@ -12,6 +12,13 @@ from os import walk, mkdir
 from os.path import isfile,  isdir
 from shutil import rmtree
 
+def create_refseq_database_model():
+    pass
+
+def save_refseq_database_model(refseq_database_model):
+    pass
+
+
 #provides the possibility to delete files if a user has accidently moved files into that directory
 def delete_files_without_projects():
     try:
@@ -116,9 +123,6 @@ def upload_file(project_file,destination):
     except Exception as e:
         raise IntegrityError('[-] A very specific bad thing happened during file upload of: {} Exception: {}'.format(project_file.name,e))
 
-
-def save_refseq_genome_in_db(database_description,assembly_levels):
-    pass
 
 def save_genomes_and_query_in_db(query_sequences, forward_genome_name, backward_genome_name, project):
     try:
