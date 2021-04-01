@@ -5,11 +5,17 @@ Download genome assemblies by submitting a form or by uploading a CSV file with 
 the JavaScript [HTML DataTables plugin] (https://datatables.net/plug-ins/filtering/type-based/html).
 
 ## TODOS
-1. add tests for snakemake execution
-2. create plan for refseq download projects
-    1. check wether new models need to be created or current models need to get refactored
-3. create forms for ncbi ftp interactions:
-    1. first form: ncbi genome assembly database selection or creation
+- [ ] add tests for snakemake execution
+- [ ] create plan for refseq download projects
+    - [x] check wether new models need to be created or current models need to get refactored
+    - [ ] check the refseq model for python subprocess (pid etc...)
+- [ ] add functions for refseqgenome model creation
+    - [ ] associated_refseq_transaction
+    - [ ] attached_taxid_file
+    - [ ] associated_project
+- [ ] check how to manage ftp interactions (e.g. snakemake or subprocess)
+- [x] create forms for ncbi ftp interactions:
+    - [x] first form: ncbi genome assembly database selection or creation
 
 
 ```Python
