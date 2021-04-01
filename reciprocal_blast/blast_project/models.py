@@ -32,12 +32,15 @@ class RefseqGenomeAssemblyLevels(models.Model):
     assembly_level = models.CharField(max_length=50, unique=True)
 
 class RefseqGenome(models.Model):
-    associated_project = models.ForeignKey(BlastProject, on_delete=models.CASCADE)
+    associated_project = models.ForeignKey(BlastProject, on_delete=models.CASCADE, blank=True, null=True)
     database_description = models.CharField(max_length=200,unique=True)
-    attached_taxonomic_node_file = models.CharField(max_length=300,blank=True)
+    attached_taxonomic_node_file = models.CharField(max_length=300,blank=True,null=True)
     path_to_file = models.CharField(max_length=300, blank=True)
     assembly_levels = models.ManyToManyField(RefseqGenomeAssemblyLevels)
     models.DateTimeField()
+
+    def __str__(self):
+        return "RefSeq Genome Entry: {}".format()
 
 '''
 class RefSeqGenomeEntry(models.Model):

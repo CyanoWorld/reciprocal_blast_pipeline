@@ -14,6 +14,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from .biopython_functions import get_species_taxid_without_email
+from os import listdir
 from .refseq_ftp_transactions import read_current_assembly_summary_with_pandas
 
 def get_refseq_genomes():
@@ -53,9 +54,15 @@ class RefseqDatabasesForm(forms.Form):
 
     def clean_taxid_file(self):
         taxid_file = self.cleaned_data['taxid_file']
+
         if taxid_file != None:
+            for line in listdir('media/databases/refseq_databases/taxonomic_node_files'):
+                if taxid_file.name == line:
+                    raise ValidationError("This taxid_file already exist!")
+
             if taxid_file.name.endswith('.taxid') != True and taxid_file.name.endswith('.taxids') != True:
                 raise ValidationError("Are you sure that this file is a taxonomic nodes file?\n Your file should only contain one taxonomic nodes for each line AND should be named to {species}.taxid or {species}.taxids")
+
             else:
                 return taxid_file
 

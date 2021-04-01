@@ -7,7 +7,7 @@ additionally two functions are present for reading html results produced by snak
 one function that checks if the pipeline has finished or not, this function is used in the detail view in order to load html results
 '''
 from django.db import IntegrityError
-from .models import BlastProject, Genomes, ForwardBlastSettings, BackwardBlastSettings, QuerySequences, TaxNodesForForwardDatabase, TaxNodesForBackwardDatabase
+from .models import BlastProject, Genomes, ForwardBlastSettings, BackwardBlastSettings, QuerySequences, TaxNodesForForwardDatabase, TaxNodesForBackwardDatabase, RefseqGenome
 from os import walk, mkdir
 from os.path import isfile,  isdir
 from shutil import rmtree
@@ -115,6 +115,10 @@ def upload_file(project_file,destination):
                 dest.write(chunk)
     except Exception as e:
         raise IntegrityError('[-] A very specific bad thing happened during file upload of: {} Exception: {}'.format(project_file.name,e))
+
+
+def save_refseq_genome_in_db(database_description,assembly_levels):
+    pass
 
 def save_genomes_and_query_in_db(query_sequences, forward_genome_name, backward_genome_name, project):
     try:

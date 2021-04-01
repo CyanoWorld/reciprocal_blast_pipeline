@@ -35,8 +35,8 @@ def refseq_genome_download(request):
             if refseq_form.is_valid():
                 if request.FILES.get('taxid_file',False):
                     taxid_file = request.FILES['taxid_file']
-                    print(taxid_file.name)
                     upload_file(taxid_file,'media/' + 'databases/' + 'refseq_databases/' + 'taxonomic_node_files/' + taxid_file.name)
+
                 else:
                     print("No file available!")
 
