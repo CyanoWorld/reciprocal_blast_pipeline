@@ -64,6 +64,21 @@
                                 </div>
                                 {% endif %}
                             </div>
+
+                            <div class="form-group">
+                              <label for="taxid_uploaded_file">Select Taxonomic File:</label>
+                              <select class="form-control" id="taxid_uploaded_file" name="taxid_uploaded_file">
+                                      <option value=""> </option>
+                                  {% for taxid_uploaded_file,option in  RefseqDatabasesForm.taxid_uploaded_file.field.choices %}
+                                      <option value="{{ taxid_uploaded_file }}">{{ taxid_uploaded_file }}</option>
+                                  {% endfor %}
+                              </select>
+                                {% if RefseqDatabasesForm.taxid_uploaded_file.errors %}
+                                    <div class="alert alert-danger">
+                                        <strong>{{RefseqDatabasesForm.taxid_uploaded_file.errors}}</strong>
+                                    </div>
+                                {% endif %}
+                            </div>
                         </div>
 
 

@@ -17,6 +17,15 @@ from .biopython_functions import get_species_taxid_without_email
 from os import listdir
 from .refseq_ftp_transactions import read_current_assembly_summary_with_pandas
 
+def get_taxid_files():
+    try:
+        taxid_files = listdir('media/databases/refseq_databases/taxonomic_node_files')
+        if len(taxid_files) == 0:
+            return (('no taxid files are available!','no taxid files are available!'))
+        return tuple(zip(taxid_files,taxid_files))
+    except:
+        return (('Error in os.listdir()','Error in os.listdir()'))
+
 def get_refseq_genomes():
     try:
         genomes = []
@@ -27,7 +36,6 @@ def get_refseq_genomes():
         return genomes
     except:
         return (('no genomes available','no genomes available'))
-    return None
 
 #TODO: put this into services
 def get_genomes_tuple():
@@ -51,7 +59,32 @@ class RefseqDatabasesForm(forms.Form):
     refseq_levels = forms.MultipleChoiceField(required=True,choices=[('Scaffold','Scaffold'),('Chromosome','Chromosome'),('Contig','Contig'),('Complete Genome','Complete Genome')],widget=forms.CheckboxSelectMultiple())
     #this file upload is optional: if uploaded, the application should limit the refseq summary table by taxonomy
     taxid_file = forms.FileField(label="Optional: File for limiting refseq databases by taxonomy",required=False)
+    taxid_uploaded_file = forms.ChoiceField(choices=get_taxid_files(),required=False)
 
+
+    def __init__(self, data=None, *args, **kwargs):
+        super(RefseqDatabasesForm, self).__init__(data, *args, **kwargs)
+        self.fields['taxid_uploaded_file'].choices = get_taxid_files()
+#        if data:
+#            if data.get('taxid_file', None) == '':
+#                ...
+
+    def clean(self):
+        cleaned_data = super().clean()
+        taxid_file = cleaned_data['taxid_file']
+        taxid_uploaded_file = cleaned_data['taxid_uploaded_file']
+
+        if taxid_file != None and taxid_uploaded_file != '':
+           self.add_error('taxid_file','Just use a previously uploaded file if you dont specify a file to upload!')
+        if taxid_file != None:
+            for line in listdir('media/databases/refseq_databases/taxonomic_node_files'):
+                if taxid_file.name == line:
+                    self.add_error('taxid_file',"This taxid_file already exist!")
+
+            if taxid_file.name.endswith('.taxid') != True and taxid_file.name.endswith('.taxids') != True:
+                self.add_error('taxid_file', "Are you sure that this file is a taxonomic nodes file?\n Your file should only contain one taxonomic nodes for each line AND should be named to {species}.taxid or {species}.taxids")
+
+'''
     def clean_taxid_file(self):
         taxid_file = self.cleaned_data['taxid_file']
 
@@ -65,6 +98,8 @@ class RefseqDatabasesForm(forms.Form):
 
             else:
                 return taxid_file
+
+'''
 
 class RefseqDatabasesProjectForm(forms.Form):
     project_title = forms.CharField(label="Project title",
