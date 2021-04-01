@@ -24,17 +24,24 @@ from .refseq_ftp_transactions import download_current_assembly_summary_into_spec
     refseq_file_exists, read_current_assembly_summary_with_pandas, transform_data_table_to_json_dict
 #Detail list of all available views is given in the readme.md
 
+#refseq database download and creation view
 @login_required(login_url='login')
 def refseq_genome_download(request):
     context = {}
     if request.method == "POST":
         refseq_form = RefseqDatabasesForm(request.POST,request.FILES)
+
         try:
             if refseq_form.is_valid():
-                print("It's Valid!")
+                if request.FILES.get('taxid_file',False):
+                    taxid_file = request.FILES['taxid_file']
+                    print(taxid_file.name)
+                    upload_file(taxid_file,'media/' + 'databases/' + 'refseq_databases/' + 'taxonomic_node_files/' + taxid_file.name)
+                else:
+                    print("No file available!")
+
             else:
-                print(refseq_form.errors)
-                print("Not Valid!")
+                pass
         except Exception as e:
             return failure_view(request,e)
     else:

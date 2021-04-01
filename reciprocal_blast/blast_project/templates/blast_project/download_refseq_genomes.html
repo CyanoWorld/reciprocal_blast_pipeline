@@ -34,10 +34,20 @@
                 <div class="form-group">
                     <label for="database_name">Database Name</label>
                     <input type="text" class="form-control" id="database_name" name="database_name">
+                    {% if RefseqDatabasesForm.database_name.errors %}
+                    <div class="alert alert-danger">
+                        <strong>{{RefseqDatabasesForm.database_name.errors}}</strong>
+                    </div>
+                    {% endif %}
                 </div>
 
                 <div class="form-group">
                     {{RefseqDatabasesForm.refseq_levels}}
+                    {% if RefseqDatabasesForm.refseq_levels.errors %}
+                    <div class="alert alert-danger">
+                        <strong>{{RefseqDatabasesForm.refseq_levels.errors}}</strong>
+                    </div>
+                    {% endif %}
                 </div>
                 <!--
                 {% for level, option in RefseqDatabasesForm.refseq_levels.field.choices %}
@@ -50,7 +60,11 @@
                 <div class="form-group">
                     <label for="taxid_file">Optional File For Limiting BLAST Databases By Taxonomy</label>
                     <input type="file" class="form-control-file" id="taxid_file" name="taxid_file">
-
+                    {% if RefseqDatabasesForm.taxid_file.errors %}
+                    <div class="alert alert-danger">
+                        <strong>{{RefseqDatabasesForm.taxid_file.errors}}</strong>
+                    </div>
+                    {% endif %}
                 </div>
                 <input type = "submit" value = "Submit" class="btn btn-primary mb-2">
                 <!-- <input type="hidden" value="upload" id="project_type" name="project_type"> -->

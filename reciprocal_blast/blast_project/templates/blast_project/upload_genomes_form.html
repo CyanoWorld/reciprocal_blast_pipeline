@@ -46,11 +46,11 @@
                             <option value="{{ fw_database }}">{{ fw_database }}</option>
                       {% endfor %}
                   </select>
-                    {% if BlastProjectForm.forward_genome_uploaded_file.errors %}
-                        <div class="alert alert-danger">
-                            <strong>{{BlastProjectForm.forward_genome_uploaded_file.errors}}</strong>
-                        </div>
-                    {% endif %}
+                {% if BlastProjectForm.forward_genome_uploaded_file.errors %}
+                    <div class="alert alert-danger">
+                        <strong>{{BlastProjectForm.forward_genome_uploaded_file.errors}}</strong>
+                    </div>
+                {% endif %}
             </div>
 
             </div>

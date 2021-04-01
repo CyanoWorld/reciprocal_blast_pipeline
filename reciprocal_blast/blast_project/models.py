@@ -34,6 +34,8 @@ class RefseqGenomeAssemblyLevels(models.Model):
 class RefseqGenome(models.Model):
     associated_project = models.ForeignKey(BlastProject, on_delete=models.CASCADE)
     database_description = models.CharField(max_length=200,unique=True)
+    attached_taxonomic_node_file = models.CharField(max_length=300,blank=True)
+    path_to_file = models.CharField(max_length=300, blank=True)
     assembly_levels = models.ManyToManyField(RefseqGenomeAssemblyLevels)
     models.DateTimeField()
 

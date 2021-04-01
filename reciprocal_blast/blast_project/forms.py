@@ -46,11 +46,18 @@ class RefseqTableForm(forms.Form):
 #user input for database creation with the refseq assembly summary file
 class RefseqDatabasesForm(forms.Form):
     database_name = forms.CharField(label="Database title",
-                                    error_messages={'required':'A database title is required!'},required=False)
+                                    error_messages={'required':'A database title is required!'},required=True)
     refseq_levels = forms.MultipleChoiceField(required=True,choices=[('Scaffold','Scaffold'),('Chromosome','Chromosome'),('Contig','Contig'),('Complete Genome','Complete Genome')],widget=forms.CheckboxSelectMultiple())
     #this file upload is optional: if uploaded, the application should limit the refseq summary table by taxonomy
     taxid_file = forms.FileField(label="Optional: File for limiting refseq databases by taxonomy",required=False)
 
+    def clean_taxid_file(self):
+        taxid_file = self.cleaned_data['taxid_file']
+        if taxid_file != None:
+            if taxid_file.name.endswith('.taxid') != True and taxid_file.name.endswith('.taxids') != True:
+                raise ValidationError("Are you sure that this file is a taxonomic nodes file?\n Your file should only contain one taxonomic nodes for each line AND should be named to {species}.taxid or {species}.taxids")
+            else:
+                return taxid_file
 
 class RefseqDatabasesProjectForm(forms.Form):
     project_title = forms.CharField(label="Project title",
