@@ -40,6 +40,8 @@ class RefseqGenome(models.Model):
     assembly_levels = models.ManyToManyField(to=RefseqGenomeAssemblyLevels,blank=True)
     assembly_entries = models.IntegerField()
     #models.DateTimeField()
+    def __str__(self):
+        return "Refseq Genome: {}".format(self.database_description)
 
 class TaxNodesForForwardDatabase(models.Model):
     associated_project = models.ForeignKey(BlastProject,on_delete=models.CASCADE)

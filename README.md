@@ -20,6 +20,7 @@ the JavaScript [HTML DataTables plugin] (https://datatables.net/plug-ins/filteri
 
 ```Python
 class RefSeqTransaction(models.Model):
+    #maybe UID ?
     terminated = models.BooleanField(default=False)
     pid = models.IntegerField()
     process_title = models.CharField(max_length=200)
@@ -29,16 +30,20 @@ class RefSeqTransaction(models.Model):
     def return_pid(self):
         return str(self.pid)
 
-class RefSeqGenomeEntry(models.Model):
-    #possible to have more than one completeness_level ...
-    completeness_level = models.CharField(max_length=30)
-    assembly_accession = models.CharField(max_length=200)
-    protein_genome = models.URLField()
-    organism_name = models.CharField(max_length=200)
-    taxid = models.IntegerField()
-    species_taxid = models.IntegerField()
+class RefseqGenomeAssemblyLevels(models.Model):
+    assembly_level = models.CharField(max_length=50, unique=True)
+
+class RefseqGenome(models.Model):
+    associated_project = models.ForeignKey(BlastProject, on_delete=models.CASCADE, blank=True, null=True)
+    associated_refseq_transaction = models.OneToOneField(RefSeqTransaction,on_delete=models.CASCADE,blank=True,null=True)
+    database_description = models.CharField(max_length=200,unique=True)
+    attached_taxonomic_node_file = models.CharField(max_length=300,blank=True,null=True)
+    path_to_file = models.CharField(max_length=300)
+    assembly_levels = models.ManyToManyField(to=RefseqGenomeAssemblyLevels,blank=True)
+    assembly_entries = models.IntegerField()
+    #models.DateTimeField()
     def __str__(self):
-        return "RefSeq Genome Entry: {}".format()
+        return "Refseq Genome: {}".format(self.database_description)
 
 ```
 
