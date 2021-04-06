@@ -6,7 +6,7 @@ import json
 import pandas as pd
 import re
 from .models import RefseqGenome
-
+from .services import upload_file
 
 
 #downloads the current refseq assembly file into an specified directory
@@ -159,5 +159,16 @@ def download_assemblies(filtered_table):
         raise Exception("[-] Error during downloading assemblies with Exception: {}".format(e))
 
 
-def refseq_download_project(refseq_database_form_cleaned_data):
+def refseq_download_project(refseq_form):
+    #check if a taxid file is given in order to limit the refseq download process by taxonomy
+    if refseq_form.cleaned_data.get('taxid_file', False):
+
+        print("USING NEW FILE")
+        taxid_file = refseq_form.cleaned_data['taxid_file']
+        upload_file(taxid_file,'media/' + 'databases/' + 'refseq_databases/' + 'taxonomic_node_files/' + taxid_file.name)
+
+    elif refseq_form.cleaned_data.get('taxid_uploaded_file',False):
+        print("USING UPLOADED FILE")
+    else:
+        print("No file available!")
     pass

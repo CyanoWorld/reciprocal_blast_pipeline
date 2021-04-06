@@ -21,7 +21,7 @@ from .services import delete_files_without_projects, \
     check_if_genomes_should_be_resaved
 
 from .refseq_ftp_transactions import download_current_assembly_summary_into_specific_directory, delete_downloaded_assembly_summary, \
-    refseq_file_exists, read_current_assembly_summary_with_pandas, transform_data_table_to_json_dict
+    refseq_file_exists, read_current_assembly_summary_with_pandas, transform_data_table_to_json_dict, refseq_download_project
 #Detail list of all available views is given in the readme.md
 
 #refseq database download and creation view
@@ -33,13 +33,7 @@ def refseq_genome_download(request):
 
         try:
             if refseq_form.is_valid():
-                if request.FILES.get('taxid_file',False):
-                    taxid_file = request.FILES['taxid_file']
-                    upload_file(taxid_file,'media/' + 'databases/' + 'refseq_databases/' + 'taxonomic_node_files/' + taxid_file.name)
-
-                else:
-                    print("No file available!")
-
+                refseq_download_project(refseq_form)
             else:
                 pass
         except Exception as e:

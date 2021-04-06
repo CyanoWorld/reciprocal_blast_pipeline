@@ -7,17 +7,41 @@ additionally two functions are present for reading html results produced by snak
 one function that checks if the pipeline has finished or not, this function is used in the detail view in order to load html results
 '''
 from django.db import IntegrityError
-from .models import BlastProject, Genomes, ForwardBlastSettings, BackwardBlastSettings, QuerySequences, TaxNodesForForwardDatabase, TaxNodesForBackwardDatabase, RefseqGenome
+from .models import BlastProject, Genomes, ForwardBlastSettings, BackwardBlastSettings, QuerySequences, TaxNodesForForwardDatabase, TaxNodesForBackwardDatabase, RefseqGenome,  RefseqGenomeAssemblyLevels
 from os import walk, mkdir
 from os.path import isfile,  isdir
 from shutil import rmtree
 
-def create_refseq_database_model():
+def create_and_save_refseq_database_model(database_description,assembly_levels,assembly_entries,attached_taxonomic_file=None):
+    try:
+
+        #create model refseq genome objects (s. models.py file)
+        path_to_database_file = 'media/' + 'databases/' + 'refseq_databases/' + database_description.replace(' ','_').upper() + '.database.faa'
+        new_refseq_genome = RefseqGenome(database_description=database_description,
+                                         assembly_entries=assembly_entries,
+                                         attached_taxonomic_file=attached_taxonomic_file)
+        #get all associated assembly levels (max. 4)
+        assembly_levels_models = RefseqGenomeAssemblyLevels.objects.filter(assembly_level__in=assembly_levels)
+
+        for assembly_level in assembly_levels_models:
+            new_refseq_genome.assembly_levels.add(assembly_level)
+
+        new_refseq_genome.save()
+    except Exception as e:
+        raise IntegrityError('[-] Couldnt save refseq genome model into database!')
     pass
 
-def save_refseq_database_model(refseq_database_model):
-    pass
+'''
+model fields for refseqgenome
 
+associated_project = models.ForeignKey(BlastProject, on_delete=models.CASCADE, blank=True, null=True)
+associated_refseq_transaction = models.OneToOneField(RefSeqTransaction,on_delete=models.CASCADE,blank=True,null=True)
+database_description = models.CharField(max_length=200,unique=True)
+attached_taxonomic_node_file = models.CharField(max_length=300,blank=True,null=True)
+path_to_file = models.CharField(max_length=300)
+assembly_levels = models.ManyToManyField(to=RefseqGenomeAssemblyLevels,blank=True)
+assembly_entries = models.IntegerField()
+'''
 
 #provides the possibility to delete files if a user has accidently moved files into that directory
 def delete_files_without_projects():
