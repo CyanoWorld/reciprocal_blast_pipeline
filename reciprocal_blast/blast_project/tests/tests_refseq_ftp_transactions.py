@@ -25,7 +25,10 @@ class TestRefseqFtpTransactions(TestCase):
         self.assertGreater(len(refseq_summary[0]['assembly_accession']), 1000)
 
     def test_get_process_id(self):
+        print("[+] TESTING SUBPROCESS MODULE")
         pid = subprocess.Popen(['python','./blast_project/tests/static/long_process.py'])
+        sleep(10)
+        print("[+] END TESTING SUBPROCESS")
         #TODO capture cmdline output in proc
         self.assertIsNotNone(pid.pid)
         #sleep(10.5)

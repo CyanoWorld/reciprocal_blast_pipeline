@@ -6,7 +6,7 @@ import json
 import pandas as pd
 import re
 from .models import RefseqGenome
-from .services import upload_file
+from .services import upload_file, create_and_save_refseq_database_model, create_refseq_genome_directory, write_pandas_table_to_project_dir
 
 
 #downloads the current refseq assembly file into an specified directory
@@ -158,17 +158,79 @@ def download_assemblies(filtered_table):
         #print("[-] ERROR during download_assemblies")
         raise Exception("[-] Error during downloading assemblies with Exception: {}".format(e))
 
-
+#function that is triggered by POST submit in download_refseq_genomes.html
 def refseq_download_project(refseq_form):
     #check if a taxid file is given in order to limit the refseq download process by taxonomy
     if refseq_form.cleaned_data.get('taxid_file', False):
 
         print("USING NEW FILE")
+        #upload taxonomic information file
         taxid_file = refseq_form.cleaned_data['taxid_file']
-        upload_file(taxid_file,'media/' + 'databases/' + 'refseq_databases/' + 'taxonomic_node_files/' + taxid_file.name)
+        taxid_file_path = 'media/' + 'databases/' + 'refseq_databases/' + 'taxonomic_node_files/' + taxid_file.name
+        upload_file(taxid_file,taxid_file_path)
+
+        #get data from refseq_summary_file and limit by assembly_level (=refseq_levels)
+        refseq_table = read_current_assembly_summary_with_pandas("./static/refseq_summary_file/",
+                                                                 refseq_form.cleaned_data['refseq_levels'])[0]
+        #limit file by taxonomy
+        taxonomy_table = read_taxonomy_table(taxid_file_path)
+        filtered_table = filter_table_by_taxonomy(refseq_table, taxonomy_table)
+
+        if len(filtered_table) == 0:
+            raise Exception("[-] The database doesnt contain any entries, pls apply an other filter method!")
+
+        #create new refseq database model and save it into the database
+        new_refseq_model = create_and_save_refseq_database_model(database_description=refseq_form.cleaned_data['database_name'],
+                                                                 assembly_levels=refseq_form.cleaned_data['refseq_levels'],
+                                                                 assembly_entries=len(filtered_table),
+                                                                 attached_taxonomic_file=taxid_file_path)
+        #create directory in media/databases/refseq_databases
+        refseq_database_table_path = create_refseq_genome_directory(new_refseq_model.id)
+
+        write_pandas_table_to_project_dir(refseq_database_table_path,
+                                          filtered_table,
+                                          refseq_form.cleaned_data['database_name'])
 
     elif refseq_form.cleaned_data.get('taxid_uploaded_file',False):
         print("USING UPLOADED FILE")
+
+        taxid_file = refseq_form.cleaned_data['taxid_uploaded_file']
+        taxid_file_path = 'media/' + 'databases/' + 'refseq_databases/' + 'taxonomic_node_files/' + taxid_file
+
+        refseq_table = read_current_assembly_summary_with_pandas("./static/refseq_summary_file/",
+                                                                 refseq_form.cleaned_data['refseq_levels'])[0]
+        taxonomy_table = read_taxonomy_table(taxid_file_path)
+        filtered_table = filter_table_by_taxonomy(refseq_table, taxonomy_table)
+
+        if len(filtered_table) == 0:
+            raise Exception("[-] The database doesnt contain any entries, pls apply an other filter method!")
+
+            # create new refseq database model and save it into the database
+        new_refseq_model = create_and_save_refseq_database_model(
+            database_description=refseq_form.cleaned_data['database_name'],
+            assembly_levels=refseq_form.cleaned_data['refseq_levels'],
+            assembly_entries=len(filtered_table),
+            attached_taxonomic_file=taxid_file_path)
+        # create directory in media/databases/refseq_databases
+        refseq_database_table_path = create_refseq_genome_directory(new_refseq_model.id)
+
+        write_pandas_table_to_project_dir(refseq_database_table_path,
+                                          filtered_table,
+                                          refseq_form.cleaned_data['database_name'])
     else:
-        print("No file available!")
-    pass
+        print("NO TAXONOMIC FILTERING!")
+        filtered_table = read_current_assembly_summary_with_pandas("./static/refseq_summary_file/",
+                                                                 refseq_form.cleaned_data['refseq_levels'])[0]
+        new_refseq_model = create_and_save_refseq_database_model(
+            database_description=refseq_form.cleaned_data['database_name'],
+            assembly_levels=refseq_form.cleaned_data['refseq_levels'],
+            assembly_entries=len(filtered_table))
+
+        refseq_database_table_path = create_refseq_genome_directory(new_refseq_model.id)
+
+        write_pandas_table_to_project_dir(refseq_database_table_path,
+                                          filtered_table,
+                                          refseq_form.cleaned_data['database_name'])
+
+    print("[+] Created Table")
+    print("[*] \t length filtered table: {}".format(len(filtered_table)))

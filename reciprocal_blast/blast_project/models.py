@@ -36,10 +36,12 @@ class RefseqGenome(models.Model):
     associated_refseq_transaction = models.OneToOneField(RefSeqTransaction,on_delete=models.CASCADE,blank=True,null=True)
     database_description = models.CharField(max_length=200,unique=True)
     attached_taxonomic_node_file = models.CharField(max_length=300,blank=True,null=True)
-    path_to_file = models.CharField(max_length=300)
-    assembly_levels = models.ManyToManyField(to=RefseqGenomeAssemblyLevels,blank=True)
+    path_to_file = models.CharField(max_length=300,blank=True,null=True)
+    #use the assembly_levels.SQL script for uploading the four existing assembly levels into the database
+    assembly_levels = models.ManyToManyField(to=RefseqGenomeAssemblyLevels)
     assembly_entries = models.IntegerField()
-    #models.DateTimeField()
+    timestamp = models.DateTimeField(auto_now=True)
+
     def __str__(self):
         return "Refseq Genome: {}".format(self.database_description)
 

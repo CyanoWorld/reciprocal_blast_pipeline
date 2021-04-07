@@ -11,15 +11,51 @@ from .models import BlastProject, Genomes, ForwardBlastSettings, BackwardBlastSe
 from os import walk, mkdir
 from os.path import isfile,  isdir
 from shutil import rmtree
+import pandas as pd
+
+#get all refseq_genome_entries
+def get_not_downloaded_refseqgenomes():
+    return RefseqGenome.objects.filter(associated_refseq_transaction__isnull = True)
+
+#delete refseqgenome entry
+def delete_refseqgenome_and_associated_directories_by_id(database_id):
+    try:
+        refseqgenome = RefseqGenome.objects.get(id=database_id)
+        if isdir('media/databases/refseq_databases/'+str(database_id)):
+            rmtree('media/databases/refseq_databases/'+str(database_id))
+        refseqgenome.delete()
+    except Exception as e:
+        raise IntegrityError("[-] Couldnt delete refseqgenome entry: {}".format(e))
+
+#create folder for new refseq database
+def create_refseq_genome_directory(new_refseq_genome_model):
+    try:
+        mkdir('media/databases/refseq_databases/' + str(new_refseq_genome_model))
+        return 'media/databases/refseq_databases/' + str(new_refseq_genome_model)
+    except Exception as e:
+        raise IntegrityError('[-] A very specific bad thing happened during creation of your project folder: {}'.format(e))
+
+def write_pandas_table_to_project_dir(refseq_genome_path,pandas_table,database_description):
+    try:
+        pandas_table_filepath = refseq_genome_path + '/' + database_description.replace(' ','_').upper()
+        pandas_table.to_csv(pandas_table_filepath)
+    except Exception as e:
+        raise IntegrityError('[-] Couldnt write pandas table to refseq genome directory: {}'.format(e))
 
 def create_and_save_refseq_database_model(database_description,assembly_levels,assembly_entries,attached_taxonomic_file=None):
     try:
 
         #create model refseq genome objects (s. models.py file)
-        path_to_database_file = 'media/' + 'databases/' + 'refseq_databases/' + database_description.replace(' ','_').upper() + '.database.faa'
-        new_refseq_genome = RefseqGenome(database_description=database_description,
-                                         assembly_entries=assembly_entries,
-                                         attached_taxonomic_file=attached_taxonomic_file)
+        #path_to_database_file = 'media/' + 'databases/' + 'refseq_databases/' + database_description.replace(' ','_').upper() + '.database.faa'
+        if attached_taxonomic_file != None:
+            new_refseq_genome = RefseqGenome.objects.create(database_description=database_description,
+                                             assembly_entries=assembly_entries,
+                                             attached_taxonomic_node_file=attached_taxonomic_file)
+        else:
+            new_refseq_genome = RefseqGenome.objects.create(database_description=database_description,
+                                             assembly_entries=assembly_entries)
+
+
         #get all associated assembly levels (max. 4)
         assembly_levels_models = RefseqGenomeAssemblyLevels.objects.filter(assembly_level__in=assembly_levels)
 
@@ -27,9 +63,10 @@ def create_and_save_refseq_database_model(database_description,assembly_levels,a
             new_refseq_genome.assembly_levels.add(assembly_level)
 
         new_refseq_genome.save()
+        return new_refseq_genome
     except Exception as e:
-        raise IntegrityError('[-] Couldnt save refseq genome model into database!')
-    pass
+        raise IntegrityError('[-] Couldnt save refseq genome model into database with Exception: {}'.format(e))
+
 
 '''
 model fields for refseqgenome
@@ -125,8 +162,6 @@ def create_project_dir(project):
     try:
         mkdir('static/result_images/'+str(project.id))
         mkdir('media/' + str(project.id))
-        #mkdir('media/'+str(project.id)+'/forward_genome')
-        #mkdir('media/'+str(project.id)+'/backward_genome')
         mkdir('media/' + str(project.id) + '/query_sequences')
     except Exception as e:
         raise IntegrityError('[-] A very specific bad thing happened during creation of your project folder: {}'.format(e))

@@ -95,7 +95,36 @@
         </div>
         <hr>
 
+        {% if NotDownloadedDatabases.count > 0 %}
+        <div class="container-fluid" id="notdownloadeddatabases">
+            <h2> Not Downloaded Databases </h2>
+            <hr>
+            <div class="col">
+            {% for database in NotDownloadedDatabases %}
+                <div class="row">
+                    <p class="col"> Database ID: {{database.id}} </p>
+                    <p class="col"> Database description: {{database.database_description}} </p>
+                    <p class="col"> Timestamp: {{database.timestamp}}</p>
+                    <p class="col"> Assembly entries: {{database.assembly_entries}}</p>
+                    <p class="col">
+                        {% for assembly_level in database.assembly_levels.all %}
+                            {{assembly_level.assembly_level}}
+                        {% endfor %}
+                    </p>
+                    <p class="col">
+                    <form action="{% url 'delete_database' database_id=database.id%}" method="GET">
+                        {% csrf_token %}
+                    <!--<input type="hidden" value="{{database.id}}" name="delete_database" id="delete_database">-->
+                    <input type="submit" value="delete database" class="btn btn-primary">
+                </form>
 
+                    </p>
+                </div>
+            {% endfor %}
+            </div>
+
+        </div>
+        {% endif %}
 
         </body>
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>

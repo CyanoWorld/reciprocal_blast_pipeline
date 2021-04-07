@@ -26,5 +26,6 @@ urlpatterns = [
     path('download_refseq_summary',views.download_refseq_file,name='download_refseq_summary'),
     path('delete_refseq_summary_file',views.delete_refseq_summary_file,name='delete_refseq_summary_file'),
     path('refseq_genome_download',views.refseq_genome_download,name='refseq_genome_download'),
+    path('<int:database_id>/delete_database',views.delete_not_downloaded_refseq_genome,name='delete_database'),
     path('', views.main, name='main'),
 ]

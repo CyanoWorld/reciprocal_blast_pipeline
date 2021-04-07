@@ -18,29 +18,39 @@ from .project_creation import create_project_with_uploaded_files, create_project
 from .services import delete_files_without_projects, \
     delete_project_files_by_project_id, upload_file, set_executed_on_true_and_save_project, snakemake_project_finished, \
     get_html_results, load_html_graph, save_new_genome_file_in_db, \
-    check_if_genomes_should_be_resaved
+    check_if_genomes_should_be_resaved, get_not_downloaded_refseqgenomes,\
+    delete_refseqgenome_and_associated_directories_by_id
 
 from .refseq_ftp_transactions import download_current_assembly_summary_into_specific_directory, delete_downloaded_assembly_summary, \
     refseq_file_exists, read_current_assembly_summary_with_pandas, transform_data_table_to_json_dict, refseq_download_project
+
 #Detail list of all available views is given in the readme.md
 
+def delete_not_downloaded_refseq_genome(request,database_id):
+    try:
+        delete_refseqgenome_and_associated_directories_by_id(database_id)
+    except IntegrityError as e:
+        return failure_view(request,e)
+    return redirect('refseq_genome_download')
+
 #refseq database download and creation view
+#uses functions from refseq_ftp_transactions.py
 @login_required(login_url='login')
 def refseq_genome_download(request):
     context = {}
     if request.method == "POST":
         refseq_form = RefseqDatabasesForm(request.POST,request.FILES)
-
         try:
             if refseq_form.is_valid():
                 refseq_download_project(refseq_form)
-            else:
-                pass
         except Exception as e:
             return failure_view(request,e)
     else:
         refseq_form = RefseqDatabasesForm()
+
+    notdownloaded_refseq_databases = get_not_downloaded_refseqgenomes()
     context['RefseqDatabasesForm'] = refseq_form
+    context['NotDownloadedDatabases'] = notdownloaded_refseq_databases
     return render(request,'blast_project/download_refseq_genomes.html',context)
 
 

@@ -30,7 +30,9 @@ class TestViews(TestCase):
 
 
         self.main_url = reverse('main')
+        self.download_refseq_genomes_url = reverse('refseq_genome_download')
         self.project_details_url = reverse('project_details',args='2')
+        #
 
 
     def test_main_GET(self):
@@ -44,3 +46,5 @@ class TestViews(TestCase):
         response = self.client.get(self.project_details_url)
         self.assertEquals(response.status_code, 200)
         self.assertTemplateUsed(response,'blast_project/project_details.html')
+
+
