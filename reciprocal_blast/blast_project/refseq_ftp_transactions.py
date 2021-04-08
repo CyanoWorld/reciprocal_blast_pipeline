@@ -1,12 +1,13 @@
 import gzip
-from os import remove, chdir, getcwd
-from os.path import isfile
+from os import remove, chdir, getcwd, waitpid
+from os.path import isfile, isdir
 from wget import download
 import json
 import pandas as pd
 import re
-from .models import RefseqGenome
-from .services import upload_file, create_and_save_refseq_database_model, create_refseq_genome_directory, write_pandas_table_to_project_dir
+import psutil
+from .services import upload_file, create_and_save_refseq_database_model, create_refseq_genome_directory, \
+    write_pandas_table_to_project_dir, create_and_save_refseq_transaction,get_refseq_database_title
 
 
 #downloads the current refseq assembly file into an specified directory
@@ -234,3 +235,18 @@ def refseq_download_project(refseq_form):
 
     print("[+] Created Table")
     print("[*] \t length filtered table: {}".format(len(filtered_table)))
+
+
+def trigger_database_download(database_id):
+    title = get_refseq_database_title(database_id)
+    title = title.replace(' ', '_').upper()
+    table = 'media/databases/refseq_databases/'+str(database_id)+'/'+title
+    working_dir = 'media/databases/refseq_databases/'+str(database_id)
+    static_file_path = 'static/python_scripts/download_refseq_genomes.py'
+    if(isfile(static_file_path) and isdir(working_dir) and isfile(table)):
+        try:
+            pid = psutil.Popen(['python','static/python_scripts/download_refseq_genomes.py','--ifile',table,'--outputdir',working_dir],stdout=open(working_dir+'/'+'download.log','w'))
+            waitpid(pid.pid,0)
+            #create_and_save_refseq_transaction(pid.pid,database_id,'DOWNLOAD DATABASE ID {} REFSEQ TRANSACTION'.format(database_id))
+        except Exception as e:
+            raise Exception("[-] ERROR during database download in trigger_database_download. Exception: {}".format(e))

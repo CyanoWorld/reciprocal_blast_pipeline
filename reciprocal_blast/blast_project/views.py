@@ -22,10 +22,11 @@ from .services import delete_files_without_projects, \
     delete_refseqgenome_and_associated_directories_by_id
 
 from .refseq_ftp_transactions import download_current_assembly_summary_into_specific_directory, delete_downloaded_assembly_summary, \
-    refseq_file_exists, read_current_assembly_summary_with_pandas, transform_data_table_to_json_dict, refseq_download_project
+    refseq_file_exists, read_current_assembly_summary_with_pandas, transform_data_table_to_json_dict, refseq_download_project, \
+    trigger_database_download
 
 #Detail list of all available views is given in the readme.md
-
+#deletes not downloaded refseq genomes in order to apply a different filtering procedure
 def delete_not_downloaded_refseq_genome(request,database_id):
     try:
         delete_refseqgenome_and_associated_directories_by_id(database_id)
@@ -33,10 +34,17 @@ def delete_not_downloaded_refseq_genome(request,database_id):
         return failure_view(request,e)
     return redirect('refseq_genome_download')
 
+def start_download_of_refseqgenome_databases(request,database_id):
+    try:
+        trigger_database_download(database_id)
+    except Exception as e:
+        return failure_view(request,e)
+    return redirect('refseq_genome_download')
+
 #refseq database download and creation view
 #uses functions from refseq_ftp_transactions.py
 @login_required(login_url='login')
-def refseq_genome_download(request):
+def refseq_genome_database_creation_and_download(request):
     context = {}
     if request.method == "POST":
         refseq_form = RefseqDatabasesForm(request.POST,request.FILES)

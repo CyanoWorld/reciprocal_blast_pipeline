@@ -112,12 +112,17 @@
                         {% endfor %}
                     </p>
                     <p class="col">
-                    <form action="{% url 'delete_database' database_id=database.id%}" method="GET">
-                        {% csrf_token %}
-                    <!--<input type="hidden" value="{{database.id}}" name="delete_database" id="delete_database">-->
-                    <input type="submit" value="delete database" class="btn btn-primary">
-                </form>
+                        <form action="{% url 'delete_database' database_id=database.id%}" method="GET">
+                            {% csrf_token %}
+                            <input type="submit" value="delete database" class="btn btn-warning">
+                        </form>
+                    </p>
 
+                    <p class="col">
+                        <form action="{% url 'download_database' database_id=database.id%}" method="GET">
+                            {% csrf_token %}
+                            <input type="submit" value="download database" class="btn btn-primary">
+                        </form>
                     </p>
                 </div>
             {% endfor %}

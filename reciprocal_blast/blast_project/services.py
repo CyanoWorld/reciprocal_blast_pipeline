@@ -7,11 +7,29 @@ additionally two functions are present for reading html results produced by snak
 one function that checks if the pipeline has finished or not, this function is used in the detail view in order to load html results
 '''
 from django.db import IntegrityError
-from .models import BlastProject, Genomes, ForwardBlastSettings, BackwardBlastSettings, QuerySequences, TaxNodesForForwardDatabase, TaxNodesForBackwardDatabase, RefseqGenome,  RefseqGenomeAssemblyLevels
+from .models import BlastProject, Genomes, ForwardBlastSettings, \
+    BackwardBlastSettings, QuerySequences, TaxNodesForForwardDatabase, TaxNodesForBackwardDatabase, \
+    RefseqGenome,  RefseqGenomeAssemblyLevels, RefSeqTransaction
 from os import walk, mkdir
 from os.path import isfile,  isdir
 from shutil import rmtree
 import pandas as pd
+
+def get_refseq_database_title(database_id):
+    try:
+        refseqgenome = RefseqGenome.objects.get(id=database_id)
+        return refseqgenome.database_description
+    except Exception as e:
+        raise IntegrityError("[-] Couldnt query refseq database with id: {} Exception: {}".format(database_id,e))
+
+def create_and_save_refseq_transaction(pid,database_id,process_title):
+    try:
+        new_refseq_transaction= RefSeqTransaction(pid=pid,process_title=process_title)
+        refseqgenome = RefseqGenome.objects.get(id=database_id)
+        refseqgenome.associated_refseq_transaction = new_refseq_transaction
+        refseqgenome.save()
+    except Exception as e:
+        raise IntegrityError("[-] Couldnt save refseq_transaction into database: {}".format(e))
 
 #get all refseq_genome_entries
 def get_not_downloaded_refseqgenomes():
